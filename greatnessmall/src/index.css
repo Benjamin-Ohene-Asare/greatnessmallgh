@@ -1,0 +1,115 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+/* =========================
+   GLOBAL RESET
+========================= */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  font-family: "Poppins", Arial, sans-serif;
+
+  font-weight: 400;
+  line-height: 1.6;
+
+  color: #2f2832;
+  background: #ffffff;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* =========================
+   TYPOGRAPHY
+========================= */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Poppins", Arial, sans-serif;
+
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+p,
+span,
+a,
+button,
+input,
+textarea,
+select,
+label {
+  font-family: inherit;
+}
+
+/* Normal paragraph text should remain light and readable */
+
+p {
+  font-weight: 400;
+}
+
+/* Links */
+
+a {
+  color: inherit;
+}
+
+/* Form controls */
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+/* Buttons can be slightly stronger */
+
+button {
+  font-weight: 500;
+}
+
+/* =========================
+   IMAGES
+========================= */
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* =========================
+   ACCESSIBILITY
+========================= */
+
+button,
+a,
+input,
+select,
+textarea {
+  outline-color: #5c2c78;
+}
+
+::selection {
+  background: #5c2c78;
+  color: #ffffff;
+}

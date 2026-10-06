@@ -1,0 +1,488 @@
+/* =========================
+   PRODUCT DETAILS PAGE
+========================= */
+
+.product-details-page {
+  width: 100%;
+  padding: 42px 0 85px;
+
+  background: #ffffff;
+}
+
+.product-details-container {
+  width: 100%;
+  max-width: 1180px;
+
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+/* =========================
+   BACK LINK
+========================= */
+
+.product-details-back {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 7px;
+
+  margin-bottom: 25px;
+
+  color: #5c2c78;
+
+  text-decoration: none;
+
+  font-size: 12px;
+  font-weight: 500;
+
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.product-details-back:hover {
+  color: #351447;
+
+  transform: translateX(-2px);
+}
+
+/* =========================
+   TOP VIDEO + IMAGE
+========================= */
+
+.product-top-media {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 18px;
+
+  margin-bottom: 30px;
+}
+
+.product-video-box,
+.product-promo-box {
+  width: 100%;
+
+  overflow: hidden;
+
+  border: 1px solid #ebe4ed;
+  border-radius: 14px;
+
+  background: #f7f4f1;
+}
+
+.product-video-box video,
+.product-promo-box img {
+  width: 100%;
+
+  display: block;
+
+  aspect-ratio: 16 / 9;
+
+  object-fit: cover;
+}
+
+/* =========================
+   INTRO
+========================= */
+
+.product-intro {
+  max-width: 1000px;
+
+  margin-bottom: 55px;
+}
+
+.product-intro-category {
+  display: inline-block;
+
+  margin-bottom: 6px;
+
+  color: #df771a;
+
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+
+  text-transform: uppercase;
+}
+
+.product-intro h1 {
+  margin: 0;
+
+  color: #351447;
+
+  font-size: clamp(35px, 4vw, 48px);
+  line-height: 1.08;
+
+  font-weight: 600;
+}
+
+.product-intro h2 {
+  margin-top: 5px;
+
+  color: #5c2c78;
+
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.product-intro p {
+  max-width: 1000px;
+
+  margin-top: 15px;
+
+  color: #6f6672;
+
+  font-size: 12px;
+  line-height: 1.85;
+
+  font-weight: 400;
+}
+
+/* =========================
+   BENEFITS LAYOUT
+========================= */
+
+.product-benefits-layout {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+
+  align-items: center;
+
+  gap: 55px;
+
+  padding: 45px 0 55px;
+
+  border-top: 1px solid #eee8f0;
+}
+
+/* IMAGE */
+
+.product-benefits-image {
+  min-height: 300px;
+
+  padding: 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 16px;
+
+  background: #f7f4f1;
+}
+
+.product-benefits-image img {
+  width: 100%;
+  height: 100%;
+
+  max-height: 290px;
+
+  object-fit: contain;
+}
+
+/* BENEFITS CONTENT */
+
+.product-section-label {
+  display: inline-block;
+
+  margin-bottom: 7px;
+
+  color: #df771a;
+
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.4px;
+
+  text-transform: uppercase;
+}
+
+.product-benefits-content h2 {
+  margin: 0 0 20px;
+
+  color: #351447;
+
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.product-benefits-list {
+  margin: 0;
+  padding-left: 20px;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 9px;
+}
+
+.product-benefits-list li {
+  padding-left: 3px;
+
+  color: #665d69;
+
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.product-benefits-list li::marker {
+  color: #5c2c78;
+}
+
+.product-empty-text {
+  font-size: 12px;
+
+  color: #766e79;
+}
+
+/* =========================
+   ORDER STRIP
+========================= */
+
+.product-order-strip {
+  width: 100%;
+  min-height: 54px;
+
+  margin: 5px 0 65px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 9px;
+
+  border-radius: 7px;
+
+  background: #5c2c78;
+  color: #ffffff;
+
+  text-decoration: none;
+
+  font-size: 15px;
+  font-weight: 500;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.product-order-strip:hover {
+  background: #4e2367;
+
+  transform: translateY(-1px);
+}
+
+/* =========================
+   INGREDIENTS
+========================= */
+
+.product-ingredients {
+  text-align: center;
+}
+
+.product-ingredients h2 {
+  margin: 0 0 28px;
+
+  color: #351447;
+
+  font-size: 30px;
+  font-weight: 600;
+}
+
+.product-ingredients-grid {
+  max-width: 900px;
+
+  margin: 0 auto;
+
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  gap: 8px 35px;
+
+  text-align: left;
+}
+
+.product-ingredient-item {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  padding: 7px 0;
+}
+
+.product-ingredient-item > span {
+  width: 5px;
+  height: 5px;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: #5c2c78;
+}
+
+.product-ingredient-item p {
+  margin: 0;
+
+  color: #665d69;
+
+  font-size: 12px;
+}
+
+/* =========================
+   ADDITIONAL INFO
+========================= */
+
+.product-extra-info {
+  max-width: 900px;
+
+  margin: 55px auto 0;
+
+  padding: 22px 24px;
+
+  border: 1px solid #eadfd6;
+  border-radius: 14px;
+
+  background: #fff5eb;
+}
+
+.product-extra-info h3 {
+  margin: 0;
+
+  color: #351447;
+
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.product-extra-info p {
+  margin-top: 7px;
+
+  color: #716873;
+
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+/* =========================
+   PRODUCT NOT FOUND
+========================= */
+
+.product-not-found {
+  min-height: 60vh;
+
+  padding: 60px 20px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  background: #f7f4f1;
+}
+
+.product-not-found h1 {
+  color: #351447;
+}
+
+.product-not-found p {
+  margin-top: 8px;
+
+  color: #766e79;
+}
+
+.product-not-found-link {
+  margin-top: 20px;
+
+  padding: 11px 18px;
+
+  border-radius: 8px;
+
+  background: #5c2c78;
+  color: #ffffff;
+
+  text-decoration: none;
+}
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 900px) {
+  .product-top-media {
+    grid-template-columns: 1fr;
+  }
+
+  .product-benefits-layout {
+    grid-template-columns: 1fr;
+
+    gap: 30px;
+  }
+
+  .product-ingredients-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 600px) {
+  .product-details-page {
+    padding: 30px 0 55px;
+  }
+
+  .product-details-container {
+    padding: 0 16px;
+  }
+
+  .product-intro {
+    margin-bottom: 38px;
+  }
+
+  .product-intro h1 {
+    font-size: 34px;
+  }
+
+  .product-intro h2 {
+    font-size: 15px;
+  }
+
+  .product-intro p {
+    font-size: 12px;
+  }
+
+  .product-benefits-layout {
+    padding: 35px 0 42px;
+  }
+
+  .product-benefits-image {
+    min-height: 260px;
+
+    padding: 16px;
+  }
+
+  .product-benefits-content h2 {
+    font-size: 24px;
+  }
+
+  .product-order-strip {
+    margin-bottom: 48px;
+  }
+
+  .product-ingredients h2 {
+    font-size: 26px;
+  }
+
+  .product-ingredients-grid {
+    grid-template-columns: 1fr;
+
+    gap: 4px;
+  }
+}

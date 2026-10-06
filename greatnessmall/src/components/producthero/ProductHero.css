@@ -1,0 +1,124 @@
+/* =========================
+   PRODUCT PAGE HERO
+========================= */
+
+.product-page-hero {
+  width: 100%;
+  min-height: 360px;
+
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  overflow: hidden;
+}
+
+.product-page-hero-container {
+  width: 100%;
+  max-width: 1180px;
+
+  margin: 0 auto;
+  padding: 60px 28px;
+}
+
+.product-page-hero-content {
+  max-width: 620px;
+}
+
+/* LABEL */
+
+.product-page-hero-label {
+  display: inline-block;
+
+  margin-bottom: 12px;
+
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+
+  color: #f28a2a;
+}
+
+/* HEADING */
+
+.product-page-hero-content h1 {
+  margin: 0;
+
+  font-size: clamp(42px, 5vw, 64px);
+  line-height: 1.05;
+
+  font-weight: 600;
+  letter-spacing: -1.4px;
+
+  color: #ffffff;
+}
+
+/* DESCRIPTION */
+
+.product-page-hero-content p {
+  max-width: 540px;
+
+  margin-top: 16px;
+
+  font-size: 14px;
+  line-height: 1.7;
+
+  font-weight: 400;
+
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 900px) {
+  .product-page-hero {
+    min-height: 320px;
+
+    background-position: 65% center;
+  }
+
+  .product-page-hero-container {
+    padding: 50px 24px;
+  }
+
+  .product-page-hero-content {
+    max-width: 540px;
+  }
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 600px) {
+  .product-page-hero {
+    min-height: 290px;
+
+    background-position: 70% center;
+  }
+
+  .product-page-hero-container {
+    padding: 45px 16px;
+  }
+
+  .product-page-hero-content {
+    max-width: 100%;
+  }
+
+  .product-page-hero-content h1 {
+    font-size: 38px;
+  }
+
+  .product-page-hero-content p {
+    max-width: 320px;
+
+    font-size: 13px;
+  }
+}
