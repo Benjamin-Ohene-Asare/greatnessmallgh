@@ -1,0 +1,547 @@
+/* =========================================================
+   UPCOMING EVENT SECTION
+========================================================= */
+
+.upcoming-event {
+  width: 100%;
+
+  padding: 72px 0;
+
+  background: #ffffff;
+}
+
+.upcoming-event-container {
+  width: min(100% - 32px, 1120px);
+
+  margin: 0 auto;
+}
+
+
+/* =========================================================
+   SECTION HEADER
+========================================================= */
+
+.upcoming-event-header {
+  max-width: 680px;
+
+  margin: 0 auto 32px;
+
+  text-align: center;
+}
+
+.upcoming-event-eyebrow {
+  display: inline-block;
+
+  margin-bottom: 7px;
+
+  color: #df771a;
+
+  font-size: 9px;
+  font-weight: 600;
+
+  letter-spacing: 1.7px;
+
+  text-transform: uppercase;
+}
+
+.upcoming-event-header h2 {
+  margin: 0;
+
+  color: #351447;
+
+  font-size: clamp(
+    28px,
+    3.2vw,
+    38px
+  );
+
+  line-height: 1.15;
+
+  font-weight: 600;
+}
+
+.upcoming-event-header p {
+  max-width: 620px;
+
+  margin: 9px auto 0;
+
+  color: #766e79;
+
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+
+/* =========================================================
+   EVENT CARD
+========================================================= */
+
+.upcoming-event-card {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(300px, 0.8fr)
+    minmax(0, 1.2fr);
+
+  align-items: stretch;
+
+  overflow: hidden;
+
+  border: 1px solid #ebe4ed;
+  border-radius: 20px;
+
+  background: #f7f4f1;
+
+  box-shadow:
+    0 16px 38px
+    rgba(49, 20, 67, 0.06);
+}
+
+
+/* =========================================================
+   EVENT FLYER
+========================================================= */
+
+.upcoming-event-flyer {
+  width: 100%;
+  min-width: 0;
+  min-height: 390px;
+
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #351447;
+}
+
+.upcoming-event-flyer img {
+  width: 100%;
+  height: 100%;
+
+  min-height: 390px;
+
+  display: block;
+
+  object-fit: cover;
+}
+
+
+/* =========================================================
+   FLYER PLACEHOLDER
+========================================================= */
+
+.upcoming-event-flyer-placeholder {
+  width: 100%;
+  min-height: 390px;
+
+  padding: 30px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  text-align: center;
+
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      145deg,
+      #351447,
+      #5c2c78
+    );
+}
+
+.upcoming-event-flyer-placeholder svg {
+  color: #f28a2a;
+}
+
+.upcoming-event-flyer-placeholder span {
+  color: #ffffff;
+
+  font-size: 11px;
+  font-weight: 500;
+
+  letter-spacing: 0.7px;
+}
+
+
+/* =========================================================
+   EVENT CONTENT
+========================================================= */
+
+.upcoming-event-content {
+  min-width: 0;
+
+  padding: 36px;
+
+  display: flex;
+  flex-direction: column;
+
+  justify-content: center;
+}
+
+
+/* =========================================================
+   BADGES
+========================================================= */
+
+.upcoming-event-badges {
+  display: flex;
+  align-items: center;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  margin-bottom: 15px;
+}
+
+.upcoming-event-status,
+.upcoming-event-category {
+  min-height: 28px;
+
+  padding: 0 10px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 30px;
+
+  font-size: 8px;
+  font-weight: 600;
+
+  letter-spacing: 0.5px;
+}
+
+.upcoming-event-status {
+  background: #5c2c78;
+  color: #ffffff;
+}
+
+.upcoming-event-category {
+  border: 1px solid #dfd4e3;
+
+  background: #ffffff;
+  color: #6e6371;
+}
+
+
+/* =========================================================
+   EVENT TITLE
+========================================================= */
+
+.upcoming-event-content h3 {
+  max-width: 650px;
+
+  margin: 0;
+
+  color: #351447;
+
+  font-size: clamp(
+    24px,
+    2.8vw,
+    32px
+  );
+
+  line-height: 1.18;
+
+  font-weight: 600;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   EVENT SUMMARY
+========================================================= */
+
+.upcoming-event-summary {
+  max-width: 650px;
+
+  margin: 11px 0 0;
+
+  color: #766e79;
+
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+
+/* =========================================================
+   EVENT META
+========================================================= */
+
+.upcoming-event-meta {
+  margin-top: 25px;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 10px;
+}
+
+.upcoming-event-meta-item {
+  min-width: 0;
+  min-height: 74px;
+
+  padding: 12px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  border: 1px solid #e8dfe9;
+  border-radius: 11px;
+
+  background: #ffffff;
+
+  color: #5c2c78;
+}
+
+.upcoming-event-meta-item > svg {
+  flex-shrink: 0;
+}
+
+.upcoming-event-meta-item > div {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.upcoming-event-meta-item span {
+  margin-bottom: 3px;
+
+  color: #9a919d;
+
+  font-size: 8px;
+}
+
+.upcoming-event-meta-item strong {
+  color: #514754;
+
+  font-size: 10px;
+  line-height: 1.4;
+
+  font-weight: 500;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   EVENT DETAILS BUTTON
+========================================================= */
+
+.upcoming-event-details-button {
+  width: fit-content;
+  min-height: 45px;
+
+  margin-top: 23px;
+
+  padding: 0 17px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #5c2c78;
+  color: #ffffff;
+
+  font-family: inherit;
+
+  font-size: 11px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.upcoming-event-details-button:hover {
+  background: #4e2367;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 8px 18px
+    rgba(76, 34, 102, 0.14);
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .upcoming-event {
+    padding: 62px 0;
+  }
+
+  .upcoming-event-card {
+    grid-template-columns:
+      minmax(260px, 0.8fr)
+      minmax(0, 1.2fr);
+  }
+
+  .upcoming-event-flyer,
+  .upcoming-event-flyer img,
+  .upcoming-event-flyer-placeholder {
+    min-height: 340px;
+  }
+
+  .upcoming-event-content {
+    padding: 28px;
+  }
+
+  .upcoming-event-meta {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .upcoming-event {
+    padding: 52px 0;
+  }
+
+  .upcoming-event-container {
+    width: calc(100% - 28px);
+  }
+
+  .upcoming-event-header {
+    margin-bottom: 24px;
+  }
+
+  .upcoming-event-header h2 {
+    font-size: 29px;
+  }
+
+  .upcoming-event-header p {
+    font-size: 11px;
+  }
+
+
+  /* STACK FLYER ABOVE CONTENT */
+
+  .upcoming-event-card {
+    grid-template-columns: 1fr;
+
+    border-radius: 16px;
+  }
+
+  .upcoming-event-flyer {
+    min-height: 0;
+
+    aspect-ratio: 4 / 3;
+  }
+
+  .upcoming-event-flyer img {
+    min-height: 0;
+
+    aspect-ratio: 4 / 3;
+
+    object-fit: cover;
+  }
+
+  .upcoming-event-flyer-placeholder {
+    min-height: 0;
+
+    aspect-ratio: 4 / 3;
+  }
+
+
+  /* CONTENT */
+
+  .upcoming-event-content {
+    padding: 22px 18px 20px;
+  }
+
+  .upcoming-event-content h3 {
+    font-size: 24px;
+  }
+
+  .upcoming-event-summary {
+    font-size: 11px;
+  }
+
+
+  /* META */
+
+  .upcoming-event-meta {
+    grid-template-columns: 1fr;
+
+    margin-top: 20px;
+
+    gap: 8px;
+  }
+
+  .upcoming-event-meta-item {
+    min-height: 64px;
+  }
+
+
+  /* BUTTON */
+
+  .upcoming-event-details-button {
+    width: 100%;
+
+    margin-top: 20px;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 420px) {
+
+  .upcoming-event-container {
+    width: calc(100% - 24px);
+  }
+
+  .upcoming-event-header h2 {
+    font-size: 27px;
+  }
+
+  .upcoming-event-content h3 {
+    font-size: 22px;
+  }
+
+  .upcoming-event-content {
+    padding:
+      20px 16px 18px;
+  }
+
+}

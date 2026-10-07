@@ -1,0 +1,1163 @@
+/* =========================================================
+   PRODUCT FORM PAGE
+========================================================= */
+
+.admin-product-editor {
+  width: 100%;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.admin-product-editor-header {
+  margin-bottom: 26px;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 24px;
+}
+
+.admin-product-editor-back {
+  margin-bottom: 13px;
+
+  display: inline-flex;
+  align-items: center;
+
+  gap: 6px;
+
+  color: #5c2c78;
+
+  text-decoration: none;
+
+  font-size: 10px;
+  font-weight: 500;
+
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.admin-product-editor-back:hover {
+  color: #351447;
+  transform: translateX(-2px);
+}
+
+.admin-product-editor-eyebrow {
+  display: block;
+
+  margin-bottom: 5px;
+
+  font-size: 8px;
+  font-weight: 600;
+
+  letter-spacing: 1.4px;
+
+  color: #df771a;
+}
+
+.admin-product-editor-header h1 {
+  margin: 0;
+
+  font-size: 30px;
+  line-height: 1.15;
+
+  font-weight: 600;
+
+  color: #351447;
+}
+
+.admin-product-editor-header p {
+  margin-top: 6px;
+
+  font-size: 10px;
+  line-height: 1.6;
+
+  color: #8e8591;
+}
+
+
+/* =========================================================
+   HEADER ACTIONS
+========================================================= */
+
+.admin-product-editor-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+}
+
+.admin-editor-preview-button,
+.admin-editor-save-button {
+  min-height: 43px;
+
+  padding: 0 15px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  border-radius: 9px;
+
+  font-family: inherit;
+
+  font-size: 10px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.admin-editor-preview-button {
+  border: 1px solid #ded4e1;
+
+  background: #ffffff;
+  color: #5c2c78;
+}
+
+.admin-editor-preview-button:hover {
+  border-color: #5c2c78;
+
+  background: #faf7fb;
+}
+
+.admin-editor-save-button {
+  border: 1px solid #5c2c78;
+
+  background: #5c2c78;
+  color: #ffffff;
+}
+
+.admin-editor-save-button:hover {
+  background: #4e2367;
+  border-color: #4e2367;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 8px 18px
+    rgba(79, 37, 108, 0.13);
+}
+
+
+/* =========================================================
+   MAIN FORM LAYOUT
+========================================================= */
+
+.admin-product-editor-layout {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    320px;
+
+  align-items: start;
+
+  gap: 22px;
+}
+
+.admin-product-editor-main {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 17px;
+}
+
+
+/* =========================================================
+   FORM CARD
+========================================================= */
+
+.admin-editor-card {
+  padding: 22px;
+
+  border: 1px solid #e9e1eb;
+  border-radius: 14px;
+
+  background: #ffffff;
+}
+
+.admin-editor-card-heading {
+  margin-bottom: 21px;
+
+  display: flex;
+  align-items: flex-start;
+
+  gap: 11px;
+}
+
+.admin-editor-card-icon {
+  width: 38px;
+  height: 38px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 9px;
+
+  background: #f5eff7;
+  color: #5c2c78;
+}
+
+.admin-editor-card-heading h2 {
+  margin: 0;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  color: #351447;
+}
+
+.admin-editor-card-heading p {
+  margin-top: 4px;
+
+  font-size: 9px;
+  line-height: 1.5;
+
+  color: #99909c;
+}
+
+
+/* =========================================================
+   FORM GRID
+========================================================= */
+
+.admin-editor-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 16px;
+}
+
+.admin-editor-full {
+  grid-column: 1 / -1;
+}
+
+
+/* =========================================================
+   FORM FIELDS
+========================================================= */
+
+.admin-editor-field {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-editor-field label {
+  margin-bottom: 7px;
+
+  font-size: 10px;
+  font-weight: 500;
+
+  color: #514754;
+}
+
+.admin-editor-field label span {
+  color: #df771a;
+}
+
+.admin-editor-field input,
+.admin-editor-field textarea,
+.admin-editor-field select {
+  width: 100%;
+
+  border: 1px solid #ddd4df;
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  color: #351447;
+
+  font-family: inherit;
+  font-size: 11px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.admin-editor-field input,
+.admin-editor-field select {
+  min-height: 44px;
+
+  padding: 0 12px;
+}
+
+.admin-editor-field textarea {
+  padding: 11px 12px;
+
+  line-height: 1.65;
+
+  resize: vertical;
+}
+
+.admin-editor-field input:focus,
+.admin-editor-field textarea:focus,
+.admin-editor-field select:focus {
+  border-color: #5c2c78;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(92, 44, 120, 0.08);
+}
+
+.admin-editor-field input::placeholder,
+.admin-editor-field textarea::placeholder {
+  color: #aea6b0;
+}
+
+.admin-editor-field small {
+  margin-top: 6px;
+
+  font-size: 8px;
+  line-height: 1.5;
+
+  color: #9b929d;
+}
+
+
+/* =========================================================
+   HELPER TEXT
+========================================================= */
+
+.admin-editor-helper {
+  margin-top: 6px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  font-size: 8px;
+
+  color: #9b929d;
+}
+
+
+/* =========================================================
+   MAIN PRODUCT IMAGE UPLOAD
+========================================================= */
+
+.admin-editor-main-upload {
+  min-height: 280px;
+
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  overflow: hidden;
+
+  border: 1px dashed #cfc0d4;
+  border-radius: 13px;
+
+  background: #faf8f6;
+
+  color: #5c2c78;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.admin-editor-main-upload:hover {
+  border-color: #5c2c78;
+
+  background: #faf7fb;
+}
+
+.admin-editor-main-upload input {
+  position: absolute;
+
+  width: 1px;
+  height: 1px;
+
+  opacity: 0;
+
+  pointer-events: none;
+}
+
+.admin-editor-main-upload img {
+  width: 100%;
+  height: 280px;
+
+  display: block;
+
+  object-fit: contain;
+}
+
+.admin-editor-main-upload strong {
+  font-size: 11px;
+  font-weight: 500;
+
+  color: #351447;
+}
+
+.admin-editor-main-upload span {
+  font-size: 8px;
+
+  color: #99909c;
+}
+
+
+/* =========================================================
+   PRODUCT MEDIA
+========================================================= */
+
+.admin-editor-media-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 17px;
+}
+
+.admin-editor-promo-upload {
+  min-height: 145px;
+
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  overflow: hidden;
+
+  border: 1px dashed #d1c4d5;
+  border-radius: 10px;
+
+  background: #faf8f6;
+
+  color: #5c2c78;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.admin-editor-promo-upload:hover {
+  border-color: #5c2c78;
+
+  background: #faf7fb;
+}
+
+.admin-editor-promo-upload input {
+  position: absolute;
+
+  width: 1px;
+  height: 1px;
+
+  opacity: 0;
+
+  pointer-events: none;
+}
+
+.admin-editor-promo-upload img {
+  width: 100%;
+  height: 145px;
+
+  display: block;
+
+  object-fit: contain;
+}
+
+.admin-editor-promo-upload span {
+  font-size: 9px;
+}
+
+
+/* =========================================================
+   REPEATABLE SECTION HEADER
+========================================================= */
+
+.admin-editor-repeatable-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 15px;
+}
+
+.admin-editor-repeatable-heading
+.admin-editor-card-heading {
+  margin-bottom: 21px;
+}
+
+.admin-editor-add-item {
+  min-height: 36px;
+
+  padding: 0 11px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+
+  flex-shrink: 0;
+
+  border: 1px solid #ded4e1;
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: #5c2c78;
+
+  font-family: inherit;
+
+  font-size: 9px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.admin-editor-add-item:hover {
+  border-color: #5c2c78;
+
+  background: #faf7fb;
+}
+
+
+/* =========================================================
+   REPEATABLE LIST
+========================================================= */
+
+.admin-editor-repeatable-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 9px;
+}
+
+.admin-editor-repeatable-row {
+  display: grid;
+
+  grid-template-columns:
+    30px
+    minmax(0, 1fr)
+    36px;
+
+  align-items: center;
+
+  gap: 8px;
+}
+
+.admin-editor-repeatable-row > span {
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: #f5eff7;
+  color: #5c2c78;
+
+  font-size: 9px;
+  font-weight: 500;
+}
+
+.admin-editor-repeatable-row input {
+  width: 100%;
+  min-height: 41px;
+
+  padding: 0 11px;
+
+  border: 1px solid #ddd4df;
+  border-radius: 8px;
+
+  outline: none;
+
+  background: #ffffff;
+
+  color: #351447;
+
+  font-family: inherit;
+  font-size: 10px;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.admin-editor-repeatable-row input:focus {
+  border-color: #5c2c78;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(92, 44, 120, 0.07);
+}
+
+.admin-editor-repeatable-row button {
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #fff1ef;
+  color: #b84d42;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.admin-editor-repeatable-row button:hover {
+  background: #ffe8e5;
+}
+
+.admin-editor-repeatable-row button:disabled {
+  opacity: 0.35;
+
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   PREVIEW SIDEBAR
+========================================================= */
+
+.admin-editor-sidebar {
+  position: sticky;
+
+  top: 92px;
+}
+
+.admin-editor-preview {
+  padding: 17px;
+
+  border: 1px solid #e9e1eb;
+  border-radius: 14px;
+
+  background: #ffffff;
+}
+
+
+/* =========================================================
+   PREVIEW HEADING
+========================================================= */
+
+.admin-editor-preview-heading {
+  margin-bottom: 15px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  color: #5c2c78;
+}
+
+.admin-editor-preview-heading span {
+  display: block;
+
+  margin-bottom: 3px;
+
+  font-size: 7px;
+  font-weight: 600;
+
+  letter-spacing: 1.2px;
+
+  color: #df771a;
+}
+
+.admin-editor-preview-heading h2 {
+  margin: 0;
+
+  font-size: 13px;
+  font-weight: 500;
+
+  color: #351447;
+}
+
+
+/* =========================================================
+   PUBLIC CARD PREVIEW
+========================================================= */
+
+.admin-editor-public-card {
+  overflow: hidden;
+
+  border: 1px solid #ebe4ed;
+  border-radius: 17px;
+
+  background: #ffffff;
+}
+
+.admin-editor-public-image {
+  height: 220px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  background: #faf7f3;
+}
+
+.admin-editor-public-image img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: contain;
+}
+
+.admin-editor-public-image > div {
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  color: #afa5b1;
+}
+
+.admin-editor-public-image > div span {
+  font-size: 8px;
+}
+
+.admin-editor-public-content {
+  padding: 15px;
+
+  text-align: center;
+}
+
+.admin-editor-preview-category {
+  display: block;
+
+  margin-bottom: 4px;
+
+  font-size: 7px;
+  font-weight: 600;
+
+  letter-spacing: 1px;
+
+  text-transform: uppercase;
+
+  color: #df771a;
+}
+
+.admin-editor-public-content h3 {
+  margin: 0;
+
+  font-size: 17px;
+  font-weight: 500;
+
+  color: #351447;
+}
+
+.admin-editor-public-content p {
+  min-height: 40px;
+
+  margin-top: 6px;
+
+  font-size: 9px;
+  line-height: 1.55;
+
+  color: #827984;
+}
+
+
+/* =========================================================
+   PREVIEW BUTTONS
+========================================================= */
+
+.admin-editor-public-buttons {
+  margin-top: 14px;
+
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 7px;
+}
+
+.admin-editor-public-buttons span {
+  min-height: 37px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  font-size: 8px;
+  font-weight: 500;
+}
+
+.admin-editor-public-buttons span:first-child {
+  border: 1px solid #ddd4df;
+
+  background: #ffffff;
+
+  color: #5c2c78;
+}
+
+.admin-editor-public-buttons span:last-child {
+  border: 1px solid #5c2c78;
+
+  background: #5c2c78;
+  color: #ffffff;
+}
+
+
+/* =========================================================
+   URL PREVIEW
+========================================================= */
+
+.admin-editor-url {
+  margin-top: 14px;
+
+  padding: 12px;
+
+  border-radius: 9px;
+
+  background: #faf8f6;
+}
+
+.admin-editor-url span {
+  display: block;
+
+  margin-bottom: 4px;
+
+  font-size: 8px;
+
+  color: #99909c;
+}
+
+.admin-editor-url code {
+  display: block;
+
+  word-break: break-all;
+
+  font-size: 9px;
+
+  color: #5c2c78;
+}
+
+
+/* =========================================================
+   PUBLISH SECTION
+========================================================= */
+
+.admin-editor-publish {
+  margin-top: 13px;
+
+  padding-top: 13px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  border-top: 1px solid #eee8f0;
+}
+
+.admin-editor-publish > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-editor-publish strong {
+  font-size: 10px;
+  font-weight: 500;
+
+  color: #351447;
+}
+
+.admin-editor-publish > div span {
+  margin-top: 2px;
+
+  font-size: 8px;
+
+  color: #9b929d;
+}
+
+
+/* =========================================================
+   PUBLISH SWITCH
+========================================================= */
+
+.admin-editor-switch {
+  position: relative;
+
+  width: 42px;
+  height: 24px;
+
+  flex-shrink: 0;
+}
+
+.admin-editor-switch input {
+  width: 0;
+  height: 0;
+
+  opacity: 0;
+}
+
+.admin-editor-switch > span {
+  position: absolute;
+
+  inset: 0;
+
+  border-radius: 30px;
+
+  background: #d7cfd9;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease;
+}
+
+.admin-editor-switch > span::before {
+  content: "";
+
+  width: 18px;
+  height: 18px;
+
+  position: absolute;
+
+  top: 3px;
+  left: 3px;
+
+  border-radius: 50%;
+
+  background: #ffffff;
+
+  transition:
+    transform 0.2s ease;
+}
+
+.admin-editor-switch
+input:checked
++ span {
+  background: #5c2c78;
+}
+
+.admin-editor-switch
+input:checked
++ span::before {
+  transform: translateX(18px);
+}
+
+
+/* =========================================================
+   PRODUCT NOT FOUND
+========================================================= */
+
+.admin-editor-not-found {
+  min-height: 55vh;
+
+  padding: 40px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+}
+
+.admin-editor-not-found h1 {
+  margin: 0;
+
+  font-size: 26px;
+  font-weight: 600;
+
+  color: #351447;
+}
+
+.admin-editor-not-found p {
+  margin-top: 7px;
+
+  font-size: 10px;
+
+  color: #8e8591;
+}
+
+.admin-editor-error {
+  grid-column: 1 / -1;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #fff1f0;
+  color: #b42318;
+  font-size: 0.88rem;
+}
+
+.admin-editor-save-button:disabled,
+.admin-editor-preview-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+
+
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1100px) {
+
+  .admin-product-editor-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-editor-sidebar {
+    position: static;
+  }
+
+  .admin-editor-preview {
+    max-width: 430px;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .admin-product-editor-header {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .admin-product-editor-actions {
+    width: 100%;
+  }
+
+  .admin-editor-preview-button,
+  .admin-editor-save-button {
+    flex: 1;
+  }
+
+  .admin-editor-card {
+    padding: 17px;
+  }
+
+  .admin-editor-grid,
+  .admin-editor-media-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-editor-repeatable-heading {
+    flex-direction: column;
+  }
+
+  .admin-editor-add-item {
+    align-self: flex-start;
+  }
+
+  .admin-editor-main-upload {
+    min-height: 230px;
+  }
+
+  .admin-editor-main-upload img {
+    height: 230px;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 430px) {
+
+  .admin-product-editor-header h1 {
+    font-size: 26px;
+  }
+
+  .admin-product-editor-actions {
+    flex-direction: column;
+  }
+
+  .admin-editor-preview-button,
+  .admin-editor-save-button {
+    width: 100%;
+  }
+
+  .admin-editor-repeatable-row {
+    grid-template-columns:
+      28px
+      minmax(0, 1fr)
+      34px;
+  }
+
+  .admin-editor-repeatable-row > span {
+    width: 28px;
+    height: 28px;
+  }
+
+  .admin-editor-repeatable-row button {
+    width: 34px;
+    height: 34px;
+  }
+
+  .admin-editor-public-image {
+    height: 200px;
+  }
+
+}

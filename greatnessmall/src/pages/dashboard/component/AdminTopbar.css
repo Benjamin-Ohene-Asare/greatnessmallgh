@@ -1,0 +1,266 @@
+/* =========================
+   ADMIN TOPBAR
+========================= */
+
+.admin-topbar {
+  width: 100%;
+  min-height: 72px;
+
+  padding: 0 28px;
+
+  position: sticky;
+
+  top: 0;
+
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  border-bottom:
+    1px solid #ebe4ed;
+
+  background:
+    rgba(255, 255, 255, 0.96);
+
+  backdrop-filter: blur(10px);
+}
+
+
+/* =========================
+   LEFT
+========================= */
+
+.admin-topbar-left {
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+}
+
+.admin-mobile-menu-button {
+  width: 40px;
+  height: 40px;
+
+  display: none;
+
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #e7dfe9;
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  color: #5c2c78;
+
+  cursor: pointer;
+}
+
+
+/* =========================
+   SEARCH
+========================= */
+
+.admin-topbar-search {
+  width: 300px;
+  min-height: 42px;
+
+  padding: 0 13px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  border:
+    1px solid #e7dfe9;
+
+  border-radius: 10px;
+
+  color: #8f8592;
+
+  background: #faf8f6;
+}
+
+.admin-topbar-search input {
+  width: 100%;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  font-family: inherit;
+
+  font-size: 11px;
+
+  color: #351447;
+}
+
+
+/* =========================
+   RIGHT
+========================= */
+
+.admin-topbar-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 15px;
+}
+
+.admin-notification-button {
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #e7dfe9;
+  border-radius: 50%;
+
+  background: #ffffff;
+
+  color: #5c2c78;
+
+  cursor: pointer;
+}
+
+
+/* =========================
+   USER
+========================= */
+
+.admin-user {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+}
+
+.admin-user-avatar {
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #5c2c78;
+  color: #ffffff;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.admin-user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-user-details strong {
+  font-size: 11px;
+  font-weight: 500;
+
+  color: #351447;
+}
+
+.admin-user-details span {
+  margin-top: 2px;
+
+  font-size: 9px;
+
+  color: #99909c;
+}
+
+.admin-logout-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 0 13px;
+  border: 1px solid #e4dfe6;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #5f5663;
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.admin-logout-button:hover:not(:disabled) {
+  border-color: #d2c8d7;
+  background: #f8f5fa;
+  color: #6f2c91;
+}
+
+.admin-logout-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 720px) {
+  .admin-logout-button {
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
+    padding: 0;
+  }
+
+  .admin-logout-button span {
+    display: none;
+  }
+}
+
+
+
+
+
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 1000px) {
+
+  .admin-mobile-menu-button {
+    display: flex;
+  }
+
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 600px) {
+
+  .admin-topbar {
+    min-height: 66px;
+
+    padding: 0 14px;
+  }
+
+  .admin-topbar-search {
+    display: none;
+  }
+
+  .admin-user-details {
+    display: none;
+  }
+
+}

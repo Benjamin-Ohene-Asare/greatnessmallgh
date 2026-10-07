@@ -1,0 +1,535 @@
+/* =========================
+   TWI PAGE
+========================= */
+
+.twi-page {
+  width: 100%;
+
+  background: #ffffff;
+}
+
+
+/* =========================
+   HERO
+========================= */
+
+.twi-hero {
+  width: 100%;
+
+  padding: 85px 0;
+
+  background:
+    linear-gradient(
+      135deg,
+      #351447 0%,
+      #4f256c 55%,
+      #5c2c78 100%
+    );
+}
+
+.twi-hero-container {
+  width: 100%;
+  max-width: 900px;
+
+  margin: 0 auto;
+  padding: 0 28px;
+
+  text-align: center;
+}
+
+.twi-hero-label {
+  display: inline-block;
+
+  margin-bottom: 12px;
+
+  font-size: 9px;
+  font-weight: 600;
+
+  letter-spacing: 1.8px;
+
+  color: #f28a2a;
+}
+
+.twi-hero h1 {
+  margin: 0 auto;
+
+  max-width: 760px;
+
+  font-size: clamp(
+    38px,
+    5vw,
+    58px
+  );
+
+  line-height: 1.08;
+
+  font-weight: 600;
+
+  color: #ffffff;
+}
+
+.twi-hero p {
+  max-width: 650px;
+
+  margin: 17px auto 0;
+
+  font-size: 14px;
+  line-height: 1.75;
+
+  color: rgba(
+    255,
+    255,
+    255,
+    0.75
+  );
+}
+
+
+/* =========================
+   CONTENT SECTION
+========================= */
+
+.twi-content-section {
+  padding: 76px 0 90px;
+
+  background: #f7f4f1;
+}
+
+.twi-container {
+  width: 100%;
+  max-width: 1180px;
+
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+.twi-content-header {
+  max-width: 650px;
+
+  margin: 0 auto 28px;
+
+  text-align: center;
+}
+
+.twi-content-header > span {
+  display: inline-block;
+
+  margin-bottom: 7px;
+
+  font-size: 9px;
+  font-weight: 600;
+
+  letter-spacing: 1.6px;
+
+  color: #df771a;
+}
+
+.twi-content-header h2 {
+  margin: 0;
+
+  font-size: 35px;
+  line-height: 1.2;
+
+  font-weight: 600;
+
+  color: #351447;
+}
+
+.twi-content-header p {
+  margin-top: 8px;
+
+  font-size: 12px;
+
+  color: #766e79;
+}
+
+
+/* =========================
+   FILTER
+========================= */
+
+.twi-filter {
+  margin-bottom: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 9px;
+
+  flex-wrap: wrap;
+}
+
+.twi-filter-button {
+  min-height: 42px;
+
+  padding: 0 17px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  border: 1px solid #dfd4e3;
+  border-radius: 30px;
+
+  background: #ffffff;
+  color: #665d69;
+
+  font-family: inherit;
+
+  font-size: 11px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.twi-filter-button:hover {
+  border-color: #5c2c78;
+
+  color: #5c2c78;
+}
+
+.twi-filter-button.active {
+  border-color: #5c2c78;
+
+  background: #5c2c78;
+  color: #ffffff;
+}
+
+
+/* =========================
+   CONTENT GRID
+========================= */
+
+.twi-content-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 22px;
+}
+
+
+/* =========================
+   CARD
+========================= */
+
+.twi-card {
+  overflow: hidden;
+
+  border: 1px solid #e9e1eb;
+  border-radius: 18px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 14px 32px
+    rgba(49, 20, 67, 0.045);
+}
+
+
+/* =========================
+   VIDEO
+========================= */
+
+.twi-video-area,
+.twi-image-area {
+  width: 100%;
+
+  aspect-ratio: 16 / 9;
+
+  overflow: hidden;
+
+  background: #211227;
+}
+
+.twi-video-area iframe {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  border: none;
+}
+
+
+/* =========================
+   IMAGE
+========================= */
+
+.twi-image-area {
+  background: #faf7f3;
+}
+
+.twi-image-area img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+}
+
+
+/* =========================
+   PLACEHOLDER
+========================= */
+
+.twi-media-placeholder {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  color: rgba(
+    255,
+    255,
+    255,
+    0.8
+  );
+}
+
+.twi-image-area
+.twi-media-placeholder {
+  color: #5c2c78;
+}
+
+.twi-media-placeholder span {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+
+/* =========================
+   CONTENT
+========================= */
+
+.twi-card-content {
+  padding: 20px;
+}
+
+.twi-card-type {
+  display: inline-block;
+
+  margin-bottom: 6px;
+
+  font-size: 8px;
+  font-weight: 600;
+
+  letter-spacing: 1.3px;
+
+  color: #df771a;
+}
+
+.twi-card-content h3 {
+  margin: 0;
+
+  font-size: 18px;
+  line-height: 1.35;
+
+  font-weight: 500;
+
+  color: #351447;
+}
+
+.twi-card-content > p {
+  margin-top: 7px;
+
+  font-size: 11px;
+  line-height: 1.65;
+
+  color: #766e79;
+}
+
+
+/* =========================
+   YOUTUBE LINK
+========================= */
+
+.twi-youtube-link {
+  margin-top: 17px;
+
+  display: inline-flex;
+  align-items: center;
+
+  gap: 6px;
+
+  color: #5c2c78;
+
+  text-decoration: none;
+
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.twi-youtube-link:hover {
+  color: #351447;
+}
+
+
+/* =========================
+   AUDIO
+========================= */
+
+.twi-audio-card {
+  min-height: 220px;
+
+  display: grid;
+
+  grid-template-columns:
+    auto 1fr;
+
+  align-items: center;
+
+  padding: 25px;
+}
+
+.twi-audio-card
+.twi-card-content {
+  padding: 0;
+}
+
+.twi-audio-icon {
+  width: 60px;
+  height: 60px;
+
+  margin-right: 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #5c2c78;
+  color: #ffffff;
+}
+
+.twi-audio-player {
+  width: 100%;
+
+  margin-top: 15px;
+}
+
+.twi-coming-soon {
+  margin-top: 14px !important;
+
+  color: #9c929f !important;
+
+  font-size: 10px !important;
+}
+
+
+.twi-status {
+  width: 100%;
+  padding: 30px 20px;
+  text-align: center;
+  color: #6f6875;
+  font-size: 0.95rem;
+}
+
+.twi-status-error {
+  color: #b42318;
+}
+
+
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 850px) {
+
+  .twi-content-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 600px) {
+
+  .twi-hero {
+    padding: 65px 0;
+  }
+
+  .twi-hero-container {
+    padding: 0 17px;
+  }
+
+  .twi-hero h1 {
+    font-size: 36px;
+  }
+
+  .twi-hero p {
+    font-size: 12px;
+  }
+
+  .twi-content-section {
+    padding: 55px 0 65px;
+  }
+
+  .twi-container {
+    padding: 0 16px;
+  }
+
+  .twi-content-header h2 {
+    font-size: 28px;
+  }
+
+  .twi-filter {
+    margin-bottom: 26px;
+  }
+
+  .twi-filter-button {
+    min-height: 38px;
+
+    padding: 0 14px;
+
+    font-size: 10px;
+  }
+
+  .twi-card {
+    border-radius: 15px;
+  }
+
+  .twi-card-content {
+    padding: 17px;
+  }
+
+  .twi-audio-card {
+    min-height: auto;
+
+    grid-template-columns: 1fr;
+
+    text-align: center;
+  }
+
+  .twi-audio-icon {
+    margin: 0 auto 17px;
+  }
+
+}

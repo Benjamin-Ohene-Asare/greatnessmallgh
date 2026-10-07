@@ -20,9 +20,9 @@ const ProductHero = () => {
 
         <div className="product-page-hero-content">
 
-          <span className="product-page-hero-label">
+          {/* <span className="product-page-hero-label">
             GREATNESS MALL
-          </span>
+          </span> */}
 
           <h1>
             Explore Our Products

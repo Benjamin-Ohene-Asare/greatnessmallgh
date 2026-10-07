@@ -26,9 +26,9 @@ style={{
         =============================================== */}
         <div className="hero-content">
 
-          <span className="hero-label">
+          {/* <span className="hero-label">
             GREATNESS MALL
-          </span>
+          </span> */}
 
           <h1 className="hero-title">
   Wellness Products

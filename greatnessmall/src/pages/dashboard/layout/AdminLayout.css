@@ -1,0 +1,63 @@
+/* =========================
+   ADMIN LAYOUT
+========================= */
+
+.admin-layout {
+  width: 100%;
+  min-height: 100vh;
+
+  display: flex;
+
+  background: #f7f4f1;
+}
+
+
+/* =========================
+   MAIN AREA
+========================= */
+
+.admin-main {
+  width: 100%;
+  min-width: 0;
+
+  margin-left: 260px;
+}
+
+
+/* =========================
+   PAGE CONTENT
+========================= */
+
+.admin-page-content {
+  width: 100%;
+
+  padding: 28px;
+
+  min-height: calc(100vh - 72px);
+}
+
+
+/* =========================
+   TABLET / MOBILE
+========================= */
+
+@media (max-width: 1000px) {
+
+  .admin-main {
+    margin-left: 0;
+  }
+
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 600px) {
+
+  .admin-page-content {
+    padding: 18px 14px;
+  }
+
+}

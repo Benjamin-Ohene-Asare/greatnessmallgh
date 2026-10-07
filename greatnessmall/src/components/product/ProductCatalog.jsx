@@ -1,53 +1,200 @@
-import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import {
-  categories,
-  products,
-} from "../../pages/data/product";
+  NavLink,
+} from "react-router-dom";
+
+import {
+  getProductCategories,
+  getProducts,
+} from "../../services/backend";
 
 import "./ProductCatalog.css";
 
-const ProductCatalog = ({ showHeader = true }) => {
-  const [activeCategory, setActiveCategory] =
-    useState("All");
+
+const ProductCatalog = ({
+  showHeader = true,
+}) => {
+  const [products, setProducts] =
+    useState([]);
+
+  const [categories, setCategories] =
+    useState([]);
+
+  const [
+    activeCategory,
+    setActiveCategory,
+  ] = useState("all");
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState("");
+
+
+  /* =========================================================
+     LOAD PRODUCTS + CATEGORIES FROM DJANGO
+  ========================================================= */
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadCatalog = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const [
+          productsData,
+          categoriesData,
+        ] = await Promise.all([
+          getProducts(),
+          getProductCategories(),
+        ]);
+
+        if (cancelled) {
+          return;
+        }
+
+        setProducts(
+          Array.isArray(productsData)
+            ? productsData
+            : []
+        );
+
+        setCategories(
+          Array.isArray(categoriesData)
+            ? categoriesData
+            : []
+        );
+      } catch (err) {
+        console.error(
+          "Failed to load product catalog:",
+          err
+        );
+
+        if (!cancelled) {
+          setError(
+            "Products could not be loaded at the moment."
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadCatalog();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
 
   /* =========================================================
      PRODUCT FILTERING
+
+     Django returns category as an object:
+
+     {
+       id,
+       name,
+       slug,
+       ...
+     }
+
+     We filter using the category slug.
   ========================================================= */
 
   const filteredProducts =
-    activeCategory === "All"
-      ? products
-      : products.filter(
-          (product) =>
-            product.category === activeCategory
-        );
+    useMemo(() => {
+      if (
+        activeCategory === "all"
+      ) {
+        return products;
+      }
+
+      return products.filter(
+        (product) =>
+          product.category?.slug ===
+          activeCategory
+      );
+    }, [
+      products,
+      activeCategory,
+    ]);
 
 
   /* =========================================================
      WHATSAPP ORDER LINK
-
-     For now:
-     - sends the selected product name
-     - sends a pre-filled enquiry
-
-     Later:
-     Django will provide a public product URL that can be
-     included in the WhatsApp message for image/link previews.
   ========================================================= */
 
-  const whatsappNumber = "233578622158";
+  const whatsappNumber =
+    "233578622158";
 
-  const getWhatsAppUrl = (product) => {
+  const getWhatsAppUrl = (
+    product
+  ) => {
     const message =
       `Hello Greatness Mall, I am interested in ${product.name}. ` +
       `I saw this product on your website and would like to know more about it.`;
 
-    return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-      message
-    )}`;
+    return (
+      `https://wa.me/${whatsappNumber}` +
+      `?text=${encodeURIComponent(
+        message
+      )}`
+    );
   };
+
+
+  /* =========================================================
+     LOADING
+  ========================================================= */
+
+  if (loading) {
+    return (
+      <section className="product-catalog">
+
+        <div className="product-catalog-container">
+
+          <div className="product-catalog-status">
+            Loading products...
+          </div>
+
+        </div>
+
+      </section>
+    );
+  }
+
+
+  /* =========================================================
+     ERROR
+  ========================================================= */
+
+  if (error) {
+    return (
+      <section className="product-catalog">
+
+        <div className="product-catalog-container">
+
+          <div className="product-catalog-status product-catalog-error">
+            {error}
+          </div>
+
+        </div>
+
+      </section>
+    );
+  }
 
 
   return (
@@ -60,11 +207,8 @@ const ProductCatalog = ({ showHeader = true }) => {
         ====================================================== */}
 
         {showHeader && (
-          <div className="product-catalog-header">
 
-            <span className="product-catalog-eyebrow">
-              GREATNESS MALL
-            </span>
+          <div className="product-catalog-header">
 
             <h2>
               Our Products
@@ -75,14 +219,12 @@ const ProductCatalog = ({ showHeader = true }) => {
             </p>
 
           </div>
+
         )}
 
 
         {/* =====================================================
-            STICKY CATEGORY FILTERS
-
-            Frontend filtering only for now.
-            Django will provide categories dynamically later.
+            CATEGORY FILTERS
         ====================================================== */}
 
         <div className="product-category-sticky">
@@ -92,22 +234,51 @@ const ProductCatalog = ({ showHeader = true }) => {
             aria-label="Product categories"
           >
 
-            {categories.map((category) => (
-              <button
-                key={category}
-                type="button"
-                className={
-                  activeCategory === category
-                    ? "category-filter active"
-                    : "category-filter"
-                }
-                onClick={() =>
-                  setActiveCategory(category)
-                }
-              >
-                {category}
-              </button>
-            ))}
+            {/* ALL */}
+
+            <button
+              type="button"
+              className={
+                activeCategory ===
+                "all"
+                  ? "category-filter active"
+                  : "category-filter"
+              }
+              onClick={() =>
+                setActiveCategory(
+                  "all"
+                )
+              }
+            >
+              All
+            </button>
+
+
+            {/* DYNAMIC DJANGO CATEGORIES */}
+
+            {categories.map(
+              (category) => (
+
+                <button
+                  key={category.id}
+                  type="button"
+                  className={
+                    activeCategory ===
+                    category.slug
+                      ? "category-filter active"
+                      : "category-filter"
+                  }
+                  onClick={() =>
+                    setActiveCategory(
+                      category.slug
+                    )
+                  }
+                >
+                  {category.name}
+                </button>
+
+              )
+            )}
 
           </div>
 
@@ -118,85 +289,112 @@ const ProductCatalog = ({ showHeader = true }) => {
             PRODUCT GRID
         ====================================================== */}
 
-        <div className="product-grid">
+        {filteredProducts.length > 0 ? (
 
-          {filteredProducts.map((product) => (
+          <div className="product-grid">
 
-            <article
-              key={product.id}
-              className="product-card"
-            >
+            {filteredProducts.map(
+              (product) => (
 
-              {/* PRODUCT IMAGE */}
+                <article
+                  key={product.id}
+                  className="product-card"
+                >
 
-              <div className="product-image-area">
+                  {/* PRODUCT IMAGE */}
 
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="product-image"
-                  loading="lazy"
-                />
+                  <div className="product-image-area">
 
-              </div>
+                    {product.main_image ? (
 
+                      <img
+                        src={
+                          product.main_image
+                        }
+                        alt={
+                          product.name
+                        }
+                        className="product-image"
+                        loading="lazy"
+                      />
 
-              {/* PRODUCT DETAILS */}
+                    ) : (
 
-              <div className="product-card-content">
+                      <div className="product-image-placeholder">
+                        No image available
+                      </div>
 
-                <span className="product-category-name">
-                  {product.category}
-                </span>
+                    )}
 
-                <h3>
-                  {product.name}
-                </h3>
-
-                <p>
-                  {product.shortDescription}
-                </p>
-
-
-                {/* =================================================
-                    PRODUCT ACTIONS
-
-                    Learn More:
-                    Opens the unique product details page.
-
-                    Order Now:
-                    Opens WhatsApp with the exact product name.
-                ================================================= */}
-
-                <div className="product-card-actions">
-
-                  <NavLink
-                    to={`/products/${product.slug}`}
-                    className="product-learn-button"
-                  >
-                    Learn More
-                  </NavLink>
+                  </div>
 
 
-                  <a
-                    href={getWhatsAppUrl(product)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="product-order-button"
-                    aria-label={`Order ${product.name} on WhatsApp`}
-                  >
-                    Order Now
-                  </a>
+                  {/* PRODUCT DETAILS */}
 
-                </div>
+                  <div className="product-card-content">
 
-              </div>
+                    <span className="product-category-name">
+                      {
+                        product.category
+                          ?.name
+                      }
+                    </span>
 
-            </article>
 
-          ))}
+                    <h3>
+                      {product.name}
+                    </h3>
 
-        </div>
+
+                    <p>
+                      {
+                        product.short_description
+                      }
+                    </p>
+
+
+                    {/* ACTIONS */}
+
+                    <div className="product-card-actions">
+
+                      <NavLink
+                        to={`/products/${product.slug}`}
+                        className="product-learn-button"
+                      >
+                        Learn More
+                      </NavLink>
+
+
+                      <a
+                        href={getWhatsAppUrl(
+                          product
+                        )}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="product-order-button"
+                        aria-label={`Order ${product.name} on WhatsApp`}
+                      >
+                        Order Now
+                      </a>
+
+                    </div>
+
+                  </div>
+
+                </article>
+
+              )
+            )}
+
+          </div>
+
+        ) : (
+
+          <div className="product-catalog-empty">
+            No products are currently available in this category.
+          </div>
+
+        )}
 
       </div>
 

@@ -1,70 +1,112 @@
-import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import {
+  useEffect,
+  useState,
+} from "react";
+
+import {
+  ChevronDown,
+} from "lucide-react";
+
+import {
+  getFaqs,
+} from "../../services/backend";
+
 import "./FAQSection.css";
 
-/* =========================================================
-   TEMPORARY FAQ DATA
-
-   Later, Django can provide these questions and answers
-   dynamically from the admin dashboard.
-
-   SECURITY:
-   We render answers as normal React text.
-   Do not use dangerouslySetInnerHTML for admin content.
-========================================================= */
-
-const faqs = [
-  {
-    id: 1,
-    question: "How do I order a product?",
-    answer:
-      "Choose the product you are interested in and use the Order Now option to contact us for assistance.",
-  },
-  {
-    id: 2,
-    question: "Can I ask questions before ordering?",
-    answer:
-      "Yes. You can contact us on WhatsApp and we will help you with the information you need.",
-  },
-  {
-    id: 3,
-    question: "Where can I learn more about a product?",
-    answer:
-      "Each product will have more information available, including descriptions and product explanations.",
-  },
-  {
-    id: 4,
-    question: "Do you provide product explanations in Twi?",
-    answer:
-      "Yes. Greatness Mall includes dedicated Twi content to make selected product information easier to understand.",
-  },
-  {
-    id: 5,
-    question: "How will I know about new products or offers?",
-    answer:
-      "You can join Greatness Mall through the opt-in page to receive useful updates, resources and selected offers.",
-  },
-];
 
 const FAQSection = () => {
-  const [openId, setOpenId] = useState(1);
+  const [
+    faqs,
+    setFaqs,
+  ] = useState([]);
 
-  /* =========================================================
-     ACCORDION HANDLER
-  ========================================================= */
+  const [
+    openId,
+    setOpenId,
+  ] = useState(null);
 
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
+
+  const [
+    error,
+    setError,
+  ] = useState("");
+
+
+  // Load featured FAQs from Django
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadFaqs = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const data =
+          await getFaqs({
+            featured: true,
+          });
+
+        if (cancelled) {
+          return;
+        }
+
+        const faqList =
+          Array.isArray(data)
+            ? data
+            : [];
+
+        setFaqs(faqList);
+
+        if (faqList.length > 0) {
+          setOpenId(
+            faqList[0].id
+          );
+        }
+      } catch (err) {
+        console.error(
+          "Failed to load FAQs:",
+          err
+        );
+
+        if (!cancelled) {
+          setError(
+            "FAQs are temporarily unavailable."
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadFaqs();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+
+  // Open or close an FAQ item
   const toggleFAQ = (id) => {
-    setOpenId((currentId) => (currentId === id ? null : id));
+    setOpenId(
+      (currentId) =>
+        currentId === id
+          ? null
+          : id
+    );
   };
+
 
   return (
     <section className="faq-section">
 
       <div className="faq-container">
-
-        {/* =====================================================
-            LEFT INTRO
-        ====================================================== */}
 
         <div className="faq-intro">
 
@@ -85,71 +127,108 @@ const FAQSection = () => {
         </div>
 
 
-        {/* =====================================================
-            FAQ ACCORDION
-        ====================================================== */}
-
         <div className="faq-list">
 
-          {faqs.map((faq) => {
-            const isOpen = openId === faq.id;
-
-            return (
-              <div
-                key={faq.id}
-                className={
-                  isOpen
-                    ? "faq-item faq-item-open"
-                    : "faq-item"
-                }
-              >
-
-                <button
-                  type="button"
-                  className="faq-question"
-                  onClick={() => toggleFAQ(faq.id)}
-                  aria-expanded={isOpen}
-                  aria-controls={`faq-answer-${faq.id}`}
-                >
-
-                  <span>
-                    {faq.question}
-                  </span>
-
-                  <ChevronDown
-                    size={20}
-                    strokeWidth={1.8}
-                    className={
-                      isOpen
-                        ? "faq-chevron faq-chevron-open"
-                        : "faq-chevron"
-                    }
-                    aria-hidden="true"
-                  />
-
-                </button>
+          {loading && (
+            <div className="faq-status">
+              Loading questions...
+            </div>
+          )}
 
 
+          {!loading && error && (
+            <div
+              className="faq-status faq-status-error"
+              role="alert"
+            >
+              {error}
+            </div>
+          )}
+
+
+          {!loading &&
+            !error &&
+            faqs.length === 0 && (
+              <div className="faq-status">
+                No frequently asked questions are available yet.
+              </div>
+            )}
+
+
+          {!loading &&
+            !error &&
+            faqs.map((faq) => {
+              const isOpen =
+                openId === faq.id;
+
+              return (
                 <div
-                  id={`faq-answer-${faq.id}`}
+                  key={faq.id}
                   className={
                     isOpen
-                      ? "faq-answer faq-answer-open"
-                      : "faq-answer"
+                      ? "faq-item faq-item-open"
+                      : "faq-item"
                   }
                 >
 
-                  <div className="faq-answer-inner">
-                    <p>
-                      {faq.answer}
-                    </p>
+                  <button
+                    type="button"
+                    className="faq-question"
+                    onClick={() =>
+                      toggleFAQ(
+                        faq.id
+                      )
+                    }
+                    aria-expanded={
+                      isOpen
+                    }
+                    aria-controls={
+                      `faq-answer-${faq.id}`
+                    }
+                  >
+
+                    <span>
+                      {faq.question}
+                    </span>
+
+                    <ChevronDown
+                      size={20}
+                      strokeWidth={1.8}
+                      className={
+                        isOpen
+                          ? "faq-chevron faq-chevron-open"
+                          : "faq-chevron"
+                      }
+                      aria-hidden="true"
+                    />
+
+                  </button>
+
+
+                  <div
+                    id={
+                      `faq-answer-${faq.id}`
+                    }
+                    className={
+                      isOpen
+                        ? "faq-answer faq-answer-open"
+                        : "faq-answer"
+                    }
+                  >
+
+                    <div className="faq-answer-inner">
+
+                      <p>
+                        {faq.answer}
+                      </p>
+
+                    </div>
+
                   </div>
 
                 </div>
-
-              </div>
-            );
-          })}
+              );
+            })}
 
         </div>
 
@@ -158,5 +237,6 @@ const FAQSection = () => {
     </section>
   );
 };
+
 
 export default FAQSection;

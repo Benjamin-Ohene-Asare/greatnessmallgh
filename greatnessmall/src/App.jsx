@@ -1,4 +1,5 @@
 import React from "react";
+
 import {
   BrowserRouter as Router,
   Routes,
@@ -6,41 +7,54 @@ import {
   Outlet,
 } from "react-router-dom";
 
+
 import Home from "./pages/home/Home";
 import OptInPage from "./pages/optinpage/OptInPage";
 import ThankYou from "./pages/thanku/ThankYou";
 import Product from "./pages/product/Product";
 import ProductDetails from "./pages/productDetails/ProductDetails";
+import Twi from "./pages/twi/Twi";
+import FAQ from "./pages/faq/FAQ";
+
 
 import NavBar from "./components/navbar/NavBar";
 import Footer from "./components/footer/Footer";
 import ScrollToTop from "./components/scrolltotop/ScrollToTop";
 import Whatsapp from "./components/whatsapp/Whatsapp";
 
-/* =========================================================
-   TEMPORARY PAGES
 
-   These will later be replaced with proper page components.
-========================================================= */
+import RequireAdmin from "./pages/dashboard/component/RequireAdmin";
 
-const FAQ = () => {
-  return <h1>soon......</h1>;
-};
+import AdminLayout from "./pages/dashboard/layout/AdminLayout";
 
-const Twi = () => {
-  return <h1>soon......</h1>;
-};
+import AdminLogin from "./pages/dashboard/pages/login/AdminLogin";
+
+import AdminDashboard from "./pages/dashboard/pages/dashboard/AdminDashboard";
+
+import AdminProducts from "./pages/dashboard/pages/product/AdminProducts";
+import AddProduct from "./pages/dashboard/pages/product/AddProduct";
+import EditProduct from "./pages/dashboard/pages/product/EditProduct";
+
+import AdminCategories from "./pages/dashboard/pages/categories/AdminCategories";
+
+import AdminEvents from "./pages/dashboard/pages/events/AdminEvents";
+import AddEvent from "./pages/dashboard/pages/events/AddEvent";
+import EditEvent from "./pages/dashboard/pages/events/EditEvent";
+
+import AdminOptIn from "./pages/dashboard/pages/optin/AdminOptIn";
+
+import AdminContacts from "./pages/dashboard/pages/contacts/AdminContacts";
+
+import AdminSms from "./pages/dashboard/pages/sms/AdminSms";
+
+import AdminFAQ from "./pages/dashboard/pages/faq/AdminFAQ";
+
+import AdminTestimonials from "./pages/dashboard/pages/testimonials/AdminTestimonials";
+
+import AdminTwi from "./pages/dashboard/pages/twi/AdminTwi";
 
 
-/* =========================================================
-   MAIN WEBSITE LAYOUT
-
-   Navbar and footer belong only to the main website.
-
-   SECURITY NOTE:
-   This is presentation routing only.
-   Django will enforce actual authorization later.
-========================================================= */
+/* Public website layout */
 
 const MainLayout = () => {
   return (
@@ -52,6 +66,7 @@ const MainLayout = () => {
       </main>
 
       <Footer />
+
       <Whatsapp />
     </>
   );
@@ -62,21 +77,12 @@ const App = () => {
   return (
     <Router>
 
-      {/* =====================================================
-          SCROLL RESET
-
-          Every time the route changes, the new page starts
-          from the top instead of keeping the previous page's
-          scroll position.
-      ====================================================== */}
-
       <ScrollToTop />
+
 
       <Routes>
 
-        {/* =====================================================
-            PUBLIC FUNNEL
-        ====================================================== */}
+        {/* Public funnel */}
 
         <Route
           path="/"
@@ -89,9 +95,7 @@ const App = () => {
         />
 
 
-        {/* =====================================================
-            MAIN GREATNESS MALL WEBSITE
-        ====================================================== */}
+        {/* Public website */}
 
         <Route element={<MainLayout />}>
 
@@ -122,10 +126,132 @@ const App = () => {
 
         </Route>
 
+
+        {/* Admin login */}
+
+        <Route
+          path="/admin/login"
+          element={<AdminLogin />}
+        />
+
+
+        {/* Protected admin dashboard */}
+
+        <Route
+          element={<RequireAdmin />}
+        >
+
+          <Route
+            path="/admin"
+            element={<AdminLayout />}
+          >
+
+            <Route
+              index
+              element={<AdminDashboard />}
+            />
+
+
+            {/* Products */}
+
+            <Route
+              path="products"
+              element={<AdminProducts />}
+            />
+
+            <Route
+              path="products/add"
+              element={<AddProduct />}
+            />
+
+            <Route
+              path="products/:id/edit"
+              element={<EditProduct />}
+            />
+
+
+            {/* Categories */}
+
+            <Route
+              path="categories"
+              element={<AdminCategories />}
+            />
+
+
+            {/* Events */}
+
+            <Route
+              path="events"
+              element={<AdminEvents />}
+            />
+
+            <Route
+              path="events/add"
+              element={<AddEvent />}
+            />
+
+            <Route
+              path="events/:id/edit"
+              element={<EditEvent />}
+            />
+
+
+            {/* Opt-in */}
+
+            <Route
+              path="optin"
+              element={<AdminOptIn />}
+            />
+
+
+            {/* Contacts */}
+
+            <Route
+              path="contacts"
+              element={<AdminContacts />}
+            />
+
+
+            {/* SMS */}
+
+            <Route
+              path="sms"
+              element={<AdminSms />}
+            />
+
+
+            {/* FAQ */}
+
+            <Route
+              path="faq"
+              element={<AdminFAQ />}
+            />
+
+
+            {/* Testimonials */}
+
+            <Route
+              path="testimonials"
+              element={<AdminTestimonials />}
+            />
+
+
+            {/* Twi */}
+
+            <Route
+              path="twi"
+              element={<AdminTwi />}
+            />
+
+          </Route>
+
+        </Route>
+
       </Routes>
 
     </Router>
   );
 };
+
 
 export default App;
