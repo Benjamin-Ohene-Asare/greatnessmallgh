@@ -1,17 +1,13 @@
-from django.shortcuts import render
+from django.http import FileResponse
+from django.shortcuts import get_object_or_404
 
-# Create your views here.
 from rest_framework import generics
-from rest_framework.permissions import (
-    AllowAny,
-    IsAdminUser,
-)
+from rest_framework.exceptions import NotFound
+from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.views import APIView
 
-from .models import (
-    OptInCampaign,
-    OptInSubmission,
-)
-
+from .models import OptInCampaign, OptInSubmission
+from .notifications import send_optin_notifications
 from .serializers import (
     OptInCampaignSerializer,
     OptInSubmissionAdminSerializer,
@@ -23,16 +19,9 @@ from .serializers import (
 # PUBLIC ACTIVE OPT-IN CAMPAIGN
 # ============================================================
 
-class PublicOptInCampaignView(
-    generics.RetrieveAPIView
-):
-    permission_classes = [
-        AllowAny,
-    ]
-
-    serializer_class = (
-        OptInCampaignSerializer
-    )
+class PublicOptInCampaignView(generics.RetrieveAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = OptInCampaignSerializer
 
     def get_object(self):
         campaign = (
@@ -43,11 +32,7 @@ class PublicOptInCampaignView(
         )
 
         if campaign is None:
-            from rest_framework.exceptions import NotFound
-
-            raise NotFound(
-                "No active opt-in campaign."
-            )
+            raise NotFound("No active opt-in campaign.")
 
         return campaign
 
@@ -56,21 +41,11 @@ class PublicOptInCampaignView(
 # PUBLIC OPT-IN SUBMISSION
 # ============================================================
 
-class PublicOptInSubmissionCreateView(
-    generics.CreateAPIView
-):
-    permission_classes = [
-        AllowAny,
-    ]
+class PublicOptInSubmissionCreateView(generics.CreateAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = OptInSubmissionCreateSerializer
 
-    serializer_class = (
-        OptInSubmissionCreateSerializer
-    )
-
-    def perform_create(
-        self,
-        serializer,
-    ):
+    def perform_create(self, serializer):
         campaign = (
             OptInCampaign.objects
             .filter(is_active=True)
@@ -78,8 +53,12 @@ class PublicOptInSubmissionCreateView(
             .first()
         )
 
-        serializer.save(
+        submission = serializer.save(
             campaign=campaign
+        )
+
+        send_optin_notifications(
+            submission
         )
 
 
@@ -87,16 +66,9 @@ class PublicOptInSubmissionCreateView(
 # ADMIN OPT-IN CAMPAIGN
 # ============================================================
 
-class AdminOptInCampaignView(
-    generics.RetrieveUpdateAPIView
-):
-    permission_classes = [
-        IsAdminUser,
-    ]
-
-    serializer_class = (
-        OptInCampaignSerializer
-    )
+class AdminOptInCampaignView(generics.RetrieveUpdateAPIView):
+    permission_classes = [IsAdminUser]
+    serializer_class = OptInCampaignSerializer
 
     def get_object(self):
         campaign = (
@@ -106,22 +78,12 @@ class AdminOptInCampaignView(
         )
 
         if campaign is None:
-            campaign = (
-                OptInCampaign.objects
-                .create(
-                    label="FREE RESOURCE",
-                    headline=(
-                        "Unlock Your Free "
-                        "Greatness Mall Resource"
-                    ),
-                    resource_title=(
-                        "Greatness Mall Resource"
-                    ),
-                    button_text=(
-                        "Unlock Free Resource"
-                    ),
-                    is_active=True,
-                )
+            campaign = OptInCampaign.objects.create(
+                label="FREE RESOURCE",
+                headline="Unlock Your Free Greatness Mall Resource",
+                resource_title="Greatness Mall Resource",
+                button_text="Unlock Free Resource",
+                is_active=True,
             )
 
         return campaign
@@ -131,16 +93,9 @@ class AdminOptInCampaignView(
 # ADMIN SUBMISSIONS LIST
 # ============================================================
 
-class AdminOptInSubmissionListView(
-    generics.ListAPIView
-):
-    permission_classes = [
-        IsAdminUser,
-    ]
-
-    serializer_class = (
-        OptInSubmissionAdminSerializer
-    )
+class AdminOptInSubmissionListView(generics.ListAPIView):
+    permission_classes = [IsAdminUser]
+    serializer_class = OptInSubmissionAdminSerializer
 
     def get_queryset(self):
         queryset = (
@@ -149,17 +104,8 @@ class AdminOptInSubmissionListView(
             .all()
         )
 
-        status = (
-            self.request
-            .query_params
-            .get("status")
-        )
-
-        search = (
-            self.request
-            .query_params
-            .get("search")
-        )
+        status = self.request.query_params.get("status")
+        search = self.request.query_params.get("search")
 
         if status:
             queryset = queryset.filter(
@@ -167,12 +113,10 @@ class AdminOptInSubmissionListView(
             )
 
         if search:
-            queryset = queryset.filter(
-                full_name__icontains=search
-            ) | queryset.filter(
-                phone__icontains=search
-            ) | queryset.filter(
-                email__icontains=search
+            queryset = (
+                queryset.filter(full_name__icontains=search)
+                | queryset.filter(phone__icontains=search)
+                | queryset.filter(email__icontains=search)
             )
 
         return queryset
@@ -185,29 +129,19 @@ class AdminOptInSubmissionListView(
 class AdminOptInSubmissionDetailView(
     generics.RetrieveUpdateAPIView
 ):
-    permission_classes = [
-        IsAdminUser,
-    ]
-
-    serializer_class = (
-        OptInSubmissionAdminSerializer
-    )
+    permission_classes = [IsAdminUser]
+    serializer_class = OptInSubmissionAdminSerializer
 
     queryset = (
         OptInSubmission.objects
         .select_related("campaign")
         .all()
     )
-    
-    
-from django.http import FileResponse
-from django.shortcuts import get_object_or_404
 
-from rest_framework.permissions import AllowAny
-from rest_framework.views import APIView
 
-from .models import OptInCampaign
-
+# ============================================================
+# PUBLIC RESOURCE DOWNLOAD
+# ============================================================
 
 class PublicResourceDownloadView(APIView):
     permission_classes = [AllowAny]
@@ -220,8 +154,6 @@ class PublicResourceDownloadView(APIView):
         )
 
         if not campaign.resource_file:
-            from rest_framework.exceptions import NotFound
-
             raise NotFound(
                 "Resource file is not available."
             )
@@ -234,4 +166,4 @@ class PublicResourceDownloadView(APIView):
 
         response["X-Content-Type-Options"] = "nosniff"
 
-        return response    
+        return response

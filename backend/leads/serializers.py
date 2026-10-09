@@ -7,6 +7,174 @@ from .models import (
     OptInSubmission,
 )
 
+def clean_single_line(
+    value,
+    max_length=None,
+):
+    value = str(
+        value or ""
+    )
+
+    value = re.sub(
+        r"[\x00-\x1F\x7F<>]",
+        "",
+        value,
+    )
+
+    value = re.sub(
+        r"\s+",
+        " ",
+        value,
+    ).strip()
+
+    if max_length:
+        value = value[
+            :max_length
+        ]
+
+    return value
+
+
+def clean_long_text(
+    value,
+    max_length=None,
+):
+    value = str(
+        value or ""
+    )
+
+    value = re.sub(
+        r"[\x00-\x08\x0B\x0C\x0E-\x1F\x7F<>]",
+        "",
+        value,
+    ).strip()
+
+    if max_length:
+        value = value[
+            :max_length
+        ]
+
+    return value
+
+
+def validate_resource_image(
+    image,
+):
+    if not image:
+        return image
+
+    allowed_types = {
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+    }
+
+    content_type = getattr(
+        image,
+        "content_type",
+        "",
+    )
+
+    if (
+        content_type
+        and content_type
+        not in allowed_types
+    ):
+        raise serializers.ValidationError(
+            "Only JPG, PNG and WEBP images are allowed."
+        )
+
+    max_size = (
+        5 * 1024 * 1024
+    )
+
+    if image.size > max_size:
+        raise serializers.ValidationError(
+            "The resource image must not exceed 5 MB."
+        )
+
+    return image
+
+
+def validate_resource_file(
+    file,
+):
+    if not file:
+        return file
+
+    max_size = (
+        15 * 1024 * 1024
+    )
+
+    if file.size > max_size:
+        raise serializers.ValidationError(
+            "The resource PDF must not exceed 15 MB."
+        )
+
+    filename = (
+        getattr(
+            file,
+            "name",
+            "",
+        )
+        .lower()
+        .strip()
+    )
+
+    content_type = getattr(
+        file,
+        "content_type",
+        ""
+    )
+
+    if not filename.endswith(
+        ".pdf"
+    ):
+        raise serializers.ValidationError(
+            "Only PDF resource files are allowed."
+        )
+
+    if (
+        content_type
+        and content_type
+        != "application/pdf"
+    ):
+        raise serializers.ValidationError(
+            "Only PDF resource files are allowed."
+        )
+
+    current_position = None
+
+    try:
+        current_position = (
+            file.tell()
+        )
+
+        file.seek(0)
+
+        signature = (
+            file.read(5)
+        )
+
+        if (
+            signature
+            != b"%PDF-"
+        ):
+            raise serializers.ValidationError(
+                "The uploaded file is not a valid PDF."
+            )
+    finally:
+        try:
+            file.seek(
+                current_position
+                if current_position
+                is not None
+                else 0
+            )
+        except Exception:
+            pass
+
+    return file
 
 # ============================================================
 # PHONE NORMALIZATION
@@ -61,7 +229,6 @@ def normalize_email(value):
 #
 # Used by the public Opt-In page and the admin campaign editor.
 # ============================================================
-
 class OptInCampaignSerializer(
     serializers.ModelSerializer
 ):
@@ -91,6 +258,113 @@ class OptInCampaignSerializer(
         ]
 
 
+    def validate_label(
+        self,
+        value,
+    ):
+        return clean_single_line(
+            value,
+            100,
+        )
+
+
+    def validate_headline(
+        self,
+        value,
+    ):
+        value = clean_single_line(
+            value,
+            220,
+        )
+
+        if len(value) < 3:
+            raise serializers.ValidationError(
+                "Enter a valid opt-in headline."
+            )
+
+        return value
+
+
+    def validate_supporting_text(
+        self,
+        value,
+    ):
+        return clean_long_text(
+            value,
+            1000,
+        )
+
+
+    def validate_resource_title(
+        self,
+        value,
+    ):
+        value = clean_single_line(
+            value,
+            180,
+        )
+
+        if len(value) < 2:
+            raise serializers.ValidationError(
+                "Enter a valid resource title."
+            )
+
+        return value
+
+
+    def validate_resource_description(
+        self,
+        value,
+    ):
+        return clean_long_text(
+            value,
+            1500,
+        )
+
+
+    def validate_button_text(
+        self,
+        value,
+    ):
+        value = clean_single_line(
+            value,
+            100,
+        )
+
+        if not value:
+            raise serializers.ValidationError(
+                "Enter button text."
+            )
+
+        return value
+
+
+    def validate_privacy_note(
+        self,
+        value,
+    ):
+        return clean_long_text(
+            value,
+            1000,
+        )
+
+
+    def validate_resource_image(
+        self,
+        value,
+    ):
+        return validate_resource_image(
+            value
+        )
+
+
+    def validate_resource_file(
+        self,
+        value,
+    ):
+        return validate_resource_file(
+            value
+        )
 # ============================================================
 # PUBLIC OPT-IN SUBMISSION
 #

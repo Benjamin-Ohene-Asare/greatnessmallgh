@@ -2,6 +2,7 @@ from pathlib import Path
 import os
 
 from dotenv import load_dotenv
+import dj_database_url
 
 
 # ============================================================
@@ -26,7 +27,7 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
 if not SECRET_KEY:
     raise RuntimeError(
-        "DJANGO_SECRET_KEY is missing from the .env file."
+        "DJANGO_SECRET_KEY is missing from the environment."
     )
 
 
@@ -62,6 +63,7 @@ INSTALLED_APPS = [
     # Third-party
     "rest_framework",
     "corsheaders",
+    "storages",
 
     # Greatness Mall
     "core",
@@ -71,6 +73,7 @@ INSTALLED_APPS = [
     "twi",
     "faqs",
     "testimonials",
+    "sms",
 ]
 
 
@@ -81,7 +84,10 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
 
-    # Must remain before CommonMiddleware
+    # Serves Django static files in production.
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+
+    # Must remain before CommonMiddleware.
     "corsheaders.middleware.CorsMiddleware",
 
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -131,12 +137,30 @@ WSGI_APPLICATION = "config.wsgi.application"
 # DATABASE
 # ============================================================
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
+
+DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
+
+if DATABASE_URL:
+    DATABASES = {
+        "default": dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=0,
+            ssl_require=True,
+        )
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 
 # ============================================================
@@ -188,7 +212,7 @@ USE_TZ = True
 # STATIC FILES
 # ============================================================
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
@@ -197,9 +221,74 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # MEDIA FILES
 # ============================================================
 
-MEDIA_URL = "/media/"
+# MEDIA_URL = "/media/"
 
-MEDIA_ROOT = BASE_DIR / "media"
+# MEDIA_ROOT = BASE_DIR / "media"
+
+
+SUPABASE_STORAGE_ENABLED = (
+    not DEBUG
+    and all(
+        [
+            os.getenv("SUPABASE_S3_ACCESS_KEY_ID"),
+            os.getenv("SUPABASE_S3_SECRET_ACCESS_KEY"),
+            os.getenv("SUPABASE_S3_BUCKET_NAME"),
+            os.getenv("SUPABASE_S3_ENDPOINT_URL"),
+            os.getenv("SUPABASE_S3_REGION_NAME"),
+        ]
+    )
+)
+
+
+if SUPABASE_STORAGE_ENABLED:
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3.S3Storage",
+            "OPTIONS": {
+                "access_key": os.getenv(
+                    "SUPABASE_S3_ACCESS_KEY_ID"
+                ),
+                "secret_key": os.getenv(
+                    "SUPABASE_S3_SECRET_ACCESS_KEY"
+                ),
+                "bucket_name": os.getenv(
+                    "SUPABASE_S3_BUCKET_NAME"
+                ),
+                "endpoint_url": os.getenv(
+                    "SUPABASE_S3_ENDPOINT_URL"
+                ),
+                "region_name": os.getenv(
+                    "SUPABASE_S3_REGION_NAME"
+                ),
+                "default_acl": None,
+                "querystring_auth": False,
+                "file_overwrite": False,
+            },
+        },
+        "staticfiles": {
+            "BACKEND": (
+                "whitenoise.storage."
+                "CompressedManifestStaticFilesStorage"
+            ),
+        },
+    }
+else:
+    MEDIA_URL = "/media/"
+    MEDIA_ROOT = BASE_DIR / "media"
+
+    STORAGES = {
+        "default": {
+            "BACKEND": (
+                "django.core.files.storage.FileSystemStorage"
+            ),
+        },
+        "staticfiles": {
+            "BACKEND": (
+                "django.contrib.staticfiles.storage."
+                "StaticFilesStorage"
+            ),
+        },
+    }
 
 
 # ============================================================
@@ -228,6 +317,17 @@ REST_FRAMEWORK = {
     ],
 }
 
+
+# ============================================================
+# FRONTEND URL
+# ============================================================
+
+FRONTEND_URL = os.environ.get(
+    "FRONTEND_URL",
+    "http://localhost:5173",
+).rstrip("/")
+
+
 # ============================================================
 # CORS
 #
@@ -235,33 +335,47 @@ REST_FRAMEWORK = {
 # Only explicitly trusted frontend origins should be allowed.
 # ============================================================
 
-FRONTEND_URL = os.environ.get(
-    "FRONTEND_URL",
-    "http://localhost:5173",
-)
-
 CORS_ALLOWED_ORIGINS = [
-    FRONTEND_URL,
-    "http://127.0.0.1:5173",
+    origin.strip().rstrip("/")
+    for origin in os.environ.get(
+        "CORS_ALLOWED_ORIGINS",
+        (
+            f"{FRONTEND_URL},"
+            "http://localhost:5173,"
+            "http://127.0.0.1:5173"
+        ),
+    ).split(",")
+    if origin.strip()
 ]
+
 CORS_ALLOW_CREDENTIALS = True
+
 
 # ============================================================
 # CSRF TRUSTED ORIGINS
 #
-# Needed later when authenticated frontend requests are added.
+# Required for authenticated frontend requests.
 # ============================================================
 
 CSRF_TRUSTED_ORIGINS = [
-    FRONTEND_URL,
-    "http://127.0.0.1:5173",
+    origin.strip().rstrip("/")
+    for origin in os.environ.get(
+        "CSRF_TRUSTED_ORIGINS",
+        (
+            f"{FRONTEND_URL},"
+            "http://localhost:5173,"
+            "http://127.0.0.1:5173"
+        ),
+    ).split(",")
+    if origin.strip()
 ]
 
 
 # ============================================================
-# DEVELOPMENT COOKIE SETTINGS
+# COOKIE SETTINGS
 #
-# HTTPS-only cookie settings will be enabled for production.
+# Local development uses normal cookies.
+# Production automatically requires HTTPS.
 # ============================================================
 
 SESSION_COOKIE_HTTPONLY = True
@@ -271,6 +385,10 @@ CSRF_COOKIE_HTTPONLY = False
 SESSION_COOKIE_SAMESITE = "Lax"
 
 CSRF_COOKIE_SAMESITE = "Lax"
+
+SESSION_COOKIE_SECURE = not DEBUG
+
+CSRF_COOKIE_SECURE = not DEBUG
 
 
 # ============================================================
@@ -282,3 +400,62 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
 
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+
+
+# Vercel terminates HTTPS before forwarding requests to Django.
+SECURE_PROXY_SSL_HEADER = (
+    "HTTP_X_FORWARDED_PROTO",
+    "https",
+)
+
+
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
+
+# ============================================================
+# EMAIL
+# ============================================================
+
+EMAIL_BACKEND = (
+    "django.core.mail.backends.smtp.EmailBackend"
+)
+
+EMAIL_HOST = os.getenv(
+    "EMAIL_HOST",
+    "smtp.gmail.com",
+)
+
+EMAIL_PORT = int(
+    os.getenv(
+        "EMAIL_PORT",
+        "587",
+    )
+)
+
+EMAIL_USE_TLS = (
+    os.getenv(
+        "EMAIL_USE_TLS",
+        "True",
+    ).lower()
+    == "true"
+)
+
+EMAIL_HOST_USER = os.getenv(
+    "EMAIL_HOST_USER",
+    "",
+)
+
+EMAIL_HOST_PASSWORD = os.getenv(
+    "EMAIL_HOST_PASSWORD",
+    "",
+)
+
+DEFAULT_FROM_EMAIL = os.getenv(
+    "DEFAULT_FROM_EMAIL",
+    EMAIL_HOST_USER,
+)

@@ -19,6 +19,7 @@ urlpatterns = [
     # FAQ routes
     path("faqs/", include("faqs.public_urls")),
     path("admin-api/faqs/", include("faqs.admin_urls")),
+    path("sms/", include("sms.urls")),
 ]
 
 
