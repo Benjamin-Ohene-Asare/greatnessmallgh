@@ -250,25 +250,16 @@ if SUPABASE_STORAGE_ENABLED:
         "default": {
             "BACKEND": "storages.backends.s3.S3Storage",
             "OPTIONS": {
-                "access_key": os.getenv(
-                    "SUPABASE_S3_ACCESS_KEY_ID"
-                ),
-                "secret_key": os.getenv(
-                    "SUPABASE_S3_SECRET_ACCESS_KEY"
-                ),
-                "bucket_name": os.getenv(
-                    "SUPABASE_S3_BUCKET_NAME"
-                ),
-                "endpoint_url": os.getenv(
-                    "SUPABASE_S3_ENDPOINT_URL"
-                ),
-                "region_name": os.getenv(
-                    "SUPABASE_S3_REGION_NAME"
-                ),
-                "default_acl": None,
-                "querystring_auth": False,
-                "file_overwrite": False,
-            },
+    "access_key": os.getenv("SUPABASE_S3_ACCESS_KEY_ID"),
+    "secret_key": os.getenv("SUPABASE_S3_SECRET_ACCESS_KEY"),
+    "bucket_name": os.getenv("SUPABASE_S3_BUCKET_NAME"),
+    "endpoint_url": os.getenv("SUPABASE_S3_ENDPOINT_URL"),
+    "region_name": os.getenv("SUPABASE_S3_REGION_NAME"),
+    "default_acl": None,
+    "querystring_auth": False,
+    "file_overwrite": False,
+    "addressing_style": "path",
+},
         },
         "staticfiles": {
             "BACKEND": (
