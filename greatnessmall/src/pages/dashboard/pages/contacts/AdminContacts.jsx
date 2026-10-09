@@ -1,4 +1,9 @@
-import React, { useMemo, useState } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import {
   Search,
   Users,
@@ -8,216 +13,408 @@ import {
   Download,
   Send,
   Eye,
-  Trash2,
   CheckSquare,
   X,
 } from "lucide-react";
 
+import {
+  getAdminOptInSubmissions,
+  updateAdminOptInSubmission,
+} from "../../../../services/backend";
+
 import "./AdminContacts.css";
+import { useNavigate } from "react-router-dom";
+
+const formatDate = (value) => {
+  if (!value) {
+    return "—";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "—";
+  }
+
+  return new Intl.DateTimeFormat(
+    "en-GB",
+    {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }
+  ).format(date);
+};
+
+
+const mapSubmission = (
+  submission
+) => ({
+  id: submission.id,
+
+  name:
+    submission.full_name || "",
+
+  phone:
+    submission.phone || "",
+
+  email:
+    submission.email || "",
+
+  resource:
+    submission.campaign_title ||
+    "Greatness Mall Resource",
+
+  submittedAt:
+    submission.submitted_at,
+
+  lastAccessedAt:
+    submission.last_accessed_at,
+
+  status:
+    submission.status === "contacted"
+      ? "Contacted"
+      : "New",
+
+  statusValue:
+    submission.status || "new",
+});
+
 
 const AdminContacts = () => {
-  /* =========================================================
-     FRONTEND-ONLY OPT-IN SUBMISSIONS
+  const navigate = useNavigate();
+  const [
+    contacts,
+    setContacts,
+  ] = useState([]);
 
-     Later Django will provide:
-     - real submissions
-     - pagination
-     - filters
-     - campaign/resource source
-     - timestamps
-     - export
-     - SMS audience selection
-     - admin permissions
+  const [
+    searchTerm,
+    setSearchTerm,
+  ] = useState("");
 
-     SECURITY:
-     Contact information is sensitive business data.
-     Real access must be restricted by Django authentication
-     and authorization later.
-  ========================================================= */
+  const [
+    statusFilter,
+    setStatusFilter,
+  ] = useState("All");
 
-  const [contacts, setContacts] = useState([
-    {
-      id: 1,
-      name: "Kwame Mensah",
-      phone: "+233 24 123 4567",
-      email: "kwame@example.com",
-      resource: "Greatness Mall Wellness Guide",
-      submittedAt: "07 Oct 2026",
-      status: "New",
-    },
-    {
-      id: 2,
-      name: "Akosua Owusu",
-      phone: "+233 55 234 8890",
-      email: "akosua@example.com",
-      resource: "Greatness Mall Wellness Guide",
-      submittedAt: "07 Oct 2026",
-      status: "New",
-    },
-    {
-      id: 3,
-      name: "Yaw Boateng",
-      phone: "+233 20 401 9921",
-      email: "",
-      resource: "Greatness Mall Wellness Guide",
-      submittedAt: "06 Oct 2026",
-      status: "Contacted",
-    },
-    {
-      id: 4,
-      name: "Abena Asare",
-      phone: "+233 27 777 4561",
-      email: "abena@example.com",
-      resource: "Greatness Mall Wellness Guide",
-      submittedAt: "06 Oct 2026",
-      status: "Contacted",
-    },
-    {
-      id: 5,
-      name: "Kofi Appiah",
-      phone: "+233 50 339 1102",
-      email: "kofi@example.com",
-      resource: "Greatness Mall Wellness Guide",
-      submittedAt: "05 Oct 2026",
-      status: "New",
-    },
-  ]);
+  const [
+    selectedIds,
+    setSelectedIds,
+  ] = useState([]);
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
-  const [selectedIds, setSelectedIds] = useState([]);
-  const [viewContact, setViewContact] = useState(null);
+  const [
+    viewContact,
+    setViewContact,
+  ] = useState(null);
 
-  /* =========================================================
-     FILTER
-  ========================================================= */
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
 
-  const filteredContacts = useMemo(() => {
-    const search = searchTerm.trim().toLowerCase();
+  const [
+    error,
+    setError,
+  ] = useState("");
 
-    return contacts.filter((contact) => {
-      const matchesSearch =
-        !search ||
-        contact.name.toLowerCase().includes(search) ||
-        contact.phone.toLowerCase().includes(search) ||
-        contact.email.toLowerCase().includes(search) ||
-        contact.resource.toLowerCase().includes(search);
+  const [
+    updatingId,
+    setUpdatingId,
+  ] = useState(null);
 
-      const matchesStatus =
-        statusFilter === "All" ||
-        contact.status === statusFilter;
 
-      return matchesSearch && matchesStatus;
-    });
-  }, [contacts, searchTerm, statusFilter]);
+  // Load real opt-in submissions
+  useEffect(() => {
+    let active = true;
+
+    const loadContacts = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const data =
+          await getAdminOptInSubmissions();
+
+        if (!active) {
+          return;
+        }
+
+        const results =
+          Array.isArray(data)
+            ? data
+            : data.results || [];
+
+        setContacts(
+          results.map(
+            mapSubmission
+          )
+        );
+      } catch (requestError) {
+        if (!active) {
+          return;
+        }
+
+        setError(
+          requestError.message ||
+          "Unable to load opt-in submissions."
+        );
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadContacts();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+
+  const filteredContacts =
+    useMemo(() => {
+      const search =
+        searchTerm
+          .trim()
+          .toLowerCase();
+
+      return contacts.filter(
+        (contact) => {
+          const matchesSearch =
+            !search ||
+            contact.name
+              .toLowerCase()
+              .includes(search) ||
+            contact.phone
+              .toLowerCase()
+              .includes(search) ||
+            contact.email
+              .toLowerCase()
+              .includes(search) ||
+            contact.resource
+              .toLowerCase()
+              .includes(search);
+
+          const matchesStatus =
+            statusFilter === "All" ||
+            contact.status ===
+            statusFilter;
+
+          return (
+            matchesSearch &&
+            matchesStatus
+          );
+        }
+      );
+    }, [
+      contacts,
+      searchTerm,
+      statusFilter,
+    ]);
+
 
   const allVisibleSelected =
     filteredContacts.length > 0 &&
-    filteredContacts.every((contact) =>
-      selectedIds.includes(contact.id)
+    filteredContacts.every(
+      (contact) =>
+        selectedIds.includes(
+          contact.id
+        )
     );
 
-  /* =========================================================
-     SELECT CONTACT
-  ========================================================= */
 
   const toggleSelect = (id) => {
-    setSelectedIds((current) =>
-      current.includes(id)
-        ? current.filter((item) => item !== id)
-        : [...current, id]
+    setSelectedIds(
+      (current) =>
+        current.includes(id)
+          ? current.filter(
+            (item) =>
+              item !== id
+          )
+          : [
+            ...current,
+            id,
+          ]
     );
   };
+
 
   const toggleSelectAll = () => {
+    const visibleIds =
+      filteredContacts.map(
+        (contact) =>
+          contact.id
+      );
+
     if (allVisibleSelected) {
-      const visibleIds = filteredContacts.map(
-        (contact) => contact.id
-      );
-
-      setSelectedIds((current) =>
-        current.filter(
-          (id) => !visibleIds.includes(id)
-        )
+      setSelectedIds(
+        (current) =>
+          current.filter(
+            (id) =>
+              !visibleIds.includes(
+                id
+              )
+          )
       );
 
       return;
     }
 
-    const visibleIds = filteredContacts.map(
-      (contact) => contact.id
+    setSelectedIds(
+      (current) => [
+        ...new Set([
+          ...current,
+          ...visibleIds,
+        ]),
+      ]
     );
-
-    setSelectedIds((current) => [
-      ...new Set([...current, ...visibleIds]),
-    ]);
   };
 
-  /* =========================================================
-     STATUS
-  ========================================================= */
 
-  const markAsContacted = (id) => {
-    setContacts((current) =>
-      current.map((contact) =>
-        contact.id === id
-          ? {
-              ...contact,
-              status: "Contacted",
+  const markAsContacted =
+    async (id) => {
+      try {
+        setUpdatingId(id);
+        setError("");
+
+        const updated =
+          await updateAdminOptInSubmission(
+            id,
+            {
+              status:
+                "contacted",
             }
-          : contact
-      )
-    );
+          );
 
-    setViewContact((current) =>
-      current?.id === id
-        ? {
-            ...current,
-            status: "Contacted",
-          }
-        : current
-    );
-  };
+        const mapped =
+          mapSubmission(
+            updated
+          );
 
-  /* =========================================================
-     DELETE
+        setContacts(
+          (current) =>
+            current.map(
+              (contact) =>
+                contact.id === id
+                  ? mapped
+                  : contact
+            )
+        );
 
-     Frontend only.
-  ========================================================= */
+        setViewContact(
+          (current) =>
+            current?.id === id
+              ? mapped
+              : current
+        );
+      } catch (requestError) {
+        setError(
+          requestError.message ||
+          "Unable to update the contact."
+        );
+      } finally {
+        setUpdatingId(null);
+      }
+    };
 
-  const deleteContact = (id) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to remove this opt-in submission?"
-    );
 
-    if (!confirmed) {
+  const exportContacts = () => {
+    if (
+      contacts.length === 0
+    ) {
       return;
     }
 
-    setContacts((current) =>
-      current.filter(
-        (contact) => contact.id !== id
+    const escapeCsv = (
+      value
+    ) => {
+      const text =
+        String(
+          value ?? ""
+        );
+
+      return `"${text.replace(
+        /"/g,
+        '""'
+      )}"`;
+    };
+
+    const rows = [
+      [
+        "Name",
+        "Phone",
+        "Email",
+        "Resource",
+        "Submitted",
+        "Status",
+      ],
+
+      ...contacts.map(
+        (contact) => [
+          contact.name,
+          contact.phone,
+          contact.email,
+          contact.resource,
+          formatDate(
+            contact.submittedAt
+          ),
+          contact.status,
+        ]
+      ),
+    ];
+
+    const csv = rows
+      .map(
+        (row) =>
+          row
+            .map(
+              escapeCsv
+            )
+            .join(",")
       )
+      .join("\n");
+
+    const blob = new Blob(
+      [csv],
+      {
+        type:
+          "text/csv;charset=utf-8",
+      }
     );
 
-    setSelectedIds((current) =>
-      current.filter(
-        (selectedId) => selectedId !== id
-      )
+    const url =
+      URL.createObjectURL(
+        blob
+      );
+
+    const link =
+      document.createElement(
+        "a"
+      );
+
+    link.href = url;
+    link.download =
+      "greatness-mall-opt-in-submissions.csv";
+
+    document.body.appendChild(
+      link
     );
 
-    setViewContact(null);
+    link.click();
+    link.remove();
+
+    URL.revokeObjectURL(
+      url
+    );
   };
+
 
   return (
     <div className="admin-contacts-page">
-
-      {/* =====================================================
-          HEADER
-      ====================================================== */}
-
       <div className="admin-contacts-header">
-
         <div>
           <span className="admin-contacts-eyebrow">
             MARKETING
@@ -232,46 +429,55 @@ const AdminContacts = () => {
           </p>
         </div>
 
-
         <div className="admin-contacts-header-actions">
-
           <button
             type="button"
             className="admin-contacts-export-button"
+            onClick={
+              exportContacts
+            }
+            disabled={
+              contacts.length ===
+              0
+            }
           >
-            <Download size={17} strokeWidth={1.8} />
+            <Download
+              size={17}
+              strokeWidth={1.8}
+            />
 
             Export
           </button>
 
-
           <button
             type="button"
             className="admin-contacts-sms-button"
-            disabled={selectedIds.length === 0}
+            onClick={() => navigate("/admin/sms")}
           >
             <Send size={17} strokeWidth={1.8} />
-
             Send SMS
-            {selectedIds.length > 0 &&
-              ` (${selectedIds.length})`}
           </button>
-
         </div>
-
       </div>
 
 
-      {/* =====================================================
-          SUMMARY
-      ====================================================== */}
+      {error && (
+        <div
+          role="alert"
+          className="admin-contacts-error"
+        >
+          {error}
+        </div>
+      )}
+
 
       <div className="admin-contacts-summary">
-
         <div className="admin-contact-summary-card">
-
           <div className="admin-contact-summary-icon">
-            <Users size={19} strokeWidth={1.7} />
+            <Users
+              size={19}
+              strokeWidth={1.7}
+            />
           </div>
 
           <div>
@@ -283,14 +489,15 @@ const AdminContacts = () => {
               {contacts.length}
             </strong>
           </div>
-
         </div>
 
 
         <div className="admin-contact-summary-card">
-
           <div className="admin-contact-summary-icon new">
-            <Mail size={19} strokeWidth={1.7} />
+            <Mail
+              size={19}
+              strokeWidth={1.7}
+            />
           </div>
 
           <div>
@@ -302,19 +509,21 @@ const AdminContacts = () => {
               {
                 contacts.filter(
                   (contact) =>
-                    contact.status === "New"
+                    contact.status ===
+                    "New"
                 ).length
               }
             </strong>
           </div>
-
         </div>
 
 
         <div className="admin-contact-summary-card">
-
           <div className="admin-contact-summary-icon contacted">
-            <CheckSquare size={19} strokeWidth={1.7} />
+            <CheckSquare
+              size={19}
+              strokeWidth={1.7}
+            />
           </div>
 
           <div>
@@ -326,25 +535,18 @@ const AdminContacts = () => {
               {
                 contacts.filter(
                   (contact) =>
-                    contact.status === "Contacted"
+                    contact.status ===
+                    "Contacted"
                 ).length
               }
             </strong>
           </div>
-
         </div>
-
       </div>
 
 
-      {/* =====================================================
-          TOOLBAR
-      ====================================================== */}
-
       <div className="admin-contacts-toolbar">
-
         <div className="admin-contacts-search">
-
           <Search
             size={17}
             strokeWidth={1.7}
@@ -354,19 +556,25 @@ const AdminContacts = () => {
             type="search"
             placeholder="Search name, phone or email..."
             value={searchTerm}
-            onChange={(event) =>
-              setSearchTerm(event.target.value)
+            onChange={(
+              event
+            ) =>
+              setSearchTerm(
+                event.target.value
+              )
             }
           />
-
         </div>
-
 
         <select
           className="admin-contacts-filter"
           value={statusFilter}
-          onChange={(event) =>
-            setStatusFilter(event.target.value)
+          onChange={(
+            event
+          ) =>
+            setStatusFilter(
+              event.target.value
+            )
           }
         >
           <option value="All">
@@ -381,71 +589,76 @@ const AdminContacts = () => {
             Contacted
           </option>
         </select>
-
       </div>
 
 
-      {/* =====================================================
-          SELECTED BAR
-      ====================================================== */}
+      {selectedIds.length >
+        0 && (
+          <div className="admin-contacts-selected-bar">
+            <div>
+              <CheckSquare
+                size={17}
+                strokeWidth={1.7}
+              />
 
-      {selectedIds.length > 0 && (
+              <span>
+                {selectedIds.length}{" "}
+                contact
+                {selectedIds.length !==
+                  1
+                  ? "s"
+                  : ""}{" "}
+                selected
+              </span>
+            </div>
 
-        <div className="admin-contacts-selected-bar">
-
-          <div>
-            <CheckSquare
-              size={17}
-              strokeWidth={1.7}
-            />
-
-            <span>
-              {selectedIds.length} contact
-              {selectedIds.length !== 1
-                ? "s"
-                : ""} selected
-            </span>
+            <button
+              type="button"
+              onClick={() =>
+                setSelectedIds(
+                  []
+                )
+              }
+            >
+              Clear Selection
+            </button>
           </div>
+        )}
 
-
-          <button
-            type="button"
-            onClick={() =>
-              setSelectedIds([])
-            }
-          >
-            Clear Selection
-          </button>
-
-        </div>
-
-      )}
-
-
-      {/* =====================================================
-          TABLE
-      ====================================================== */}
 
       <div className="admin-contacts-table-card">
+        {loading ? (
+          <div className="admin-contacts-empty">
+            <Users
+              size={36}
+              strokeWidth={1.5}
+            />
 
-        {filteredContacts.length > 0 ? (
+            <h2>
+              Loading submissions
+            </h2>
 
+            <p>
+              Please wait while the contacts are loaded.
+            </p>
+          </div>
+        ) : filteredContacts.length >
+          0 ? (
           <div className="admin-contacts-table-scroll">
-
             <table className="admin-contacts-table">
-
               <thead>
                 <tr>
-
                   <th className="admin-contact-checkbox-column">
-
                     <input
                       type="checkbox"
-                      checked={allVisibleSelected}
-                      onChange={toggleSelectAll}
+                      checked={
+                        allVisibleSelected
+                      }
+                      onChange={
+                        toggleSelectAll
+                      }
                       aria-label="Select all visible contacts"
                     />
-
                   </th>
 
                   <th>Name</th>
@@ -458,20 +671,18 @@ const AdminContacts = () => {
                   <th className="admin-contact-actions-heading">
                     Actions
                   </th>
-
                 </tr>
               </thead>
 
-
               <tbody>
-
                 {filteredContacts.map(
                   (contact) => (
-
-                    <tr key={contact.id}>
-
+                    <tr
+                      key={
+                        contact.id
+                      }
+                    >
                       <td className="admin-contact-checkbox-column">
-
                         <input
                           type="checkbox"
                           checked={selectedIds.includes(
@@ -484,107 +695,105 @@ const AdminContacts = () => {
                           }
                           aria-label={`Select ${contact.name}`}
                         />
-
                       </td>
 
-
                       <td>
-
                         <div className="admin-contact-name-cell">
-
                           <div className="admin-contact-avatar">
                             {contact.name
-                              .charAt(0)
+                              .charAt(
+                                0
+                              )
                               .toUpperCase()}
                           </div>
 
                           <strong>
-                            {contact.name}
+                            {
+                              contact.name
+                            }
                           </strong>
-
                         </div>
-
                       </td>
 
-
                       <td>
-
                         <div className="admin-contact-detail-cell">
-
                           <Phone
-                            size={14}
-                            strokeWidth={1.7}
+                            size={
+                              14
+                            }
+                            strokeWidth={
+                              1.7
+                            }
                           />
 
                           <span>
-                            {contact.phone}
+                            {
+                              contact.phone
+                            }
                           </span>
-
                         </div>
-
                       </td>
 
-
                       <td>
-
                         <div className="admin-contact-detail-cell">
-
                           <Mail
-                            size={14}
-                            strokeWidth={1.7}
+                            size={
+                              14
+                            }
+                            strokeWidth={
+                              1.7
+                            }
                           />
 
                           <span>
-                            {contact.email || "—"}
+                            {contact.email ||
+                              "—"}
                           </span>
-
                         </div>
-
                       </td>
 
-
                       <td>
-                        {contact.resource}
+                        {
+                          contact.resource
+                        }
                       </td>
 
-
                       <td>
-
                         <div className="admin-contact-detail-cell">
-
                           <CalendarDays
-                            size={14}
-                            strokeWidth={1.7}
+                            size={
+                              14
+                            }
+                            strokeWidth={
+                              1.7
+                            }
                           />
 
                           <span>
-                            {contact.submittedAt}
+                            {formatDate(
+                              contact.submittedAt
+                            )}
                           </span>
-
                         </div>
-
                       </td>
 
-
                       <td>
-
                         <span
                           className={
-                            contact.status === "New"
+                            contact.status ===
+                              "New"
                               ? "admin-contact-status new"
                               : "admin-contact-status contacted"
                           }
                         >
-                          {contact.status}
+                          {
+                            contact.status
+                          }
                         </span>
-
                       </td>
 
-
                       <td>
-
                         <div className="admin-contact-row-actions">
-
                           <button
                             type="button"
                             className="admin-contact-icon-button"
@@ -596,47 +805,24 @@ const AdminContacts = () => {
                             aria-label={`View ${contact.name}`}
                           >
                             <Eye
-                              size={16}
-                              strokeWidth={1.7}
+                              size={
+                                16
+                              }
+                              strokeWidth={
+                                1.7
+                              }
                             />
                           </button>
-
-
-                          <button
-                            type="button"
-                            className="admin-contact-icon-button danger"
-                            onClick={() =>
-                              deleteContact(
-                                contact.id
-                              )
-                            }
-                            aria-label={`Delete ${contact.name}`}
-                          >
-                            <Trash2
-                              size={16}
-                              strokeWidth={1.7}
-                            />
-                          </button>
-
                         </div>
-
                       </td>
-
                     </tr>
-
                   )
                 )}
-
               </tbody>
-
             </table>
-
           </div>
-
         ) : (
-
           <div className="admin-contacts-empty">
-
             <Users
               size={36}
               strokeWidth={1.5}
@@ -647,35 +833,40 @@ const AdminContacts = () => {
             </h2>
 
             <p>
-              Try changing your search or filter.
+              {contacts.length ===
+                0
+                ? "No one has submitted the opt-in form yet."
+                : "Try changing your search or filter."}
             </p>
-
           </div>
-
         )}
-
       </div>
 
 
-      {/* =====================================================
-          CONTACT DETAILS MODAL
-      ====================================================== */}
-
       {viewContact && (
-
-        <div className="admin-contact-modal-overlay">
-
+        <div
+          className="admin-contact-modal-overlay"
+          onMouseDown={(
+            event
+          ) => {
+            if (
+              event.target ===
+              event.currentTarget
+            ) {
+              setViewContact(
+                null
+              );
+            }
+          }}
+        >
           <div
             className="admin-contact-modal"
             role="dialog"
             aria-modal="true"
             aria-labelledby="contact-modal-title"
           >
-
             <div className="admin-contact-modal-header">
-
               <div>
-
                 <span>
                   OPT-IN SUBMISSION
                 </span>
@@ -683,15 +874,15 @@ const AdminContacts = () => {
                 <h2 id="contact-modal-title">
                   Contact Details
                 </h2>
-
               </div>
-
 
               <button
                 type="button"
                 className="admin-contact-modal-close"
                 onClick={() =>
-                  setViewContact(null)
+                  setViewContact(
+                    null
+                  )
                 }
                 aria-label="Close contact details"
               >
@@ -700,14 +891,11 @@ const AdminContacts = () => {
                   strokeWidth={1.7}
                 />
               </button>
-
             </div>
 
 
             <div className="admin-contact-modal-body">
-
               <div className="admin-contact-modal-person">
-
                 <div className="admin-contact-modal-avatar">
                   {viewContact.name
                     .charAt(0)
@@ -716,35 +904,39 @@ const AdminContacts = () => {
 
                 <div>
                   <h3>
-                    {viewContact.name}
+                    {
+                      viewContact.name
+                    }
                   </h3>
 
                   <span
                     className={
-                      viewContact.status === "New"
+                      viewContact.status ===
+                        "New"
                         ? "admin-contact-status new"
                         : "admin-contact-status contacted"
                     }
                   >
-                    {viewContact.status}
+                    {
+                      viewContact.status
+                    }
                   </span>
                 </div>
-
               </div>
 
 
               <div className="admin-contact-modal-grid">
-
                 <div>
                   <span>
                     Phone
                   </span>
 
                   <strong>
-                    {viewContact.phone}
+                    {
+                      viewContact.phone
+                    }
                   </strong>
                 </div>
-
 
                 <div>
                   <span>
@@ -757,17 +949,17 @@ const AdminContacts = () => {
                   </strong>
                 </div>
 
-
                 <div>
                   <span>
                     Resource
                   </span>
 
                   <strong>
-                    {viewContact.resource}
+                    {
+                      viewContact.resource
+                    }
                   </strong>
                 </div>
-
 
                 <div>
                   <span>
@@ -775,54 +967,50 @@ const AdminContacts = () => {
                   </span>
 
                   <strong>
-                    {viewContact.submittedAt}
+                    {formatDate(
+                      viewContact.submittedAt
+                    )}
                   </strong>
                 </div>
-
               </div>
-
             </div>
 
 
             <div className="admin-contact-modal-actions">
-
-              {viewContact.status === "New" && (
-
-                <button
-                  type="button"
-                  className="admin-contact-mark-button"
-                  onClick={() =>
-                    markAsContacted(
+              {viewContact.status ===
+                "New" && (
+                  <button
+                    type="button"
+                    className="admin-contact-mark-button"
+                    disabled={
+                      updatingId ===
                       viewContact.id
-                    )
-                  }
-                >
-                  Mark as Contacted
-                </button>
-
-              )}
-
+                    }
+                    onClick={() =>
+                      markAsContacted(
+                        viewContact.id
+                      )
+                    }
+                  >
+                    {updatingId ===
+                      viewContact.id
+                      ? "Updating..."
+                      : "Mark as Contacted"}
+                  </button>
+                )}
 
               <button
                 type="button"
                 className="admin-contact-modal-sms-button"
+                onClick={() => navigate("/admin/sms")}
               >
-                <Send
-                  size={16}
-                  strokeWidth={1.7}
-                />
-
+                <Send size={16} strokeWidth={1.7} />
                 Send SMS
               </button>
-
             </div>
-
           </div>
-
         </div>
-
       )}
-
     </div>
   );
 };

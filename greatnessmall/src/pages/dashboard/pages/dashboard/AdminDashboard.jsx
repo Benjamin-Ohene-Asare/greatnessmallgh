@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Package,
   CalendarDays,
@@ -13,169 +14,269 @@ import {
 
 import AdminStatCard from "../../component/AdminStatCard";
 
+import {
+  getAdminProducts,
+  getAdminEvents,
+  getAdminOptInSubmissions,
+  getAdminTwiContent,
+  getAdminFaqs,
+  getAdminTestimonials,
+} from "../../../../services/backend";
+
 import "./AdminDashboard.css";
 
+const toArray = (data) => {
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.results)) return data.results;
+  return [];
+};
+
+const formatDate = (value) => {
+  if (!value) return "—";
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "—";
+  }
+
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
+
 const AdminDashboard = () => {
-  /* =========================================================
-     TEMPORARY FRONTEND DATA
+  const navigate = useNavigate();
 
-     Later Django will provide all dashboard statistics
-     and recent activity from the database.
+  const [dashboardData, setDashboardData] = useState({
+    products: 0,
+    events: 0,
+    contacts: 0,
+    twi: 0,
+    faqs: 0,
+    testimonials: 0,
+  });
 
-     SECURITY:
-     These numbers are display-only placeholders.
-     Real admin statistics must come from authenticated
-     Django endpoints later.
-  ========================================================= */
+  const [recentContacts, setRecentContacts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+
+    const loadDashboard = async () => {
+      try {
+        setLoading(true);
+        setLoadError("");
+
+        const [
+          productsData,
+          eventsData,
+          contactsData,
+          twiData,
+          faqsData,
+          testimonialsData,
+        ] = await Promise.all([
+          getAdminProducts(),
+          getAdminEvents(),
+          getAdminOptInSubmissions(),
+          getAdminTwiContent(),
+          getAdminFaqs(),
+          getAdminTestimonials(),
+        ]);
+
+        if (!active) return;
+
+        const products = toArray(productsData);
+        const events = toArray(eventsData);
+        const contacts = toArray(contactsData);
+        const twi = toArray(twiData);
+        const faqs = toArray(faqsData);
+        const testimonials = toArray(testimonialsData);
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const upcomingEvents = events.filter((event) => {
+          if (!event.date) {
+            return false;
+          }
+
+          const eventDate = new Date(
+            `${event.date}T00:00:00`
+          );
+
+          if (Number.isNaN(eventDate.getTime())) {
+            return false;
+          }
+
+          return (
+            event.published === true &&
+            eventDate >= today
+          );
+        });
+
+        setDashboardData({
+          products: products.length,
+          events: upcomingEvents.length,
+          contacts: contacts.length,
+          twi: twi.length,
+          faqs: faqs.length,
+          testimonials: testimonials.length,
+        });
+
+        setRecentContacts(
+          contacts.slice(0, 4)
+        );
+      } catch (error) {
+        if (!active) return;
+
+        console.error(
+          "Unable to load dashboard:",
+          error
+        );
+
+        setLoadError(
+          error.message ||
+            "Unable to load dashboard information."
+        );
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadDashboard();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const stats = [
     {
       id: 1,
       title: "Products",
-      value: "6",
+      value: loading
+        ? "—"
+        : dashboardData.products,
       description: "Products currently listed",
       icon: Package,
     },
     {
       id: 2,
       title: "Upcoming Events",
-      value: "1",
-      description: "Published upcoming program",
+      value: loading
+        ? "—"
+        : dashboardData.events,
+      description: "Published upcoming programs",
       icon: CalendarDays,
     },
     {
       id: 3,
       title: "Opt-In Contacts",
-      value: "24",
-      description: "People who joined through the opt-in page",
+      value: loading
+        ? "—"
+        : dashboardData.contacts,
+      description:
+        "People who joined through the opt-in page",
       icon: Users,
     },
     {
       id: 4,
       title: "Twi Content",
-      value: "8",
+      value: loading
+        ? "—"
+        : dashboardData.twi,
       description: "Videos, audio and images",
       icon: Languages,
     },
     {
       id: 5,
       title: "FAQs",
-      value: "8",
-      description: "Published frequently asked questions",
+      value: loading
+        ? "—"
+        : dashboardData.faqs,
+      description: "Frequently asked questions",
       icon: CircleHelp,
     },
     {
       id: 6,
       title: "Testimonials",
-      value: "5",
-      description: "Video, image and audio testimonials",
+      value: loading
+        ? "—"
+        : dashboardData.testimonials,
+      description:
+        "Video, image and audio testimonials",
       icon: MessageSquareQuote,
-    },
-  ];
-
-  const recentContacts = [
-    {
-      id: 1,
-      name: "Kwame Mensah",
-      phone: "+233 24 123 4567",
-      email: "kwame@example.com",
-      resource: "Greatness Mall Guide",
-      date: "07 Oct 2026",
-    },
-    {
-      id: 2,
-      name: "Akosua Owusu",
-      phone: "+233 55 234 8890",
-      email: "akosua@example.com",
-      resource: "Greatness Mall Guide",
-      date: "07 Oct 2026",
-    },
-    {
-      id: 3,
-      name: "Yaw Boateng",
-      phone: "+233 20 401 9921",
-      email: "—",
-      resource: "Greatness Mall Guide",
-      date: "06 Oct 2026",
-    },
-    {
-      id: 4,
-      name: "Abena Asare",
-      phone: "+233 27 777 4561",
-      email: "abena@example.com",
-      resource: "Greatness Mall Guide",
-      date: "06 Oct 2026",
     },
   ];
 
   return (
     <div className="admin-dashboard-page">
-
-      {/* =====================================================
-          PAGE HEADER
-      ====================================================== */}
-
       <section className="admin-dashboard-header">
-
         <div>
-
           <span className="admin-dashboard-eyebrow">
             OVERVIEW
           </span>
 
-          <h1>
-            Dashboard
-          </h1>
+          <h1>Dashboard</h1>
 
           <p>
-            Manage Greatness Mall content and see recent activity.
+            Manage Greatness Mall content and see
+            recent activity.
           </p>
-
         </div>
 
-
         <div className="admin-dashboard-header-actions">
-
           <button
             type="button"
             className="admin-header-secondary-button"
+            onClick={() =>
+              navigate("/admin/sms")
+            }
           >
             <Send
               size={17}
               strokeWidth={1.8}
               aria-hidden="true"
             />
-
             Send SMS
           </button>
 
           <button
             type="button"
             className="admin-header-primary-button"
+            onClick={() =>
+              navigate("/admin/products/add")
+            }
           >
             <Plus
               size={17}
               strokeWidth={1.8}
               aria-hidden="true"
             />
-
             Add Product
           </button>
-
         </div>
-
       </section>
 
-
-      {/* =====================================================
-          STATISTICS
-      ====================================================== */}
+      {loadError && (
+        <div
+          className="admin-dashboard-error"
+          role="alert"
+        >
+          {loadError}
+        </div>
+      )}
 
       <section
         className="admin-stats-grid"
         aria-label="Dashboard statistics"
       >
-
         {stats.map((stat) => (
           <AdminStatCard
             key={stat.id}
@@ -185,42 +286,31 @@ const AdminDashboard = () => {
             icon={stat.icon}
           />
         ))}
-
       </section>
 
-
-      {/* =====================================================
-          QUICK ACTIONS
-      ====================================================== */}
-
       <section className="admin-dashboard-section">
-
         <div className="admin-section-header">
-
           <div>
-            <h2>
-              Quick Actions
-            </h2>
+            <h2>Quick Actions</h2>
 
             <p>
               Common tasks for managing the website.
             </p>
           </div>
-
         </div>
 
-
         <div className="admin-quick-actions-grid">
-
           <button
             type="button"
             className="admin-quick-action"
+            onClick={() =>
+              navigate("/admin/products/add")
+            }
           >
             <div className="admin-quick-action-icon">
               <Package
                 size={20}
                 strokeWidth={1.7}
-                aria-hidden="true"
               />
             </div>
 
@@ -237,20 +327,20 @@ const AdminDashboard = () => {
             <ArrowRight
               size={17}
               strokeWidth={1.7}
-              aria-hidden="true"
             />
           </button>
-
 
           <button
             type="button"
             className="admin-quick-action"
+            onClick={() =>
+              navigate("/admin/events/add")
+            }
           >
             <div className="admin-quick-action-icon">
               <CalendarDays
                 size={20}
                 strokeWidth={1.7}
-                aria-hidden="true"
               />
             </div>
 
@@ -260,27 +350,28 @@ const AdminDashboard = () => {
               </strong>
 
               <span>
-                Publish a new program or training event.
+                Publish a new program or training
+                event.
               </span>
             </div>
 
             <ArrowRight
               size={17}
               strokeWidth={1.7}
-              aria-hidden="true"
             />
           </button>
-
 
           <button
             type="button"
             className="admin-quick-action"
+            onClick={() =>
+              navigate("/admin/twi")
+            }
           >
             <div className="admin-quick-action-icon">
               <Languages
                 size={20}
                 strokeWidth={1.7}
-                aria-hidden="true"
               />
             </div>
 
@@ -297,20 +388,20 @@ const AdminDashboard = () => {
             <ArrowRight
               size={17}
               strokeWidth={1.7}
-              aria-hidden="true"
             />
           </button>
-
 
           <button
             type="button"
             className="admin-quick-action"
+            onClick={() =>
+              navigate("/admin/sms")
+            }
           >
             <div className="admin-quick-action-icon">
               <Send
                 size={20}
                 strokeWidth={1.7}
-                aria-hidden="true"
               />
             </div>
 
@@ -320,62 +411,51 @@ const AdminDashboard = () => {
               </strong>
 
               <span>
-                Prepare a broadcast for opt-in contacts.
+                Prepare a broadcast for opt-in
+                contacts.
               </span>
             </div>
 
             <ArrowRight
               size={17}
               strokeWidth={1.7}
-              aria-hidden="true"
             />
           </button>
-
         </div>
-
       </section>
 
-
-      {/* =====================================================
-          RECENT CONTACTS
-      ====================================================== */}
-
       <section className="admin-dashboard-section">
-
         <div className="admin-section-header">
-
           <div>
             <h2>
               Recent Opt-In Contacts
             </h2>
 
             <p>
-              Latest people who submitted the opt-in form.
+              Latest people who submitted the
+              opt-in form.
             </p>
           </div>
 
           <button
             type="button"
             className="admin-text-button"
+            onClick={() =>
+              navigate("/admin/contacts")
+            }
           >
             View All
 
             <ArrowRight
               size={15}
               strokeWidth={1.7}
-              aria-hidden="true"
             />
           </button>
-
         </div>
 
-
         <div className="admin-table-card">
-
           <div className="admin-table-scroll">
-
             <table className="admin-dashboard-table">
-
               <thead>
                 <tr>
                   <th>Name</th>
@@ -387,62 +467,50 @@ const AdminDashboard = () => {
               </thead>
 
               <tbody>
-
-                {recentContacts.map((contact) => (
-                  <tr key={contact.id}>
-                    <td>
-                      <strong>
-                        {contact.name}
-                      </strong>
-                    </td>
-
-                    <td>
-                      {contact.phone}
-                    </td>
-
-                    <td>
-                      {contact.email}
-                    </td>
-
-                    <td>
-                      {contact.resource}
-                    </td>
-
-                    <td>
-                      {contact.date}
+                {!loading &&
+                recentContacts.length === 0 ? (
+                  <tr>
+                    <td colSpan="5">
+                      No opt-in contacts yet.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  recentContacts.map(
+                    (contact) => (
+                      <tr key={contact.id}>
+                        <td>
+                          <strong>
+                            {contact.full_name}
+                          </strong>
+                        </td>
 
+                        <td>
+                          {contact.phone || "—"}
+                        </td>
+
+                        <td>
+                          {contact.email || "—"}
+                        </td>
+
+                        <td>
+                          {contact.campaign_title ||
+                            "Greatness Mall Resource"}
+                        </td>
+
+                        <td>
+                          {formatDate(
+                            contact.submitted_at
+                          )}
+                        </td>
+                      </tr>
+                    )
+                  )
+                )}
               </tbody>
-
             </table>
-
           </div>
-
         </div>
-
       </section>
-
-
-      {/* =====================================================
-          FRONTEND STATUS NOTE
-      ====================================================== */}
-
-      <section className="admin-dashboard-note">
-
-        <strong>
-          Frontend Preview
-        </strong>
-
-        <p>
-          Dashboard actions are currently visual only. Product publishing,
-          contacts, SMS broadcasting, uploads and authentication will become
-          functional after the Django backend is connected.
-        </p>
-
-      </section>
-
     </div>
   );
 };

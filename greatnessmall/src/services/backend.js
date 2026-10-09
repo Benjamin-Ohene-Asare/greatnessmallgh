@@ -5,30 +5,50 @@ const BACKEND_URL =
 
 /* Shared request helper */
 
-const request = async (
-  url,
-  options = {}
-) => {
-  const response = await fetch(
-    url,
-    {
-      ...options,
-      headers: {
-        Accept: "application/json",
-        ...options.headers,
-      },
-    }
-  );
+const request = async (url, options = {}) => {
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      Accept: "application/json",
+      ...options.headers,
+    },
+  });
 
   if (!response.ok) {
-    throw new Error(
-      `Request failed with status ${response.status}`
-    );
+    let message = "The request could not be completed.";
+
+    try {
+      const data = await response.json();
+
+      if (data.detail) {
+        message = data.detail;
+      } else if (data.message) {
+        message = data.message;
+      } else if (
+        data &&
+        typeof data === "object"
+      ) {
+        const firstError = Object.values(data)
+          .flat()
+          .find(Boolean);
+
+        if (firstError) {
+          message = String(firstError);
+        }
+      }
+    } catch {
+      // Keep the general message
+    }
+
+    throw new Error(message);
+  }
+
+  if (response.status === 204) {
+    return null;
   }
 
   return response.json();
 };
-
 
 /* Products */
 
@@ -646,3 +666,233 @@ export const deleteAdminEvent = (
     }
   );
 };
+
+
+export const getAdminOptInCampaign = () => {
+  return adminRequest(
+    `${BACKEND_URL}/leads/admin/optin/`
+  );
+};
+
+
+export const updateAdminOptInCampaign = (
+  formData
+) => {
+  return adminRequest(
+    `${BACKEND_URL}/leads/admin/optin/`,
+    {
+      method: "PATCH",
+      body: formData,
+    }
+  );
+};
+
+
+export const getAdminOptInSubmissions = (
+  params = {}
+) => {
+  const searchParams =
+    new URLSearchParams();
+
+  if (params.status) {
+    searchParams.set(
+      "status",
+      params.status
+    );
+  }
+
+  if (params.search) {
+    searchParams.set(
+      "search",
+      params.search
+    );
+  }
+
+  const query =
+    searchParams.toString();
+
+  return adminRequest(
+    `${BACKEND_URL}/leads/admin/submissions/${
+      query ? `?${query}` : ""
+    }`
+  );
+};
+
+
+export const updateAdminOptInSubmission = (
+  id,
+  data
+) => {
+  return adminRequest(
+    `${BACKEND_URL}/leads/admin/submissions/${encodeURIComponent(
+      id
+    )}/`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body: JSON.stringify(
+        data
+      ),
+    }
+  );
+};
+
+
+export const getAdminTwiContent = () =>
+  adminRequest(`${BACKEND_URL}/twi/admin/`);
+
+export const createAdminTwiContent = (formData) =>
+  adminRequest(`${BACKEND_URL}/twi/admin/`, {
+    method: "POST",
+    body: formData,
+  });
+
+export const updateAdminTwiContent = (id, formData) =>
+  adminRequest(`${BACKEND_URL}/twi/admin/${encodeURIComponent(id)}/`, {
+    method: "PATCH",
+    body: formData,
+  });
+
+export const deleteAdminTwiContent = (id) =>
+  adminRequest(`${BACKEND_URL}/twi/admin/${encodeURIComponent(id)}/`, {
+    method: "DELETE",
+  });
+
+
+  export const getAdminTestimonials = () =>
+  adminRequest(`${BACKEND_URL}/testimonials/admin/`);
+
+export const createAdminTestimonial = (formData) =>
+  adminRequest(`${BACKEND_URL}/testimonials/admin/`, {
+    method: "POST",
+    body: formData,
+  });
+
+export const updateAdminTestimonial = (id, formData) =>
+  adminRequest(`${BACKEND_URL}/testimonials/admin/${encodeURIComponent(id)}/`, {
+    method: "PATCH",
+    body: formData,
+  });
+
+export const deleteAdminTestimonial = (id) =>
+  adminRequest(`${BACKEND_URL}/testimonials/admin/${encodeURIComponent(id)}/`, {
+    method: "DELETE",
+  });
+
+export const getAdminFaqs = () =>
+  adminRequest(`${BACKEND_URL}/admin-api/faqs/`);
+
+export const createAdminFaq = (data) =>
+  adminRequest(`${BACKEND_URL}/admin-api/faqs/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+export const updateAdminFaq = (id, data) =>
+  adminRequest(`${BACKEND_URL}/admin-api/faqs/${encodeURIComponent(id)}/`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+export const deleteAdminFaq = (id) =>
+  adminRequest(`${BACKEND_URL}/admin-api/faqs/${encodeURIComponent(id)}/`, {
+    method: "DELETE",
+  });
+
+export const getAdminFaqCategories = () =>
+  adminRequest(`${BACKEND_URL}/admin-api/faqs/categories/`);
+
+export const createAdminFaqCategory = (data) =>
+  adminRequest(`${BACKEND_URL}/admin-api/faqs/categories/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+export const deleteAdminFaqCategory = (id) =>
+  adminRequest(`${BACKEND_URL}/admin-api/faqs/categories/${encodeURIComponent(id)}/`, {
+    method: "DELETE",
+  });
+
+
+  export const getAdminSMSCustomers = () =>
+  adminRequest(`${BACKEND_URL}/sms/admin/customers/`);
+
+export const sendAdminSMSBroadcast = (message) =>
+  adminRequest(`${BACKEND_URL}/sms/admin/broadcast/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message }),
+  });
+
+
+  export const sendAdminSMSToContact = (id, message) =>
+  adminRequest(
+    `${BACKEND_URL}/sms/admin/contact/${encodeURIComponent(id)}/`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ message }),
+    }
+  );
+
+
+  export const getAdminRecoveryPhone = () =>
+  adminRequest(`${BACKEND_URL}/core/admin/recovery-phone/`);
+
+export const saveAdminRecoveryPhone = (phone) =>
+  adminRequest(`${BACKEND_URL}/core/admin/recovery-phone/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ phone }),
+  });
+
+
+
+ export const requestPasswordResetSMS = (phone) =>
+  request(`${BACKEND_URL}/core/password-reset/request/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ phone }),
+  });
+
+export const confirmPasswordResetSMS = (phone, code, newPassword) =>
+  request(`${BACKEND_URL}/core/password-reset/confirm/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      phone,
+      code,
+      new_password: newPassword,
+    }),
+  }); 
+
+
+
+
+  export const changeAdminPassword = (
+  currentPassword,
+  newPassword
+) =>
+  adminRequest(
+    `${BACKEND_URL}/core/admin/change-password/`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        current_password: currentPassword,
+        new_password: newPassword,
+      }),
+    }
+  );

@@ -7,7 +7,6 @@ import {
   Outlet,
 } from "react-router-dom";
 
-
 import Home from "./pages/home/Home";
 import OptInPage from "./pages/optinpage/OptInPage";
 import ThankYou from "./pages/thanku/ThankYou";
@@ -16,18 +15,16 @@ import ProductDetails from "./pages/productDetails/ProductDetails";
 import Twi from "./pages/twi/Twi";
 import FAQ from "./pages/faq/FAQ";
 
-
 import NavBar from "./components/navbar/NavBar";
 import Footer from "./components/footer/Footer";
 import ScrollToTop from "./components/scrolltotop/ScrollToTop";
 import Whatsapp from "./components/whatsapp/Whatsapp";
 
-
 import RequireAdmin from "./pages/dashboard/component/RequireAdmin";
-
 import AdminLayout from "./pages/dashboard/layout/AdminLayout";
 
 import AdminLogin from "./pages/dashboard/pages/login/AdminLogin";
+import AdminForgotPassword from "./pages/dashboard/pages/login/AdminForgotPassword";
 
 import AdminDashboard from "./pages/dashboard/pages/dashboard/AdminDashboard";
 
@@ -42,16 +39,12 @@ import AddEvent from "./pages/dashboard/pages/events/AddEvent";
 import EditEvent from "./pages/dashboard/pages/events/EditEvent";
 
 import AdminOptIn from "./pages/dashboard/pages/optin/AdminOptIn";
-
 import AdminContacts from "./pages/dashboard/pages/contacts/AdminContacts";
-
 import AdminSms from "./pages/dashboard/pages/sms/AdminSms";
-
 import AdminFAQ from "./pages/dashboard/pages/faq/AdminFAQ";
-
 import AdminTestimonials from "./pages/dashboard/pages/testimonials/AdminTestimonials";
-
 import AdminTwi from "./pages/dashboard/pages/twi/AdminTwi";
+import AdminSettings from "./pages/settings/AdminSettings";
 
 
 /* Public website layout */
@@ -76,9 +69,7 @@ const MainLayout = () => {
 const App = () => {
   return (
     <Router>
-
       <ScrollToTop />
-
 
       <Routes>
 
@@ -98,7 +89,6 @@ const App = () => {
         {/* Public website */}
 
         <Route element={<MainLayout />}>
-
           <Route
             path="/home"
             element={<Home />}
@@ -123,29 +113,29 @@ const App = () => {
             path="/twi"
             element={<Twi />}
           />
-
         </Route>
 
 
-        {/* Admin login */}
+        {/* Public admin authentication */}
 
         <Route
           path="/admin/login"
           element={<AdminLogin />}
         />
 
+        <Route
+          path="/admin/forgot-password"
+          element={<AdminForgotPassword />}
+        />
+
 
         {/* Protected admin dashboard */}
 
-        <Route
-          element={<RequireAdmin />}
-        >
-
+        <Route element={<RequireAdmin />}>
           <Route
             path="/admin"
             element={<AdminLayout />}
           >
-
             <Route
               index
               element={<AdminDashboard />}
@@ -196,10 +186,10 @@ const App = () => {
             />
 
 
-            {/* Opt-in */}
+            {/* Opt-In */}
 
             <Route
-              path="optin"
+              path="opt-in"
               element={<AdminOptIn />}
             />
 
@@ -243,12 +233,17 @@ const App = () => {
               element={<AdminTwi />}
             />
 
-          </Route>
 
+            {/* Settings */}
+
+            <Route
+              path="settings"
+              element={<AdminSettings />}
+            />
+          </Route>
         </Route>
 
       </Routes>
-
     </Router>
   );
 };

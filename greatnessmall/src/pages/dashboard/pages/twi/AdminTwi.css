@@ -1,0 +1,248 @@
+.admin-twi-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.admin-twi-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.admin-twi-header > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-twi-header span {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--admin-muted, #777);
+}
+
+.admin-twi-header h1 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 600;
+  color: var(--admin-text, #1f1f1f);
+}
+
+.admin-twi-header p {
+  margin: 0;
+  color: var(--admin-muted, #777);
+}
+
+.admin-twi-header button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 10px;
+  padding: 11px 16px;
+  background: #6f3cc3;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.admin-twi-header button:hover {
+  opacity: 0.92;
+}
+
+.admin-twi-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  padding: 22px;
+  border: 1px solid #e7e3ee;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.admin-twi-form-header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.admin-twi-form-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.admin-twi-form-header button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid #e5e5e5;
+  border-radius: 9px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.admin-twi-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.admin-twi-form input,
+.admin-twi-form textarea,
+.admin-twi-form select {
+  width: 100%;
+  border: 1px solid #dedbe4;
+  border-radius: 10px;
+  padding: 11px 12px;
+  background: #fff;
+  color: #222;
+  font: inherit;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.admin-twi-form textarea {
+  resize: vertical;
+}
+
+.admin-twi-form input:focus,
+.admin-twi-form textarea:focus,
+.admin-twi-form select:focus {
+  border-color: #6f3cc3;
+  box-shadow: 0 0 0 3px rgba(111, 60, 195, 0.08);
+}
+
+.admin-twi-form label:has(input[type="checkbox"]) {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-twi-form input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+
+.admin-twi-form > button[type="submit"] {
+  grid-column: 1 / -1;
+  justify-self: flex-start;
+  border: 0;
+  border-radius: 10px;
+  padding: 11px 18px;
+  background: #6f3cc3;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.admin-twi-form > button[type="submit"]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.admin-twi-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-twi-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  border: 1px solid #e7e3ee;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.admin-twi-item > div:first-child {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.admin-twi-item strong {
+  margin-right: 6px;
+  color: #222;
+}
+
+.admin-twi-item span {
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #f5f2fa;
+  color: #6f3cc3;
+  font-size: 12px;
+}
+
+.admin-twi-item > div:last-child {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-twi-item button {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #e5e5e5;
+  border-radius: 9px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.admin-twi-item button:last-child {
+  color: #c73737;
+}
+
+.admin-twi-page > p[role="alert"] {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #fff1f1;
+  color: #b42318;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .admin-twi-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .admin-twi-header button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .admin-twi-form {
+    grid-template-columns: 1fr;
+    padding: 18px;
+  }
+
+  .admin-twi-form > * {
+    grid-column: 1;
+  }
+
+  .admin-twi-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .admin-twi-item > div:last-child {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}

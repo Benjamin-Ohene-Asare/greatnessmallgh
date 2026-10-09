@@ -1,1075 +1,367 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  Send,
-  Users,
-  Search,
   MessageSquareText,
-  CheckCircle2,
-  Clock3,
-  AlertCircle,
+  Send,
+  User,
+  Users,
+  X,
 } from "lucide-react";
+
+import {
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+
+import {
+  getAdminSMSCustomers,
+  sendAdminSMSBroadcast,
+  sendAdminSMSToContact,
+} from "../../../../services/backend";
 
 import "./AdminSms.css";
 
 const AdminSms = () => {
-  /* =========================================================
-     FRONTEND-ONLY CONTACTS
+  const location = useLocation();
+  const navigate = useNavigate();
 
-     Later Django will provide real opt-in contacts.
-  ========================================================= */
+  const selectedContact =
+    location.state?.contactId
+      ? location.state
+      : null;
 
-  const contacts = [
-    {
-      id: 1,
-      name: "Kwame Mensah",
-      phone: "+233 24 123 4567",
-      status: "New",
-    },
-    {
-      id: 2,
-      name: "Akosua Owusu",
-      phone: "+233 55 234 8890",
-      status: "New",
-    },
-    {
-      id: 3,
-      name: "Yaw Boateng",
-      phone: "+233 20 401 9921",
-      status: "Contacted",
-    },
-    {
-      id: 4,
-      name: "Abena Asare",
-      phone: "+233 27 777 4561",
-      status: "Contacted",
-    },
-    {
-      id: 5,
-      name: "Kofi Appiah",
-      phone: "+233 50 339 1102",
-      status: "New",
-    },
-  ];
+  const singleContactMode =
+    Boolean(selectedContact);
 
-  const [audienceType, setAudienceType] =
-    useState("all");
+  const [message, setMessage] = useState("");
+  const [customerCount, setCustomerCount] = useState(0);
+  const [sending, setSending] = useState(false);
+  const [feedback, setFeedback] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [showConfirm, setShowConfirm] = useState(false);
 
-  const [selectedIds, setSelectedIds] =
-    useState([]);
+  useEffect(() => {
+    let active = true;
 
-  const [searchTerm, setSearchTerm] =
-    useState("");
+    const loadCustomers = async () => {
+      try {
+        setLoading(true);
 
-  const [message, setMessage] =
-    useState("");
+        const data = await getAdminSMSCustomers();
 
-  const [senderName, setSenderName] =
-    useState("Greatness Mall");
+        if (!active) return;
 
-  const [sendNow, setSendNow] =
-    useState(true);
-
-  const [scheduleDate, setScheduleDate] =
-    useState("");
-
-  const [scheduleTime, setScheduleTime] =
-    useState("");
-
-  const [history] = useState([
-    {
-      id: 1,
-      message:
-        "Thank you for joining Greatness Mall.",
-      audience: "All Contacts",
-      recipients: 24,
-      status: "Sent",
-      date: "06 Oct 2026",
-    },
-    {
-      id: 2,
-      message:
-        "Join our upcoming product education session.",
-      audience: "Selected Contacts",
-      recipients: 8,
-      status: "Sent",
-      date: "04 Oct 2026",
-    },
-  ]);
-
-  /* =========================================================
-     SEARCH CONTACTS
-  ========================================================= */
-
-  const filteredContacts = useMemo(() => {
-    const search =
-      searchTerm.trim().toLowerCase();
-
-    if (!search) {
-      return contacts;
-    }
-
-    return contacts.filter((contact) => {
-      return (
-        contact.name
-          .toLowerCase()
-          .includes(search) ||
-        contact.phone
-          .toLowerCase()
-          .includes(search)
-      );
-    });
-  }, [contacts, searchTerm]);
-
-  /* =========================================================
-     AUDIENCE COUNT
-  ========================================================= */
-
-  const audienceCount = useMemo(() => {
-    if (audienceType === "all") {
-      return contacts.length;
-    }
-
-    if (audienceType === "new") {
-      return contacts.filter(
-        (contact) =>
-          contact.status === "New"
-      ).length;
-    }
-
-    if (
-      audienceType ===
-      "contacted"
-    ) {
-      return contacts.filter(
-        (contact) =>
-          contact.status ===
-          "Contacted"
-      ).length;
-    }
-
-    if (
-      audienceType ===
-      "selected"
-    ) {
-      return selectedIds.length;
-    }
-
-    return 0;
-  }, [
-    audienceType,
-    contacts,
-    selectedIds,
-  ]);
-
-  /* =========================================================
-     SMS LENGTH
-
-     This is only a simple frontend character estimate.
-     Real SMS segmentation depends on encoding and provider.
-  ========================================================= */
-
-  const characterCount =
-    message.length;
-
-  const estimatedSegments =
-    message.length === 0
-      ? 0
-      : Math.ceil(
-          message.length / 160
+        setCustomerCount(
+          data.customer_count || 0
         );
+      } catch (error) {
+        if (!active) return;
 
-  /* =========================================================
-     CONTACT SELECTION
-  ========================================================= */
+        setFeedback(
+          error.message ||
+            "Unable to load customer information."
+        );
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    };
 
-  const toggleContact = (id) => {
-    setSelectedIds((current) =>
-      current.includes(id)
-        ? current.filter(
-            (item) =>
-              item !== id
-          )
-        : [...current, id]
-    );
+    loadCustomers();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const clearSelectedContact = () => {
+    navigate("/admin/sms", {
+      replace: true,
+      state: null,
+    });
   };
-
-  /* =========================================================
-     SEND
-
-     Frontend simulation only.
-  ========================================================= */
 
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    if (!message.trim()) {
-      window.alert(
-        "Please enter an SMS message."
+    const cleanMessage = message.trim();
+
+    if (!cleanMessage) {
+      setFeedback(
+        "Write a message before sending."
       );
-
-      return;
-    }
-
-    if (audienceCount === 0) {
-      window.alert(
-        "Please select at least one recipient."
-      );
-
       return;
     }
 
     if (
-      !sendNow &&
-      (!scheduleDate ||
-        !scheduleTime)
+      !singleContactMode &&
+      customerCount === 0
     ) {
-      window.alert(
-        "Choose a schedule date and time."
+      setFeedback(
+        "There are no customers to send SMS to."
       );
-
       return;
     }
 
-    console.log({
-      audienceType,
-      selectedIds,
-      audienceCount,
-      senderName,
-      message,
-      sendNow,
-      scheduleDate,
-      scheduleTime,
-    });
+    setFeedback("");
+    setShowConfirm(true);
+  };
 
-    window.alert(
-      "Frontend only: no SMS has been sent. Django and the SMS provider will handle real delivery later."
-    );
+  const confirmSend = async () => {
+    const cleanMessage = message.trim();
+
+    try {
+      setSending(true);
+      setShowConfirm(false);
+      setFeedback("");
+
+      if (singleContactMode) {
+        await sendAdminSMSToContact(
+          selectedContact.contactId,
+          cleanMessage
+        );
+
+        setFeedback(
+          `SMS sent successfully to ${selectedContact.contactName}.`
+        );
+      } else {
+        const result =
+          await sendAdminSMSBroadcast(
+            cleanMessage
+          );
+
+        setFeedback(
+          `SMS sent successfully to ${result.recipients} customer${
+            result.recipients === 1 ? "" : "s"
+          }.`
+        );
+      }
+
+      setMessage("");
+    } catch (error) {
+      setFeedback(
+        error.message ||
+          "Unable to send SMS."
+      );
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
     <div className="admin-sms-page">
-
-      {/* HEADER */}
-
       <div className="admin-sms-header">
+        <span>MARKETING</span>
+
+        <h1>SMS Broadcast</h1>
+
+        <p>
+          {singleContactMode
+            ? "Send an SMS directly to the selected customer."
+            : "Send an SMS message to your Greatness Mall customers."}
+        </p>
+      </div>
+
+      <div className="admin-sms-count">
+        {singleContactMode ? (
+          <User size={20} />
+        ) : (
+          <Users size={20} />
+        )}
 
         <div>
-          <span className="admin-sms-eyebrow">
-            MARKETING
+          <span>
+            {singleContactMode
+              ? "Selected Customer"
+              : "Available Customers"}
           </span>
 
-          <h1>
-            SMS Broadcast
-          </h1>
+          <strong>
+            {singleContactMode
+              ? selectedContact.contactName
+              : loading
+                ? "..."
+                : customerCount}
+          </strong>
 
-          <p>
-            Create and send updates to people who joined through the opt-in page.
-          </p>
+          {singleContactMode && (
+            <small>
+              {selectedContact.contactPhone}
+            </small>
+          )}
         </div>
-
       </div>
 
-
-      {/* SUMMARY */}
-
-      <div className="admin-sms-summary">
-
-        <div className="admin-sms-summary-card">
-
-          <div className="admin-sms-summary-icon">
-            <Users
-              size={19}
-              strokeWidth={1.7}
-            />
-          </div>
-
-          <div>
-            <span>
-              Available Contacts
-            </span>
-
-            <strong>
-              {contacts.length}
-            </strong>
-          </div>
-
-        </div>
-
-
-        <div className="admin-sms-summary-card">
-
-          <div className="admin-sms-summary-icon audience">
-            <Send
-              size={19}
-              strokeWidth={1.7}
-            />
-          </div>
-
-          <div>
-            <span>
-              Current Audience
-            </span>
-
-            <strong>
-              {audienceCount}
-            </strong>
-          </div>
-
-        </div>
-
-
-        <div className="admin-sms-summary-card">
-
-          <div className="admin-sms-summary-icon messages">
-            <MessageSquareText
-              size={19}
-              strokeWidth={1.7}
-            />
-          </div>
-
-          <div>
-            <span>
-              Previous Broadcasts
-            </span>
-
-            <strong>
-              {history.length}
-            </strong>
-          </div>
-
-        </div>
-
-      </div>
-
+      {singleContactMode && (
+        <button
+          type="button"
+          className="admin-sms-clear-recipient"
+          onClick={clearSelectedContact}
+        >
+          Send to All Customers Instead
+        </button>
+      )}
 
       <form
-        className="admin-sms-layout"
+        className="admin-sms-card"
         onSubmit={handleSubmit}
       >
-
-        {/* LEFT */}
-
-        <div className="admin-sms-main">
-
-          {/* AUDIENCE */}
-
-          <section className="admin-sms-card">
-
-            <div className="admin-sms-card-heading">
-
-              <div className="admin-sms-card-icon">
-                <Users
-                  size={19}
-                  strokeWidth={1.7}
-                />
-              </div>
-
-              <div>
-                <h2>
-                  Choose Audience
-                </h2>
-
-                <p>
-                  Select which opt-in contacts should receive the message.
-                </p>
-              </div>
-
-            </div>
-
-
-            <div className="admin-sms-audience-options">
-
-              <label
-                className={
-                  audienceType === "all"
-                    ? "admin-sms-audience-option active"
-                    : "admin-sms-audience-option"
-                }
-              >
-                <input
-                  type="radio"
-                  name="audience"
-                  value="all"
-                  checked={
-                    audienceType ===
-                    "all"
-                  }
-                  onChange={(event) =>
-                    setAudienceType(
-                      event.target
-                        .value
-                    )
-                  }
-                />
-
-                <div>
-                  <strong>
-                    All Contacts
-                  </strong>
-
-                  <span>
-                    Send to everyone who submitted the opt-in form.
-                  </span>
-                </div>
-
-              </label>
-
-
-              <label
-                className={
-                  audienceType === "new"
-                    ? "admin-sms-audience-option active"
-                    : "admin-sms-audience-option"
-                }
-              >
-                <input
-                  type="radio"
-                  name="audience"
-                  value="new"
-                  checked={
-                    audienceType ===
-                    "new"
-                  }
-                  onChange={(event) =>
-                    setAudienceType(
-                      event.target
-                        .value
-                    )
-                  }
-                />
-
-                <div>
-                  <strong>
-                    New Contacts
-                  </strong>
-
-                  <span>
-                    Send only to contacts marked as new.
-                  </span>
-                </div>
-
-              </label>
-
-
-              <label
-                className={
-                  audienceType ===
-                  "contacted"
-                    ? "admin-sms-audience-option active"
-                    : "admin-sms-audience-option"
-                }
-              >
-                <input
-                  type="radio"
-                  name="audience"
-                  value="contacted"
-                  checked={
-                    audienceType ===
-                    "contacted"
-                  }
-                  onChange={(event) =>
-                    setAudienceType(
-                      event.target
-                        .value
-                    )
-                  }
-                />
-
-                <div>
-                  <strong>
-                    Contacted
-                  </strong>
-
-                  <span>
-                    Send to contacts already marked as contacted.
-                  </span>
-                </div>
-
-              </label>
-
-
-              <label
-                className={
-                  audienceType ===
-                  "selected"
-                    ? "admin-sms-audience-option active"
-                    : "admin-sms-audience-option"
-                }
-              >
-                <input
-                  type="radio"
-                  name="audience"
-                  value="selected"
-                  checked={
-                    audienceType ===
-                    "selected"
-                  }
-                  onChange={(event) =>
-                    setAudienceType(
-                      event.target
-                        .value
-                    )
-                  }
-                />
-
-                <div>
-                  <strong>
-                    Selected Contacts
-                  </strong>
-
-                  <span>
-                    Manually choose individual recipients.
-                  </span>
-                </div>
-
-              </label>
-
-            </div>
-
-
-            {audienceType ===
-              "selected" && (
-
-              <div className="admin-sms-contact-selector">
-
-                <div className="admin-sms-contact-search">
-
-                  <Search
-                    size={16}
-                    strokeWidth={1.7}
-                  />
-
-                  <input
-                    type="search"
-                    placeholder="Search contacts..."
-                    value={searchTerm}
-                    onChange={(event) =>
-                      setSearchTerm(
-                        event.target
-                          .value
-                      )
-                    }
-                  />
-
-                </div>
-
-
-                <div className="admin-sms-contact-list">
-
-                  {filteredContacts.map(
-                    (contact) => (
-
-                      <label
-                        key={contact.id}
-                        className="admin-sms-contact-row"
-                      >
-
-                        <input
-                          type="checkbox"
-                          checked={selectedIds.includes(
-                            contact.id
-                          )}
-                          onChange={() =>
-                            toggleContact(
-                              contact.id
-                            )
-                          }
-                        />
-
-                        <div className="admin-sms-contact-avatar">
-                          {contact.name
-                            .charAt(0)
-                            .toUpperCase()}
-                        </div>
-
-
-                        <div className="admin-sms-contact-info">
-
-                          <strong>
-                            {contact.name}
-                          </strong>
-
-                          <span>
-                            {contact.phone}
-                          </span>
-
-                        </div>
-
-
-                        <span className="admin-sms-contact-status">
-                          {contact.status}
-                        </span>
-
-                      </label>
-
-                    )
-                  )}
-
-                </div>
-
-              </div>
-
-            )}
-
-          </section>
-
-
-          {/* MESSAGE */}
-
-          <section className="admin-sms-card">
-
-            <div className="admin-sms-card-heading">
-
-              <div className="admin-sms-card-icon">
-                <MessageSquareText
-                  size={19}
-                  strokeWidth={1.7}
-                />
-              </div>
-
-              <div>
-                <h2>
-                  Message
-                </h2>
-
-                <p>
-                  Write the SMS that should be sent to the selected audience.
-                </p>
-              </div>
-
-            </div>
-
-
-            <div className="admin-sms-field">
-
-              <label htmlFor="sender-name">
-                Sender Name
-              </label>
-
-              <input
-                id="sender-name"
-                type="text"
-                value={senderName}
-                onChange={(event) =>
-                  setSenderName(
-                    event.target.value
-                  )
-                }
-                maxLength={30}
-                placeholder="Greatness Mall"
-              />
-
-              <small>
-                The real sender ID must later be approved by the SMS provider where required.
-              </small>
-
-            </div>
-
-
-            <div className="admin-sms-field">
-
-              <label htmlFor="sms-message">
-                SMS Message
-                <span>*</span>
-              </label>
-
-              <textarea
-                id="sms-message"
-                value={message}
-                onChange={(event) =>
-                  setMessage(
-                    event.target.value
-                  )
-                }
-                rows="8"
-                maxLength={600}
-                placeholder="Write your message..."
-                required
-              />
-
-
-              <div className="admin-sms-message-helper">
-
-                <span>
-                  {characterCount}/600 characters
-                </span>
-
-                <span>
-                  Approx. {estimatedSegments} SMS segment
-                  {estimatedSegments === 1
-                    ? ""
-                    : "s"}
-                </span>
-
-              </div>
-
-            </div>
-
-          </section>
-
-
-          {/* DELIVERY */}
-
-          <section className="admin-sms-card">
-
-            <div className="admin-sms-card-heading">
-
-              <div className="admin-sms-card-icon">
-                <Clock3
-                  size={19}
-                  strokeWidth={1.7}
-                />
-              </div>
-
-              <div>
-                <h2>
-                  Delivery
-                </h2>
-
-                <p>
-                  Send immediately or prepare the message for a future time.
-                </p>
-              </div>
-
-            </div>
-
-
-            <div className="admin-sms-delivery-options">
-
-              <label
-                className={
-                  sendNow
-                    ? "admin-sms-delivery-option active"
-                    : "admin-sms-delivery-option"
-                }
-              >
-                <input
-                  type="radio"
-                  name="delivery"
-                  checked={sendNow}
-                  onChange={() =>
-                    setSendNow(true)
-                  }
-                />
-
-                <div>
-                  <strong>
-                    Send Now
-                  </strong>
-
-                  <span>
-                    Send immediately after confirmation.
-                  </span>
-                </div>
-
-              </label>
-
-
-              <label
-                className={
-                  !sendNow
-                    ? "admin-sms-delivery-option active"
-                    : "admin-sms-delivery-option"
-                }
-              >
-                <input
-                  type="radio"
-                  name="delivery"
-                  checked={!sendNow}
-                  onChange={() =>
-                    setSendNow(false)
-                  }
-                />
-
-                <div>
-                  <strong>
-                    Schedule
-                  </strong>
-
-                  <span>
-                    Choose a future date and time.
-                  </span>
-                </div>
-
-              </label>
-
-            </div>
-
-
-            {!sendNow && (
-
-              <div className="admin-sms-schedule-grid">
-
-                <div className="admin-sms-field">
-
-                  <label htmlFor="sms-date">
-                    Date
-                  </label>
-
-                  <input
-                    id="sms-date"
-                    type="date"
-                    value={scheduleDate}
-                    onChange={(event) =>
-                      setScheduleDate(
-                        event.target
-                          .value
-                      )
-                    }
-                  />
-
-                </div>
-
-
-                <div className="admin-sms-field">
-
-                  <label htmlFor="sms-time">
-                    Time
-                  </label>
-
-                  <input
-                    id="sms-time"
-                    type="time"
-                    value={scheduleTime}
-                    onChange={(event) =>
-                      setScheduleTime(
-                        event.target
-                          .value
-                      )
-                    }
-                  />
-
-                </div>
-
-              </div>
-
-            )}
-
-          </section>
-
-        </div>
-
-
-        {/* RIGHT SIDEBAR */}
-
-        <aside className="admin-sms-sidebar">
-
-          <div className="admin-sms-preview-card">
-
-            <div className="admin-sms-preview-heading">
-
-              <div>
-                <span>
-                  MESSAGE PREVIEW
-                </span>
-
-                <h2>
-                  SMS Preview
-                </h2>
-              </div>
-
-              <MessageSquareText
-                size={18}
-                strokeWidth={1.7}
-              />
-
-            </div>
-
-
-            <div className="admin-sms-phone-preview">
-
-              <div className="admin-sms-phone-header">
-
-                <div className="admin-sms-phone-avatar">
-                  G
-                </div>
-
-                <div>
-                  <strong>
-                    {senderName ||
-                      "Greatness Mall"}
-                  </strong>
-
-                  <span>
-                    SMS
-                  </span>
-                </div>
-
-              </div>
-
-
-              <div className="admin-sms-bubble">
-                {message ||
-                  "Your SMS message will appear here."}
-              </div>
-
-            </div>
-
-
-            <div className="admin-sms-send-summary">
-
-              <div>
-                <span>
-                  Audience
-                </span>
-
-                <strong>
-                  {audienceCount} recipients
-                </strong>
-              </div>
-
-
-              <div>
-                <span>
-                  Delivery
-                </span>
-
-                <strong>
-                  {sendNow
-                    ? "Send now"
-                    : "Scheduled"}
-                </strong>
-              </div>
-
-
-              <div>
-                <span>
-                  Approx. SMS
-                </span>
-
-                <strong>
-                  {estimatedSegments} segment
-                  {estimatedSegments === 1
-                    ? ""
-                    : "s"} per recipient
-                </strong>
-              </div>
-
-            </div>
-
-
-            <button
-              type="submit"
-              className="admin-sms-send-button"
-            >
-              <Send
-                size={17}
-                strokeWidth={1.8}
-              />
-
-              {sendNow
-                ? "Send Broadcast"
-                : "Schedule Broadcast"}
-            </button>
-
-
-            <div className="admin-sms-warning">
-
-              <AlertCircle
-                size={16}
-                strokeWidth={1.7}
-              />
-
-              <p>
-                Frontend preview only. This button does not send real SMS yet.
-              </p>
-
-            </div>
-
-          </div>
-
-        </aside>
-
-      </form>
-
-
-      {/* BROADCAST HISTORY */}
-
-      <section className="admin-sms-history-section">
-
-        <div className="admin-sms-history-heading">
+        <div className="admin-sms-card-heading">
+          <MessageSquareText size={20} />
 
           <div>
-            <h2>
-              Broadcast History
+            <h2>Message</h2>
+
+            <p>
+              {singleContactMode
+                ? `This message will be sent only to ${selectedContact.contactName}.`
+                : "This message will be sent to all customers with a phone number."}
+            </p>
+          </div>
+        </div>
+
+        <textarea
+          value={message}
+          onChange={(event) =>
+            setMessage(event.target.value)
+          }
+          maxLength={600}
+          rows={7}
+          placeholder="Write your SMS message..."
+          required
+        />
+
+        <div className="admin-sms-bottom">
+          <span>
+            {message.length}/600 characters
+          </span>
+
+          <button
+            type="submit"
+            disabled={
+              sending ||
+              loading ||
+              (
+                !singleContactMode &&
+                customerCount === 0
+              )
+            }
+          >
+            <Send size={17} />
+
+            {sending
+              ? "Sending..."
+              : singleContactMode
+                ? `Send SMS to ${selectedContact.contactName}`
+                : "Send SMS to All Customers"}
+          </button>
+        </div>
+
+        {feedback && (
+          <p className="admin-sms-feedback">
+            {feedback}
+          </p>
+        )}
+      </form>
+
+      {showConfirm && (
+        <div
+          className="admin-sms-modal-overlay"
+          onMouseDown={(event) => {
+            if (
+              event.target ===
+              event.currentTarget
+            ) {
+              setShowConfirm(false);
+            }
+          }}
+        >
+          <div
+            className="admin-sms-confirm-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="sms-confirm-title"
+          >
+            <button
+              type="button"
+              className="admin-sms-modal-close"
+              onClick={() =>
+                setShowConfirm(false)
+              }
+              aria-label="Close confirmation"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="admin-sms-confirm-icon">
+              <Send size={22} />
+            </div>
+
+            <span className="admin-sms-confirm-label">
+              CONFIRM MESSAGE
+            </span>
+
+            <h2 id="sms-confirm-title">
+              Send SMS?
             </h2>
 
             <p>
-              Previous SMS campaigns will appear here.
+              {singleContactMode
+                ? `This message will be sent to ${selectedContact.contactName}.`
+                : `This message will be sent to ${customerCount} customer${
+                    customerCount === 1 ? "" : "s"
+                  }.`}
             </p>
+
+            <div className="admin-sms-confirm-recipient">
+              <span>Recipient</span>
+
+              <strong>
+                {singleContactMode
+                  ? selectedContact.contactName
+                  : `All Customers (${customerCount})`}
+              </strong>
+
+              {singleContactMode && (
+                <small>
+                  {selectedContact.contactPhone}
+                </small>
+              )}
+            </div>
+
+            <div className="admin-sms-confirm-preview">
+              <span>Message</span>
+
+              <p>{message}</p>
+            </div>
+
+            <div className="admin-sms-confirm-actions">
+              <button
+                type="button"
+                className="admin-sms-confirm-cancel"
+                onClick={() =>
+                  setShowConfirm(false)
+                }
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                className="admin-sms-confirm-send"
+                onClick={confirmSend}
+                disabled={sending}
+              >
+                <Send size={16} />
+
+                {sending
+                  ? "Sending..."
+                  : "Send SMS"}
+              </button>
+            </div>
           </div>
-
         </div>
-
-
-        <div className="admin-sms-history-table-card">
-
-          <div className="admin-sms-history-scroll">
-
-            <table className="admin-sms-history-table">
-
-              <thead>
-                <tr>
-                  <th>Message</th>
-                  <th>Audience</th>
-                  <th>Recipients</th>
-                  <th>Status</th>
-                  <th>Date</th>
-                </tr>
-              </thead>
-
-
-              <tbody>
-
-                {history.map((item) => (
-
-                  <tr key={item.id}>
-
-                    <td>
-                      <strong>
-                        {item.message}
-                      </strong>
-                    </td>
-
-                    <td>
-                      {item.audience}
-                    </td>
-
-                    <td>
-                      {item.recipients}
-                    </td>
-
-                    <td>
-
-                      <span className="admin-sms-history-status">
-                        <CheckCircle2
-                          size={13}
-                          strokeWidth={1.8}
-                        />
-
-                        {item.status}
-                      </span>
-
-                    </td>
-
-                    <td>
-                      {item.date}
-                    </td>
-
-                  </tr>
-
-                ))}
-
-              </tbody>
-
-            </table>
-
-          </div>
-
-        </div>
-
-      </section>
-
+      )}
     </div>
   );
 };

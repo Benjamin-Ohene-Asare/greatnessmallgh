@@ -3,12 +3,12 @@ import { Outlet } from "react-router-dom";
 
 import AdminSidebar from "../component/AdminSidebar";
 import AdminTopbar from "../component/AdminTopbar";
+import AdminTour from "../component/AdminTour";
 
 import "./AdminLayout.css";
 
 const AdminLayout = () => {
-  const [sidebarOpen, setSidebarOpen] =
-    useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const openSidebar = () => {
     setSidebarOpen(true);
@@ -20,30 +20,14 @@ const AdminLayout = () => {
 
   return (
     <div className="admin-layout">
-
-      {/* ==============================================
-          ADMIN SIDEBAR
-
-          Frontend navigation only.
-
-          SECURITY:
-          This does not protect admin routes.
-          Django authentication and authorization
-          will be responsible for that later.
-      =============================================== */}
-
       <AdminSidebar
         isOpen={sidebarOpen}
         onClose={closeSidebar}
       />
 
-
-      {/* ==============================================
-          MAIN ADMIN AREA
-      =============================================== */}
+      <AdminTour />
 
       <div className="admin-main">
-
         <AdminTopbar
           onMenuClick={openSidebar}
         />
@@ -51,9 +35,7 @@ const AdminLayout = () => {
         <main className="admin-page-content">
           <Outlet />
         </main>
-
       </div>
-
     </div>
   );
 };

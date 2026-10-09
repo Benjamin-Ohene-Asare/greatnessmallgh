@@ -7,12 +7,11 @@ import {
   LockKeyhole,
   User,
 } from "lucide-react";
-
 import {
+  Link,
   useLocation,
   useNavigate,
 } from "react-router-dom";
-
 import {
   adminLogin,
   getAdminSession,
@@ -277,6 +276,13 @@ const AdminLogin = () => {
                 autoComplete="current-password"
                 required
               />
+
+              <Link
+  to="/admin/forgot-password"
+  className="admin-login-forgot"
+>
+  Forgot password?
+</Link>
 
             </div>
 

@@ -468,6 +468,16 @@
   color: #7e747f;
 }
 
+.admin-dashboard-error {
+  margin-bottom: 18px;
+  padding: 11px 14px;
+  border-radius: 9px;
+  background: #fff1f1;
+  color: #a62b2b;
+  font-size: 12px;
+}
+
+
 
 /* =========================
    LARGE TABLET
