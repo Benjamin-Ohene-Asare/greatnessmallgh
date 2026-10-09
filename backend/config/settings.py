@@ -46,6 +46,11 @@ ALLOWED_HOSTS = [
     if host.strip()
 ]
 
+VERCEL_URL = os.environ.get("VERCEL_URL", "").strip()
+
+if VERCEL_URL and VERCEL_URL not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(VERCEL_URL)
+
 
 # ============================================================
 # APPLICATIONS
