@@ -4,6 +4,7 @@ from .views import (
     PublicCategoryListView,
     PublicProductDetailView,
     PublicProductListView,
+    product_share_preview,
     AdminCategoryDetailView,
     AdminCategoryListCreateView,
     AdminProductDetailView,
@@ -46,6 +47,13 @@ urlpatterns = [
         "categories/",
         PublicCategoryListView.as_view(),
         name="public-category-list",
+    ),
+
+    # Product share preview
+    path(
+        "share/<slug:slug>/",
+        product_share_preview,
+        name="product-share-preview",
     ),
 
     # Public products

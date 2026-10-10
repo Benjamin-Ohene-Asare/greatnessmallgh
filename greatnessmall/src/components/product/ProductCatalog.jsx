@@ -37,10 +37,6 @@ const ProductCatalog = ({
     useState("");
 
 
-  /* =========================================================
-     LOAD PRODUCTS + CATEGORIES FROM DJANGO
-  ========================================================= */
-
   useEffect(() => {
     let cancelled = false;
 
@@ -98,21 +94,6 @@ const ProductCatalog = ({
   }, []);
 
 
-  /* =========================================================
-     PRODUCT FILTERING
-
-     Django returns category as an object:
-
-     {
-       id,
-       name,
-       slug,
-       ...
-     }
-
-     We filter using the category slug.
-  ========================================================= */
-
   const filteredProducts =
     useMemo(() => {
       if (
@@ -132,19 +113,34 @@ const ProductCatalog = ({
     ]);
 
 
-  /* =========================================================
-     WHATSAPP ORDER LINK
-  ========================================================= */
+  const backendUrl =
+    import.meta.env.VITE_BACKEND_URL
+      ?.replace(/\/$/, "") || "";
 
   const whatsappNumber =
     "233578622158";
 
+
+  const getProductShareUrl = (
+    product
+  ) => {
+    return (
+      `${backendUrl}/products/share/` +
+      `${product.slug}/`
+    );
+  };
+
+
   const getWhatsAppUrl = (
     product
   ) => {
+    const productUrl =
+      getProductShareUrl(product);
+
     const message =
       `Hello Greatness Mall, I am interested in ${product.name}. ` +
-      `I saw this product on your website and would like to know more about it.`;
+      `I saw this product on your website and would like to know more about it.\n\n` +
+      `Product:\n${productUrl}`;
 
     return (
       `https://wa.me/${whatsappNumber}` +
@@ -155,43 +151,69 @@ const ProductCatalog = ({
   };
 
 
-  /* =========================================================
-     LOADING
-  ========================================================= */
+  const handleShare = async (
+    product
+  ) => {
+    const productUrl =
+      getProductShareUrl(product);
+
+    const shareData = {
+      title: product.name,
+      text:
+        product.short_description ||
+        `Discover ${product.name} at Greatness Mall.`,
+      url: productUrl,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(
+          shareData
+        );
+        return;
+      }
+
+      await navigator.clipboard.writeText(
+        productUrl
+      );
+
+      window.alert(
+        "Product link copied."
+      );
+    } catch (err) {
+      if (
+        err?.name !== "AbortError"
+      ) {
+        console.error(
+          "Product sharing failed:",
+          err
+        );
+      }
+    }
+  };
+
 
   if (loading) {
     return (
       <section className="product-catalog">
-
         <div className="product-catalog-container">
-
           <div className="product-catalog-status">
             Loading products...
           </div>
-
         </div>
-
       </section>
     );
   }
 
 
-  /* =========================================================
-     ERROR
-  ========================================================= */
-
   if (error) {
     return (
       <section className="product-catalog">
-
         <div className="product-catalog-container">
-
           <div className="product-catalog-status product-catalog-error">
             {error}
           </div>
-
         </div>
-
       </section>
     );
   }
@@ -199,17 +221,10 @@ const ProductCatalog = ({
 
   return (
     <section className="product-catalog">
-
       <div className="product-catalog-container">
 
-        {/* =====================================================
-            SECTION HEADER
-        ====================================================== */}
-
         {showHeader && (
-
           <div className="product-catalog-header">
-
             <h2>
               Our Products
             </h2>
@@ -217,25 +232,15 @@ const ProductCatalog = ({
             <p>
               Explore our range of wellness products.
             </p>
-
           </div>
-
         )}
 
 
-        {/* =====================================================
-            CATEGORY FILTERS
-        ====================================================== */}
-
         <div className="product-category-sticky">
-
           <div
             className="product-category-filters"
             aria-label="Product categories"
           >
-
-            {/* ALL */}
-
             <button
               type="button"
               className={
@@ -254,11 +259,8 @@ const ProductCatalog = ({
             </button>
 
 
-            {/* DYNAMIC DJANGO CATEGORIES */}
-
             {categories.map(
               (category) => (
-
                 <button
                   key={category.id}
                   type="button"
@@ -276,37 +278,23 @@ const ProductCatalog = ({
                 >
                   {category.name}
                 </button>
-
               )
             )}
-
           </div>
-
         </div>
 
 
-        {/* =====================================================
-            PRODUCT GRID
-        ====================================================== */}
-
         {filteredProducts.length > 0 ? (
-
           <div className="product-grid">
-
             {filteredProducts.map(
               (product) => (
-
                 <article
                   key={product.id}
                   className="product-card"
                 >
 
-                  {/* PRODUCT IMAGE */}
-
                   <div className="product-image-area">
-
                     {product.main_image ? (
-
                       <img
                         src={
                           product.main_image
@@ -317,19 +305,13 @@ const ProductCatalog = ({
                         className="product-image"
                         loading="lazy"
                       />
-
                     ) : (
-
                       <div className="product-image-placeholder">
                         No image available
                       </div>
-
                     )}
-
                   </div>
 
-
-                  {/* PRODUCT DETAILS */}
 
                   <div className="product-card-content">
 
@@ -353,8 +335,6 @@ const ProductCatalog = ({
                     </p>
 
 
-                    {/* ACTIONS */}
-
                     <div className="product-card-actions">
 
                       <NavLink
@@ -363,6 +343,9 @@ const ProductCatalog = ({
                       >
                         Learn More
                       </NavLink>
+
+
+                      
 
 
                       <a
@@ -382,22 +365,16 @@ const ProductCatalog = ({
                   </div>
 
                 </article>
-
               )
             )}
-
           </div>
-
         ) : (
-
           <div className="product-catalog-empty">
             No products are currently available in this category.
           </div>
-
         )}
 
       </div>
-
     </section>
   );
 };

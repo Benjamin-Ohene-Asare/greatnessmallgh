@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>{{ product.name }} | Greatness Mall</title>
+
+    <meta
+        name="description"
+        content="{{ description|striptags|truncatechars:180 }}"
+    >
+
+    <meta property="og:type" content="product">
+    <meta property="og:site_name" content="Greatness Mall">
+
+    <meta
+        property="og:title"
+        content="{{ product.name }}"
+    >
+
+    <meta
+        property="og:description"
+        content="{{ description|striptags|truncatechars:180 }}"
+    >
+
+    <meta
+        property="og:url"
+        content="{{ product_url }}"
+    >
+
+    {% if image_url %}
+    <meta
+        property="og:image"
+        content="{{ image_url }}"
+    >
+
+    <meta
+        property="og:image:alt"
+        content="{{ product.name }}"
+    >
+    {% endif %}
+
+    <meta
+        name="twitter:card"
+        content="summary_large_image"
+    >
+
+    <meta
+        name="twitter:title"
+        content="{{ product.name }}"
+    >
+
+    <meta
+        name="twitter:description"
+        content="{{ description|striptags|truncatechars:180 }}"
+    >
+
+    {% if image_url %}
+    <meta
+        name="twitter:image"
+        content="{{ image_url }}"
+    >
+    {% endif %}
+
+    <link
+        rel="canonical"
+        href="{{ product_url }}"
+    >
+
+    <meta
+        http-equiv="refresh"
+        content="0;url={{ product_url }}"
+    >
+</head>
+
+<body>
+    <p>
+        Opening
+        <a href="{{ product_url }}">
+            {{ product.name }}
+        </a>
+    </p>
+</body>
+</html>

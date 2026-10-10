@@ -256,19 +256,66 @@ const ProductDetails = () => {
      WHATSAPP ORDER
   ========================================================= */
 
-  const whatsappNumber =
-    "233578622158";
+  const backendUrl =
+  import.meta.env.VITE_BACKEND_URL
+    ?.replace(/\/$/, "") || "";
 
-  const whatsappMessage =
-    `Hello Greatness Mall, I am interested in ${product.name}. ` +
-    `I saw this product on your website and would like more information about it.`;
+const whatsappNumber =
+  "233578622158";
 
-  const whatsappUrl =
-    `https://wa.me/${whatsappNumber}` +
-    `?text=${encodeURIComponent(
-      whatsappMessage
-    )}`;
+const productShareUrl =
+  `${backendUrl}/products/share/${product.slug}/`;
 
+const whatsappMessage =
+  `Hello Greatness Mall, I am interested in ${product.name}. ` +
+  `I saw this product on your website and would like more information about it.\n\n` +
+  `Product:\n${productShareUrl}`;
+
+const whatsappUrl =
+  `https://wa.me/${whatsappNumber}` +
+  `?text=${encodeURIComponent(
+    whatsappMessage
+  )}`;
+
+
+const handleShare = async () => {
+  const shareData = {
+    title: product.name,
+    text:
+      product.short_description ||
+      product.description ||
+      `Discover ${product.name} at Greatness Mall.`,
+    url: productShareUrl,
+  };
+
+  try {
+    if (navigator.share) {
+      await navigator.share(
+        shareData
+      );
+      return;
+    }
+
+    await navigator.clipboard.writeText(
+      productShareUrl
+    );
+
+    window.alert(
+      "Product link copied."
+    );
+  } catch (err) {
+    if (
+      err?.name !== "AbortError"
+    ) {
+      console.error(
+        "Product sharing failed:",
+        err
+      );
+    }
+  }
+};
+
+  
 
   return (
     <main className="product-details-page">
@@ -451,24 +498,39 @@ const ProductDetails = () => {
             ORDER NOW
         ====================================================== */}
 
-        <a
-          href={whatsappUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="product-order-strip"
-          aria-label={`Order ${product.name} on WhatsApp`}
-        >
-          <MessageCircle
-            size={19}
-            strokeWidth={1.8}
-            aria-hidden="true"
-          />
+        {/* =====================================================
+    PRODUCT ACTIONS
+===================================================== */}
 
-          <span>
-            Order Now
-          </span>
+<div className="product-detail-actions">
 
-        </a>
+  <button
+    type="button"
+    className="product-share-strip"
+    onClick={handleShare}
+  >
+    Share Product
+  </button>
+
+  <a
+    href={whatsappUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="product-order-strip"
+    aria-label={`Order ${product.name} on WhatsApp`}
+  >
+    <MessageCircle
+      size={19}
+      strokeWidth={1.8}
+      aria-hidden="true"
+    />
+
+    <span>
+      Order Now
+    </span>
+  </a>
+
+</div>
 
 
         {/* =====================================================

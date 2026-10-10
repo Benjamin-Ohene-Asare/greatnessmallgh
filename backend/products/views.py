@@ -1,18 +1,12 @@
-from rest_framework import generics
-from rest_framework.permissions import AllowAny, IsAdminUser
-
+from django.conf import settings
 from django.db.models.deletion import ProtectedError
+from django.shortcuts import get_object_or_404, render
 
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 
-
-
-from .models import (
-    Category,
-    Product,
-)
+from .models import Category, Product
 
 from .serializers import (
     CategorySerializer,
@@ -26,22 +20,14 @@ from .serializers import (
 # PUBLIC CATEGORY LIST
 # ============================================================
 
-class PublicCategoryListView(
-    generics.ListAPIView
-):
-    permission_classes = [
-        AllowAny,
-    ]
-
+class PublicCategoryListView(generics.ListAPIView):
+    permission_classes = [AllowAny]
     serializer_class = CategorySerializer
 
     queryset = (
         Category.objects
         .filter(is_active=True)
-        .order_by(
-            "display_order",
-            "name",
-        )
+        .order_by("display_order", "name")
     )
 
 
@@ -49,13 +35,8 @@ class PublicCategoryListView(
 # PUBLIC PRODUCT LIST
 # ============================================================
 
-class PublicProductListView(
-    generics.ListAPIView
-):
-    permission_classes = [
-        AllowAny,
-    ]
-
+class PublicProductListView(generics.ListAPIView):
+    permission_classes = [AllowAny]
     serializer_class = ProductListSerializer
 
     def get_queryset(self):
@@ -68,9 +49,7 @@ class PublicProductListView(
             )
         )
 
-        category = self.request.query_params.get(
-            "category"
-        )
+        category = self.request.query_params.get("category")
 
         if category:
             queryset = queryset.filter(
@@ -87,15 +66,9 @@ class PublicProductListView(
 # PUBLIC PRODUCT DETAIL
 # ============================================================
 
-class PublicProductDetailView(
-    generics.RetrieveAPIView
-):
-    permission_classes = [
-        AllowAny,
-    ]
-
+class PublicProductDetailView(generics.RetrieveAPIView):
+    permission_classes = [AllowAny]
     serializer_class = ProductDetailSerializer
-
     lookup_field = "slug"
 
     queryset = (
@@ -113,18 +86,54 @@ class PublicProductDetailView(
 
 
 # ============================================================
+# PRODUCT SHARE PREVIEW
+# ============================================================
+
+def product_share_preview(request, slug):
+    product = get_object_or_404(
+        Product.objects.select_related("category"),
+        slug=slug,
+        is_published=True,
+        category__is_active=True,
+    )
+
+    frontend_url = settings.FRONTEND_URL.rstrip("/")
+    product_url = f"{frontend_url}/products/{product.slug}"
+
+    image_url = ""
+
+    if product.main_image:
+        try:
+            image_url = product.main_image.url
+        except ValueError:
+            image_url = ""
+
+    description = (
+        product.short_description
+        or product.description
+        or f"Discover {product.name} at Greatness Mall."
+    )
+
+    return render(
+        request,
+        "products/share_preview.html",
+        {
+            "product": product,
+            "product_url": product_url,
+            "image_url": image_url,
+            "description": description,
+        },
+    )
+
+
+# ============================================================
 # ADMIN PRODUCT LIST / CREATE
-#
-# Django admin authentication is used for now.
-# Later we can replace or extend this for React dashboard auth.
 # ============================================================
 
 class AdminProductListCreateView(
     generics.ListCreateAPIView
 ):
-    permission_classes = [
-        IsAdminUser,
-    ]
+    permission_classes = [IsAdminUser]
 
     def get_queryset(self):
         return (
@@ -155,9 +164,7 @@ class AdminProductListCreateView(
 class AdminProductDetailView(
     generics.RetrieveUpdateDestroyAPIView
 ):
-    permission_classes = [
-        IsAdminUser,
-    ]
+    permission_classes = [IsAdminUser]
 
     queryset = (
         Product.objects
@@ -183,10 +190,7 @@ class AdminProductDetailView(
 class AdminCategoryListCreateView(
     generics.ListCreateAPIView
 ):
-    permission_classes = [
-        IsAdminUser,
-    ]
-
+    permission_classes = [IsAdminUser]
     serializer_class = CategorySerializer
 
     queryset = (
@@ -207,9 +211,7 @@ class AdminCategoryDetailView(
     generics.RetrieveUpdateDestroyAPIView
 ):
     serializer_class = CategorySerializer
-    permission_classes = [
-        IsAdminUser
-    ]
+    permission_classes = [IsAdminUser]
 
     queryset = Category.objects.all()
 
@@ -219,13 +221,9 @@ class AdminCategoryDetailView(
         *args,
         **kwargs,
     ):
-        category = (
-            self.get_object()
-        )
+        category = self.get_object()
 
-        if (
-            category.products.exists()
-        ):
+        if category.products.exists():
             return Response(
                 {
                     "detail":
@@ -236,6 +234,7 @@ class AdminCategoryDetailView(
 
         try:
             category.delete()
+
         except ProtectedError:
             return Response(
                 {
@@ -247,6 +246,4 @@ class AdminCategoryDetailView(
 
         return Response(
             status=status.HTTP_204_NO_CONTENT
-        )   
-    
-    
+        )
