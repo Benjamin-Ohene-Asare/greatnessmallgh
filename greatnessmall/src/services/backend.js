@@ -3,6 +3,19 @@ const BACKEND_URL =
   "http://127.0.0.1:8000";
 
 
+
+const getCookie = (name) => {
+  const cookieValue = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith(`${name}=`));
+
+  return cookieValue
+    ? decodeURIComponent(cookieValue.split("=")[1])
+    : "";
+};
+
+
+
 /* Shared request helper */
 
 const request = async (url, options = {}) => {
@@ -113,24 +126,36 @@ export const getOptInCampaign = () => {
 };
 
 
-export const submitOptIn = (
-  payload
-) => {
+export const submitOptIn = async (payload) => {
+  const csrfToken = getCookie("csrftoken");
+
   return request(
     `${BACKEND_URL}/leads/submit/`,
     {
       method: "POST",
+      credentials: "include",
       headers: {
-        "Content-Type":
-          "application/json",
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken,
       },
-      body:
-        JSON.stringify(
-          payload
-        ),
+      body: JSON.stringify(payload),
     }
   );
 };
+
+
+
+export const getPublicCsrfToken = () => {
+  return request(
+    `${BACKEND_URL}/core/admin/csrf/`,
+    {
+      method: "GET",
+      credentials: "include",
+    }
+  );
+};
+
+
 
 
 /* FAQs */

@@ -16,6 +16,7 @@ import {
 import {
   getOptInCampaign,
   submitOptIn,
+  getPublicCsrfToken,
 } from "../../services/backend";
 
 import "./Optin.css";
@@ -161,6 +162,7 @@ const OptInPage = () => {
         try {
           setLoading(true);
           setError("");
+await getPublicCsrfToken();
 
           const data =
             await getOptInCampaign();
