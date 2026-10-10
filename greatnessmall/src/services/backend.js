@@ -59,15 +59,21 @@ export const getProducts = () => {
 };
 
 
-export const getProductBySlug = (
-  slug
-) => {
-  return request(
-    `${BACKEND_URL}/products/${encodeURIComponent(
-      slug
-    )}/`
+export const getProductBySlug = async (slug) => {
+  const data = await request(
+    `${BACKEND_URL}/products/${encodeURIComponent(slug)}/`
   );
-};
+
+  return {
+    ...data,
+    benefits: Array.isArray(data?.benefits)
+      ? data.benefits
+      : [],
+    ingredients: Array.isArray(data?.ingredients)
+      ? data.ingredients
+      : [],
+  };
+};;
 
 
 export const getProductCategories =

@@ -152,14 +152,14 @@ const ProductDetails = () => {
         setLoading(true);
         setError("");
 
-        const data =
-          await getProductBySlug(
-            slug
-          );
+       const data =
+  await getProductBySlug(
+    slug
+  );
 
-        if (!cancelled) {
-          setProduct(data);
-        }
+if (!cancelled) {
+  setProduct(data);
+}
       } catch (err) {
         console.error(
           "Failed to load product:",
@@ -438,60 +438,43 @@ const handleShare = async () => {
 
 
         {/* =====================================================
-            PRODUCT BENEFITS
+    PRODUCT BENEFITS
+===================================================== */}
 
-            Main product image has been removed from this
-            section because it now sits beside the video.
-        ====================================================== */}
+{product.benefits.length > 0 && (
+  <section className="product-benefits-layout">
 
-        <section className="product-benefits-layout">
+    <div className="product-benefits-content">
 
-          <div className="product-benefits-content">
+      <span className="product-section-label">
+        PRODUCT BENEFITS
+      </span>
 
-            <span className="product-section-label">
-              PRODUCT BENEFITS
-            </span>
+      <h2>
+        {product.name} Major Benefits
+      </h2>
 
+      <ul className="product-benefits-list">
 
-            <h2>
-              {product.name} Major Benefits
-            </h2>
+        {product.benefits.map(
+          (benefit) => (
+            <li
+              key={
+                benefit.id ??
+                benefit.text
+              }
+            >
+              {benefit.text}
+            </li>
+          )
+        )}
 
+      </ul>
 
-            {product.benefits?.length >
-            0 ? (
+    </div>
 
-              <ul className="product-benefits-list">
-
-                {product.benefits.map(
-                  (benefit) => (
-
-                    <li
-                      key={
-                        benefit.id
-                      }
-                    >
-                      {
-                        benefit.text
-                      }
-                    </li>
-
-                  )
-                )}
-
-              </ul>
-
-            ) : (
-
-              <p className="product-empty-text">
-                More information about this product will be available soon.
-              </p>
-
-            )}
-
-          </div>
-
-        </section>
+  </section>
+)}
 
 
         {/* =====================================================
@@ -533,57 +516,47 @@ const handleShare = async () => {
 </div>
 
 
-        {/* =====================================================
-            INGREDIENTS
-        ====================================================== */}
+      {/* =====================================================
+    INGREDIENTS
+===================================================== */}
 
-        {product.ingredients?.length >
-          0 && (
+{product.ingredients.length > 0 && (
+  <section className="product-ingredients">
 
-          <section className="product-ingredients">
+    <span className="product-section-label">
+      WHAT'S INSIDE
+    </span>
 
-            <span className="product-section-label">
-              WHAT'S INSIDE
-            </span>
+    <h2>
+      Main Ingredients
+    </h2>
 
+    <div className="product-ingredients-grid">
 
-            <h2>
-              Main Ingredients
-            </h2>
+      {product.ingredients.map(
+        (ingredient) => (
+          <div
+            key={
+              ingredient.id ??
+              ingredient.name
+            }
+            className="product-ingredient-item"
+          >
+            <span
+              aria-hidden="true"
+            ></span>
 
+            <p>
+              {ingredient.name}
+            </p>
+          </div>
+        )
+      )}
 
-            <div className="product-ingredients-grid">
+    </div>
 
-              {product.ingredients.map(
-                (ingredient) => (
-
-                  <div
-                    key={
-                      ingredient.id
-                    }
-                    className="product-ingredient-item"
-                  >
-
-                    <span
-                      aria-hidden="true"
-                    ></span>
-
-                    <p>
-                      {
-                        ingredient.name
-                      }
-                    </p>
-
-                  </div>
-
-                )
-              )}
-
-            </div>
-
-          </section>
-
-        )}
+  </section>
+)}
 
 
         {/* =====================================================
