@@ -350,69 +350,53 @@ const OptInPage = () => {
 
 
     try {
-      setSubmitting(true);
-      setError("");
-const submission =
-  await submitOptIn({
-    campaign:
-      campaign.id,
+  setSubmitting(true);
+  setError("");
 
-    full_name:
-      cleanName,
-
-    phone:
-      cleanPhone,
-
-    email:
-      cleanEmail,
+  const submission = await submitOptIn({
+    campaign: campaign.id,
+    full_name: cleanName,
+    phone: cleanPhone,
+    email: cleanEmail,
   });
 
+  // Storage is helpful, but it must never make
+  // a successful submission look like a failure.
+  try {
+    sessionStorage.setItem(
+      "greatnessMallReturningVisitor",
+      submission?.already_exists
+        ? "true"
+        : "false"
+    );
+  } catch (storageError) {
+    console.warn(
+      "Session storage unavailable:",
+      storageError
+    );
+  }
 
-/*
-  Keep only a temporary flag for the Thank You page.
+  setFormData({
+    full_name: cleanName,
+    phone: cleanPhone,
+    email: cleanEmail,
+  });
 
-  We are not storing the visitor's phone, email or name
-  in browser storage.
-*/
+  setUnlocked(true);
 
-sessionStorage.setItem(
-  "greatnessMallReturningVisitor",
-  submission.already_exists
-    ? "true"
-    : "false"
-);
+} catch (err) {
+  console.error(
+    "Opt-in submission failed:",
+    err
+  );
 
-      setFormData({
-        full_name:
-          cleanName,
-
-        phone:
-          cleanPhone,
-
-        email:
-          cleanEmail,
-      });
-
-      /*
-        Django accepted and stored the submission.
-
-        We can now reveal the download popup.
-      */
-
-      setUnlocked(true);
-
-    } catch (err) {
-      console.error(
-        "Opt-in submission failed:",
-        err
-      );
-
-      setError(
-        "We could not submit your details. Please check the information and try again."
-      );
-    } finally {
-      setSubmitting(false);
-    }
+  setError(
+    err?.message ||
+    "We could not submit your details. Please check the information and try again."
+  );
+} finally {
+  setSubmitting(false);
+}
   };
 
 
@@ -426,31 +410,31 @@ sessionStorage.setItem(
      taken directly to the Thank You page.
   ======================================================= */
 
-const handleDownload = () => {
-  if (
-    !unlocked ||
-    !campaign?.id ||
-    !campaign?.resource_file
-  ) {
-    return;
-  }
+  const handleDownload = () => {
+    if (
+      !unlocked ||
+      !campaign?.id ||
+      !campaign?.resource_file
+    ) {
+      return;
+    }
 
-  const downloadUrl =
-    `${BACKEND_URL}/leads/resource/${campaign.id}/download/`;
+    const downloadUrl =
+      `${BACKEND_URL}/leads/resource/${campaign.id}/download/`;
 
-  const link =
-    document.createElement("a");
+    const link =
+      document.createElement("a");
 
-  link.href = downloadUrl;
+    link.href = downloadUrl;
 
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
-  window.setTimeout(() => {
-    navigate("/thank-you");
-  }, 800);
-};
+    window.setTimeout(() => {
+      navigate("/thank-you");
+    }, 800);
+  };
 
   /* =======================================================
      LOADING STATE
@@ -765,8 +749,8 @@ const handleDownload = () => {
                 {submitting
                   ? "Submitting..."
                   : campaign
-                      ?.button_text ||
-                    "Unlock Free Resource"
+                    ?.button_text ||
+                  "Unlock Free Resource"
                 }
               </button>
 
