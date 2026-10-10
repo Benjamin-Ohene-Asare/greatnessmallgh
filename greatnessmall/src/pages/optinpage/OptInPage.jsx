@@ -412,31 +412,71 @@ await getPublicCsrfToken();
      taken directly to the Thank You page.
   ======================================================= */
 
-  const handleDownload = () => {
-    if (
-      !unlocked ||
-      !campaign?.id ||
-      !campaign?.resource_file
-    ) {
-      return;
-    }
+  const handleDownload = async () => {
+  if (
+    !unlocked ||
+    !campaign?.id ||
+    !campaign?.resource_file
+  ) {
+    return;
+  }
 
+  try {
     const downloadUrl =
       `${BACKEND_URL}/leads/resource/${campaign.id}/download/`;
+
+    const response =
+      await fetch(downloadUrl, {
+        method: "GET",
+        credentials: "include",
+      });
+
+    if (!response.ok) {
+      throw new Error(
+        "The resource could not be downloaded."
+      );
+    }
+
+    const blob =
+      await response.blob();
+
+    const objectUrl =
+      URL.createObjectURL(blob);
 
     const link =
       document.createElement("a");
 
-    link.href = downloadUrl;
+    link.href = objectUrl;
+
+    link.download =
+      campaign.resource_title
+        ? `${campaign.resource_title}.pdf`
+        : "Greatness-Mall-Resource.pdf";
+
+    link.style.display = "none";
 
     document.body.appendChild(link);
+
     link.click();
+
     document.body.removeChild(link);
 
     window.setTimeout(() => {
+      URL.revokeObjectURL(objectUrl);
       navigate("/thank-you");
-    }, 800);
-  };
+    }, 1000);
+
+  } catch (err) {
+    console.error(
+      "Resource download failed:",
+      err
+    );
+
+    setError(
+      "The resource could not be downloaded. Please try again."
+    );
+  }
+};
 
   /* =======================================================
      LOADING STATE
