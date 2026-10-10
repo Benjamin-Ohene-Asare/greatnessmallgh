@@ -391,18 +391,19 @@ CSRF_TRUSTED_ORIGINS = [
 # Local development uses normal cookies.
 # Production automatically requires HTTPS.
 # ============================================================
-
 SESSION_COOKIE_HTTPONLY = True
-
 CSRF_COOKIE_HTTPONLY = False
 
-SESSION_COOKIE_SAMESITE = "Lax"
-
-CSRF_COOKIE_SAMESITE = "Lax"
-
-SESSION_COOKIE_SECURE = not DEBUG
-
-CSRF_COOKIE_SECURE = not DEBUG
+if DEBUG:
+    SESSION_COOKIE_SAMESITE = "Lax"
+    CSRF_COOKIE_SAMESITE = "Lax"
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+else:
+    SESSION_COOKIE_SAMESITE = "None"
+    CSRF_COOKIE_SAMESITE = "None"
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
 
 
 # ============================================================
