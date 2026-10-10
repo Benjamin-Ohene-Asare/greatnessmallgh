@@ -1,8 +1,9 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "https://greatnessmall-backend.vercel.app/:path*"
+      "source": "/api/(.*)",
+      "destination": "https://greatnessmall-backend.vercel.app/$1"
     },
     {
       "source": "/(.*)",
