@@ -272,6 +272,10 @@ if SUPABASE_STORAGE_ENABLED:
                 "file_overwrite": False,
                 "addressing_style": "path",
                 "signature_version": "s3v4",
+                "custom_domain": (
+                    "xoarzcqcxugkhthnmtbr.supabase.co/"
+                    "storage/v1/object/public/greatness-mall-data"
+                ),
             },
         },
         "staticfiles": {
