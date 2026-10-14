@@ -286,6 +286,7 @@ class ProductIngredientSerializer(
         return value
 
 
+
 class ProductListSerializer(
     serializers.ModelSerializer
 ):
@@ -298,22 +299,24 @@ class ProductListSerializer(
         read_only=True,
     )
 
-class Meta:
-    model = Product
+    class Meta:
+        model = Product
 
-    fields = [
-        "id",
-        "name",
-        "slug",
-        "category",
-        "categories",
-        "short_description",
-        "tagline",
-        "main_image",
-        "is_published",
-        "display_order",
-        "updated_at",
-    ]
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "category",
+            "categories",
+            "short_description",
+            "tagline",
+            "main_image",
+            "is_published",
+            "display_order",
+            "updated_at",
+        ]
+
+
 class ProductDetailSerializer(
     serializers.ModelSerializer
 ):
