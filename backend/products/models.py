@@ -61,8 +61,14 @@ class Product(models.Model):
     category = models.ForeignKey(
         Category,
         on_delete=models.PROTECT,
-        related_name="products",
+ related_name="primary_products",
     )
+    
+    categories = models.ManyToManyField(
+    Category,
+    related_name="products",
+    blank=True,
+)
 
     name = models.CharField(
         max_length=150,

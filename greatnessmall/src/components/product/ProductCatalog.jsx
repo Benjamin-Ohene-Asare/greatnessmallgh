@@ -103,9 +103,23 @@ const ProductCatalog = ({
       }
 
       return products.filter(
-        (product) =>
-          product.category?.slug ===
-          activeCategory
+        (product) => {
+          const matchesNewCategories =
+            product.categories?.some(
+              (category) =>
+                category.slug ===
+                activeCategory
+            );
+
+          const matchesOldCategory =
+            product.category?.slug ===
+            activeCategory;
+
+          return (
+            matchesNewCategories ||
+            matchesOldCategory
+          );
+        }
       );
     }, [
       products,
@@ -245,7 +259,7 @@ const ProductCatalog = ({
               type="button"
               className={
                 activeCategory ===
-                "all"
+                  "all"
                   ? "category-filter active"
                   : "category-filter"
               }
@@ -266,7 +280,7 @@ const ProductCatalog = ({
                   type="button"
                   className={
                     activeCategory ===
-                    category.slug
+                      category.slug
                       ? "category-filter active"
                       : "category-filter"
                   }
@@ -317,8 +331,14 @@ const ProductCatalog = ({
 
                     <span className="product-category-name">
                       {
-                        product.category
-                          ?.name
+                        product.categories?.length > 0
+                          ? product.categories
+                            .map(
+                              (category) =>
+                                category.name
+                            )
+                            .join(" · ")
+                          : product.category?.name
                       }
                     </span>
 
@@ -345,7 +365,7 @@ const ProductCatalog = ({
                       </NavLink>
 
 
-                      
+
 
 
                       <a

@@ -293,28 +293,37 @@ class ProductListSerializer(
         read_only=True
     )
 
-    class Meta:
-        model = Product
+    categories = CategorySerializer(
+        many=True,
+        read_only=True,
+    )
 
-        fields = [
-            "id",
-            "name",
-            "slug",
-            "category",
-            "short_description",
-            "tagline",
-            "main_image",
-            "is_published",
-            "display_order",
-            "updated_at",
-        ]
+class Meta:
+    model = Product
 
-
+    fields = [
+        "id",
+        "name",
+        "slug",
+        "category",
+        "categories",
+        "short_description",
+        "tagline",
+        "main_image",
+        "is_published",
+        "display_order",
+        "updated_at",
+    ]
 class ProductDetailSerializer(
     serializers.ModelSerializer
 ):
     category = CategorySerializer(
         read_only=True
+    )
+
+    categories = CategorySerializer(
+        many=True,
+        read_only=True,
     )
 
     benefits = ProductBenefitSerializer(
@@ -327,30 +336,29 @@ class ProductDetailSerializer(
         read_only=True,
     )
 
-    class Meta:
-        model = Product
+class Meta:
+    model = Product
 
-        fields = [
-            "id",
-            "name",
-            "slug",
-            "category",
-            "short_description",
-            "tagline",
-            "description",
-            "main_image",
-            "promotional_image",
-            "youtube_url",
-            "extra_information",
-            "benefits",
-            "ingredients",
-            "is_published",
-            "display_order",
-            "created_at",
-            "updated_at",
-        ]
-
-
+    fields = [
+        "id",
+        "name",
+        "slug",
+        "category",
+        "categories",
+        "short_description",
+        "tagline",
+        "description",
+        "main_image",
+        "promotional_image",
+        "youtube_url",
+        "extra_information",
+        "benefits",
+        "ingredients",
+        "is_published",
+        "display_order",
+        "created_at",
+        "updated_at",
+    ]
 class ProductWriteSerializer(
     serializers.ModelSerializer
 ):
