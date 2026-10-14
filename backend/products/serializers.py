@@ -339,29 +339,30 @@ class ProductDetailSerializer(
         read_only=True,
     )
 
-class Meta:
-    model = Product
+    class Meta:
+        model = Product
 
-    fields = [
-        "id",
-        "name",
-        "slug",
-        "category",
-        "categories",
-        "short_description",
-        "tagline",
-        "description",
-        "main_image",
-        "promotional_image",
-        "youtube_url",
-        "extra_information",
-        "benefits",
-        "ingredients",
-        "is_published",
-        "display_order",
-        "created_at",
-        "updated_at",
-    ]
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "category",
+            "categories",
+            "short_description",
+            "tagline",
+            "description",
+            "main_image",
+            "promotional_image",
+            "youtube_url",
+            "extra_information",
+            "benefits",
+            "ingredients",
+            "is_published",
+            "display_order",
+            "created_at",
+            "updated_at",
+        ]
+
 class ProductWriteSerializer(
     serializers.ModelSerializer
 ):
