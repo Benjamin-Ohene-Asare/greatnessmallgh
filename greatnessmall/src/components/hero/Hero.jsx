@@ -46,7 +46,7 @@ style={{
               to="/products"
               className="hero-primary-button"
             >
-            Explore of Products in English
+            Explore our Products in English
 
             </NavLink>
 
