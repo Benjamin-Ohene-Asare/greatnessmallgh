@@ -6,40 +6,42 @@ from .models import TwiContent
 class TwiContentSerializer(
     serializers.ModelSerializer
 ):
-    class Meta:
-        model = TwiContent
+ class Meta:
+    model = TwiContent
 
-        fields = (
-            "id",
-            "title",
-            "short_description",
-            "content_type",
-            "video_url",
-            "audio_file",
-            "image",
-            "is_featured",
-            "display_order",
-        )
+    fields = (
+        "id",
+        "title",
+        "english_title",
+        "short_description",
+        "content_type",
+        "video_url",
+        "audio_file",
+        "image",
+        "is_featured",
+        "display_order",
+    )
 
 
 class TwiContentWriteSerializer(
     serializers.ModelSerializer
 ):
-    class Meta:
-        model = TwiContent
+ class Meta:
+    model = TwiContent
 
-        fields = (
-            "id",
-            "title",
-            "short_description",
-            "content_type",
-            "video_url",
-            "audio_file",
-            "image",
-            "is_featured",
-            "is_published",
-            "display_order",
-        )
+    fields = (
+        "id",
+        "title",
+        "english_title",
+        "short_description",
+        "content_type",
+        "video_url",
+        "audio_file",
+        "image",
+        "is_featured",
+        "is_published",
+        "display_order",
+    )
 
     def validate(self, attrs):
         instance = self.instance
@@ -89,8 +91,8 @@ class TwiContentWriteSerializer(
                 {
                     "video_url":
                         "A video URL is required."
-                }
-            )
+                    }
+                )
 
         if (
             content_type ==
@@ -101,8 +103,8 @@ class TwiContentWriteSerializer(
                 {
                     "audio_file":
                         "An audio file is required."
-                }
-            )
+                    }
+                )
 
         if (
             content_type ==
@@ -113,7 +115,7 @@ class TwiContentWriteSerializer(
                 {
                     "image":
                         "An image is required."
-                }
-            )
+                    }
+                )
 
         return attrs

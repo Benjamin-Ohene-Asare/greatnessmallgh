@@ -385,74 +385,692 @@
   color: #351447;
 }
 
-
 /* =========================
-   AUDIO
+   AUDIO GRID
 ========================= */
 
-.twi-audio-card {
-  min-height: 220px;
-
-  display: grid;
-
+.twi-audio-grid {
   grid-template-columns:
-    auto 1fr;
+    repeat(
+      auto-fit,
+      minmax(290px, 390px)
+    );
 
-  align-items: center;
-
-  padding: 25px;
+  justify-content: center;
+  align-items: start;
 }
 
-.twi-audio-card
-.twi-card-content {
-  padding: 0;
+
+/* =========================
+   AUDIO CARD
+========================= */
+
+.twi-audio-card-rich {
+  width: 100%;
+
+  overflow: hidden;
+
+  border: 1px solid #dfd0e5;
+  border-radius: 24px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 20px 50px
+    rgba(53, 20, 71, 0.08);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
 }
 
-.twi-audio-icon {
-  width: 60px;
-  height: 60px;
+.twi-audio-card-rich:hover {
+  transform: translateY(-4px);
 
-  margin-right: 18px;
+  border-color: #cdb5d8;
 
-  display: flex;
+  box-shadow:
+    0 26px 60px
+    rgba(53, 20, 71, 0.13);
+}
+
+.twi-audio-card-rich.is-active {
+  border-color: #8a55a2;
+
+  box-shadow:
+    0 24px 60px
+    rgba(92, 44, 120, 0.16);
+}
+
+
+/* =========================
+   AUDIO MEDIA
+========================= */
+
+.twi-audio-hero {
+  position: relative;
+
+  width: 100%;
+  aspect-ratio: 16 / 9;
+
+  overflow: hidden;
+
+  background: #351447;
+}
+
+.twi-audio-hero > img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+  transition:
+    transform 0.4s ease;
+}
+
+.twi-audio-card-rich:hover
+.twi-audio-hero > img {
+  transform: scale(1.025);
+}
+
+.twi-audio-hero-shade {
+  position: absolute;
+  inset: 0;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      to top,
+      rgba(26, 7, 35, 0.48),
+      transparent 52%
+    );
+}
+
+
+/* Badge */
+
+.twi-audio-top-badge {
+  position: absolute;
+
+  left: 14px;
+  bottom: 12px;
+
+  z-index: 4;
+
+  min-height: 22px;
+
+  padding: 0 8px;
+
+  display: inline-flex;
   align-items: center;
   justify-content: center;
 
+  gap: 4px;
+
+  border: 1px solid
+    rgba(255, 255, 255, 0.32);
+
+  border-radius: 999px;
+
+  background:
+    rgba(47, 16, 62, 0.72);
+
+  color: #ffffff;
+
+  backdrop-filter: blur(8px);
+
+  font-size: 2px;
+  font-weight: 600;
+
+  letter-spacing: 0.8px;
+}
+
+.twi-audio-top-badge svg {
+  width: 10px;
+  height: 10px;
+}
+
+
+/* =========================
+   NO-IMAGE DESIGN
+========================= */
+
+.twi-audio-placeholder {
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      145deg,
+      #351447 0%,
+      #5e2681 48%,
+      #8045ae 100%
+    );
+}
+
+.twi-audio-placeholder-glow {
+  position: absolute;
+
+  width: 260px;
+  height: 260px;
+
+  left: 50%;
+  top: 50%;
+
   border-radius: 50%;
 
-  background: #5c2c78;
-  color: #ffffff;
+  transform:
+    translate(-50%, -50%);
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(210, 134, 255, 0.32),
+      rgba(148, 65, 190, 0.08) 52%,
+      transparent 72%
+    );
 }
 
-.twi-audio-player {
+
+/* Decorative circles */
+
+.twi-audio-placeholder-decoration {
+  position: absolute;
+
+  border-radius: 50%;
+
+  border: 1px solid
+    rgba(255, 255, 255, 0.08);
+}
+
+.twi-decoration-one {
+  width: 190px;
+  height: 190px;
+
+  top: -90px;
+  left: -70px;
+}
+
+.twi-decoration-two {
+  width: 150px;
+  height: 150px;
+
+  right: -60px;
+  bottom: -70px;
+}
+
+
+/* Placeholder content */
+
+.twi-audio-placeholder-content {
+  position: relative;
+
+  z-index: 2;
+
   width: 100%;
+  height: 100%;
 
-  margin-top: 15px;
-}
+  padding: 23px;
 
-.twi-coming-soon {
-  margin-top: 14px !important;
+  display: flex;
+  flex-direction: column;
 
-  color: #9c929f !important;
+  align-items: center;
+  justify-content: center;
 
-  font-size: 10px !important;
-}
-
-
-.twi-status {
-  width: 100%;
-  padding: 30px 20px;
   text-align: center;
-  color: #6f6875;
-  font-size: 0.95rem;
+
+  color: #ffffff;
+
+  box-sizing: border-box;
 }
+
+
+/* Layered music tile */
+
+.twi-audio-placeholder-stack {
+  position: relative;
+
+  width: 104px;
+  height: 90px;
+
+  margin-bottom: 14px;
+}
+
+.twi-audio-placeholder-stack > span {
+  position: absolute;
+
+  width: 68px;
+  height: 68px;
+
+  top: 11px;
+  left: 18px;
+
+  border-radius: 15px;
+
+  background:
+    rgba(255, 255, 255, 0.08);
+
+  border: 1px solid
+    rgba(255, 255, 255, 0.1);
+}
+
+.twi-audio-placeholder-stack
+> span:nth-child(1) {
+  transform:
+    translateX(-18px)
+    scale(0.88);
+}
+
+.twi-audio-placeholder-stack
+> span:nth-child(2) {
+  transform:
+    translateX(18px)
+    scale(0.88);
+}
+
+.twi-audio-placeholder-stack
+> span:nth-child(3) {
+  transform: scale(0.96);
+}
+
+
+.twi-audio-placeholder-icon {
+  position: absolute;
+
+  z-index: 3;
+
+  width: 72px;
+  height: 72px;
+
+  left: 16px;
+  top: 8px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #c16cff,
+      #8d40c3
+    );
+
+  color: #ffffff;
+
+  box-shadow:
+    0 15px 30px
+    rgba(21, 4, 31, 0.24);
+}
+
+
+.twi-audio-placeholder-content
+> strong {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.twi-audio-placeholder-content
+> p {
+  margin: 4px 0 0;
+
+  font-size: 10px;
+
+  color:
+    rgba(255, 255, 255, 0.72);
+}
+
+
+/* Audio wave */
+
+.twi-audio-wave {
+  height: 35px;
+
+  margin-top: 13px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 4px;
+}
+
+.twi-audio-wave span {
+  width: 3px;
+
+  border-radius: 999px;
+
+  background:
+    rgba(255, 255, 255, 0.7);
+
+  animation:
+    twiWave 0.9s
+    ease-in-out
+    infinite alternate;
+}
+
+.twi-audio-wave
+span:nth-child(1) {
+  height: 11px;
+}
+
+.twi-audio-wave
+span:nth-child(2) {
+  height: 23px;
+}
+
+.twi-audio-wave
+span:nth-child(3) {
+  height: 17px;
+}
+
+.twi-audio-wave
+span:nth-child(4) {
+  height: 31px;
+}
+
+.twi-audio-wave
+span:nth-child(5) {
+  height: 20px;
+}
+
+.twi-audio-wave
+span:nth-child(6) {
+  height: 27px;
+}
+
+.twi-audio-wave
+span:nth-child(7) {
+  height: 15px;
+}
+
+.twi-audio-wave
+span:nth-child(8) {
+  height: 32px;
+}
+
+.twi-audio-wave
+span:nth-child(9) {
+  height: 19px;
+}
+
+.twi-audio-wave
+span:nth-child(10) {
+  height: 12px;
+}
+
+@keyframes twiWave {
+  from {
+    opacity: 0.45;
+
+    transform:
+      scaleY(0.65);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      scaleY(1);
+  }
+}
+
+
+/* =========================
+   AUDIO BODY
+========================= */
+
+.twi-audio-body {
+  padding: 21px;
+}
+
+.twi-audio-body
+.twi-card-type {
+  margin-bottom: 7px;
+
+  color: #df771a;
+
+  font-size: 8px;
+  font-weight: 600;
+
+  letter-spacing: 1.5px;
+}
+
+.twi-audio-body h3 {
+  margin: 0;
+
+  font-size: 18px;
+  line-height: 1.35;
+
+  font-weight: 600;
+
+  color: #351447;
+}
+
+.twi-audio-body > p {
+  margin: 7px 0 0;
+
+  font-size: 11px;
+  line-height: 1.65;
+
+  color: #776d7b;
+}
+
+
+/* =========================
+   PLAYER
+========================= */
+
+.twi-audio-player-shell {
+  width: 100%;
+
+  margin-top: 18px;
+
+  padding: 12px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #e9dfee;
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff,
+      #faf7fb
+    );
+
+  box-shadow:
+    0 8px 20px
+    rgba(53, 20, 71, 0.05);
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.twi-audio-player-shell.is-playing {
+  border-color:
+    rgba(111, 52, 141, 0.35);
+
+  box-shadow:
+    0 9px 24px
+    rgba(92, 44, 120, 0.1);
+}
+
+
+/* Play */
+
+.twi-audio-play-btn {
+  width: 46px;
+  height: 46px;
+
+  flex-shrink: 0;
+
+  display: grid;
+  place-items: center;
+
+  border: none;
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      135deg,
+      #55236f,
+      #7c3fa0
+    );
+
+  color: #ffffff;
+
+  box-shadow:
+    0 8px 19px
+    rgba(92, 44, 120, 0.23);
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease;
+}
+
+.twi-audio-play-btn:hover {
+  transform: scale(1.05);
+}
+
+
+/* Progress */
+
+.twi-audio-player-meta {
+  min-width: 0;
+
+  flex: 1;
+}
+
+.twi-audio-time-row {
+  margin-bottom: 6px;
+
+  display: flex;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  color: #817686;
+
+  font-size: 10px;
+}
+
+.twi-audio-slider {
+  width: 100%;
+  max-width: 100%;
+
+  height: 4px;
+
+  display: block;
+
+  box-sizing: border-box;
+
+  accent-color: #69348a;
+
+  cursor: pointer;
+}
+
+.twi-audio-slider:disabled {
+  opacity: 0.4;
+
+  cursor: default;
+}
+
+
+/* =========================
+   AUDIO RESPONSIVE
+========================= */
+
+@media (max-width: 600px) {
+  .twi-audio-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .twi-audio-card-rich {
+    border-radius: 20px;
+  }
+
+  .twi-audio-body {
+    padding: 17px;
+  }
+
+  .twi-audio-player-shell {
+    padding: 10px;
+  }
+
+  .twi-audio-play-btn {
+    width: 42px;
+    height: 42px;
+  }
+
+  .twi-audio-placeholder-content {
+    padding: 18px;
+  }
+
+  .twi-audio-placeholder-stack {
+    transform: scale(0.88);
+
+    margin-bottom: 7px;
+  }
+
+  .twi-audio-placeholder-content
+  > strong {
+    font-size: 15px;
+  }
+}
+
+
+
 
 .twi-status-error {
   color: #b42318;
 }
 
 
+.twi-audio-title-group {
+  margin-top: 2px;
+}
 
+.twi-audio-title-group h3 {
+  margin: 0;
+
+  font-size: 18px;
+  line-height: 1.35;
+
+  font-weight: 600;
+
+  color: #351447;
+}
+
+.twi-audio-english-title {
+  display: block;
+
+  margin-top: 4px;
+
+  font-size: 11px;
+  line-height: 1.45;
+
+  font-weight: 400;
+
+  color: #f28a2a;
+}
 /* =========================
    TABLET
 ========================= */
@@ -491,7 +1109,13 @@
   .twi-content-section {
     padding: 55px 0 65px;
   }
+.twi-audio-title-group h3 {
+    font-size: 17px;
+  }
 
+  .twi-audio-english-title {
+    font-size: 10px;
+  }
   .twi-container {
     padding: 0 16px;
   }
@@ -531,5 +1155,22 @@
   .twi-audio-icon {
     margin: 0 auto 17px;
   }
+
+  .twi-audio-body {
+  padding: 19px;
+}
+
+.twi-audio-card.no-cover {
+  min-height: auto;
+}
+
+.twi-custom-player {
+  padding: 11px;
+}
+
+.twi-audio-play-button {
+  width: 42px;
+  height: 42px;
+}
 
 }

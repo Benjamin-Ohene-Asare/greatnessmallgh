@@ -46,29 +46,39 @@ import AdminTestimonials from "./pages/dashboard/pages/testimonials/AdminTestimo
 import AdminTwi from "./pages/dashboard/pages/twi/AdminTwi";
 import AdminSettings from "./pages/settings/AdminSettings";
 
+import {
+  AudioPlayerProvider,
+} from "./components/audio/AudioPlayerContext";
+
+import FloatingAudioPlayer
+  from "./components/audio/FloatingAudioPlayer";
+
+
 
 /* Public website layout */
 
 const MainLayout = () => {
   return (
-    <>
-      <NavBar />
+   <>
+  <NavBar />
 
-      <main>
-        <Outlet />
-      </main>
+  <main>
+    <Outlet />
+  </main>
 
-      <Footer />
+  <Footer />
 
-      <Whatsapp />
-    </>
+  <FloatingAudioPlayer />
+
+  <Whatsapp />
+</>
   );
 };
 
-
 const App = () => {
   return (
-    <Router>
+    <AudioPlayerProvider>
+      <Router>
       <ScrollToTop />
 
       <Routes>
@@ -244,7 +254,8 @@ const App = () => {
         </Route>
 
       </Routes>
-    </Router>
+         </Router>
+    </AudioPlayerProvider>
   );
 };
 

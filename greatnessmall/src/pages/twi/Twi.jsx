@@ -6,11 +6,14 @@ import React, {
 
 import {
   Play,
+  Pause,
   Volume2,
   Image as ImageIcon,
   ExternalLink,
 } from "lucide-react";
-
+import {
+  useAudioPlayer,
+} from "../../components/audio/AudioPlayerContext";
 import {
   getTwiContent,
 } from "../../services/backend";
@@ -50,9 +53,9 @@ const getYouTubeVideoId = (
 
     if (
       hostname ===
-        "youtube.com" ||
+      "youtube.com" ||
       hostname ===
-        "m.youtube.com"
+      "m.youtube.com"
     ) {
       const watchId =
         parsedUrl.searchParams.get(
@@ -98,6 +101,14 @@ const getYouTubeVideoId = (
 
 
 const Twi = () => {
+  const {
+    currentTrack,
+    isPlaying,
+    currentTime,
+    duration,
+    toggleTrack,
+    seekTo,
+  } = useAudioPlayer();
   const [
     twiContent,
     setTwiContent,
@@ -139,6 +150,27 @@ const Twi = () => {
     },
   ];
 
+
+  const formatAudioTime = (
+    seconds
+  ) => {
+    if (
+      !Number.isFinite(seconds) ||
+      seconds < 0
+    ) {
+      return "0:00";
+    }
+
+    const minutes =
+      Math.floor(seconds / 60);
+
+    const remainingSeconds =
+      Math.floor(seconds % 60);
+
+    return `${minutes}:${String(
+      remainingSeconds
+    ).padStart(2, "0")}`;
+  };
 
   // Load published Twi content from Django
   useEffect(() => {
@@ -211,8 +243,12 @@ const Twi = () => {
         <div className="twi-hero-container">
 
           <h1>
-            Learn About Our Products in Twi
+            Sua Yɛn Nneɛma Ho Adesua wɔ Twi mu
           </h1>
+          <p>
+            Learn About Our Products in Twi
+
+          </p>
 
           <p>
             Watch, listen and explore helpful product
@@ -334,7 +370,7 @@ const Twi = () => {
           {!loading &&
             !error &&
             filteredContent.length ===
-              0 && (
+            0 && (
 
               <div className="twi-status">
                 No {activeType} content is available yet.
@@ -348,9 +384,15 @@ const Twi = () => {
           {!loading &&
             !error &&
             filteredContent.length >
-              0 && (
+            0 && (
 
-              <div className="twi-content-grid">
+              <div
+                className={
+                  activeType === "audio"
+                    ? "twi-content-grid twi-audio-grid"
+                    : "twi-content-grid"
+                }
+              >
 
                 {filteredContent.map(
                   (item) => {
@@ -472,36 +514,116 @@ const Twi = () => {
                       item.content_type ===
                       "audio"
                     ) {
+                      const isCurrent =
+                        currentTrack?.id ===
+                        item.id;
+
+                      const itemPlaying =
+                        isCurrent &&
+                        isPlaying;
+
                       return (
                         <article
-                          key={
-                            item.id
+                          key={item.id}
+                          className={
+                            `twi-card twi-audio-card-rich ${isCurrent
+                              ? "is-active"
+                              : ""
+                            }`
                           }
-                          className="twi-card twi-audio-card"
                         >
+                          {/* Media area */}
 
-                          <div className="twi-audio-icon">
+                          <div className="twi-audio-hero">
+                            {item.image ? (
+                              <img
+                                src={item.image}
+                                alt={item.title}
+                                loading="lazy"
+                              />
+                            ) : (
+                              <div className="twi-audio-placeholder">
+                                <div className="twi-audio-placeholder-glow" />
 
-                            <Volume2
-                              size={25}
-                              strokeWidth={1.7}
-                              aria-hidden="true"
-                            />
+                                <div className="twi-audio-placeholder-decoration twi-decoration-one" />
+                                <div className="twi-audio-placeholder-decoration twi-decoration-two" />
 
+                                <div className="twi-audio-placeholder-content">
+                                  <div className="twi-audio-placeholder-stack">
+                                    <span />
+                                    <span />
+                                    <span />
+
+                                    <div className="twi-audio-placeholder-icon">
+                                      <Volume2
+                                        size={38}
+                                        strokeWidth={1.7}
+                                        aria-hidden="true"
+                                      />
+                                    </div>
+                                  </div>
+
+                                  <strong>
+                                    Listen in Twi
+                                  </strong>
+
+                                  <p>
+                                    Audio learning made simple.
+                                  </p>
+
+                                  <div
+                                    className="twi-audio-wave"
+                                    aria-hidden="true"
+                                  >
+                                    <span />
+                                    <span />
+                                    <span />
+                                    <span />
+                                    <span />
+                                    <span />
+                                    <span />
+                                    <span />
+                                    <span />
+                                    <span />
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="twi-audio-hero-shade" />
+
+                            <div className="twi-audio-top-badge">
+                              <Volume2
+                                size={14}
+                                strokeWidth={1.8}
+                                aria-hidden="true"
+                              />
+
+                              <span>
+                                TWI AUDIO
+                              </span>
+                            </div>
                           </div>
 
 
-                          <div className="twi-card-content">
+                          {/* Content */}
 
+                          <div className="twi-audio-body">
                             <span className="twi-card-type">
                               AUDIO
                             </span>
 
-                            <h3>
-                              {
-                                item.title
-                              }
-                            </h3>
+                            <div className="twi-audio-title-group">
+                              <h3>
+                                {item.title}
+                              </h3>
+
+                              {item.english_title && (
+                                <span className="twi-audio-english-title">
+                                  ({item.english_title})
+                                </span>
+                              )}
+                            </div>
 
                             {item.short_description && (
                               <p>
@@ -512,38 +634,105 @@ const Twi = () => {
                             )}
 
 
+                            {/* Player */}
+
                             {item.audio_file ? (
-
-                              <audio
-                                controls
-                                preload="metadata"
-                                className="twi-audio-player"
+                              <div
+                                className={
+                                  `twi-audio-player-shell ${itemPlaying
+                                    ? "is-playing"
+                                    : ""
+                                  }`
+                                }
                               >
-
-                                <source
-                                  src={
-                                    item.audio_file
+                                <button
+                                  type="button"
+                                  className="twi-audio-play-btn"
+                                  onClick={() =>
+                                    toggleTrack(item)
                                   }
-                                />
+                                  aria-label={
+                                    itemPlaying
+                                      ? `Pause ${item.title}`
+                                      : `Play ${item.title}`
+                                  }
+                                >
+                                  {itemPlaying ? (
+                                    <Pause
+                                      size={22}
+                                      strokeWidth={2}
+                                    />
+                                  ) : (
+                                    <Play
+                                      size={22}
+                                      strokeWidth={2}
+                                      fill="currentColor"
+                                    />
+                                  )}
+                                </button>
 
-                                Your browser does not support audio playback.
 
-                              </audio>
+                                <div className="twi-audio-player-meta">
+                                  <div className="twi-audio-time-row">
+                                    <span>
+                                      {isCurrent
+                                        ? formatAudioTime(
+                                          currentTime
+                                        )
+                                        : "0:00"}
+                                    </span>
 
+                                    <span>
+                                      {isCurrent &&
+                                        duration > 0
+                                        ? formatAudioTime(
+                                          duration
+                                        )
+                                        : "Audio"}
+                                    </span>
+                                  </div>
+
+                                  <input
+                                    type="range"
+                                    min="0"
+                                    max={
+                                      isCurrent &&
+                                        duration > 0
+                                        ? duration
+                                        : 0
+                                    }
+                                    step="0.1"
+                                    value={
+                                      isCurrent
+                                        ? currentTime
+                                        : 0
+                                    }
+                                    disabled={
+                                      !isCurrent ||
+                                      !duration
+                                    }
+                                    onChange={(event) =>
+                                      seekTo(
+                                        Number(
+                                          event.target
+                                            .value
+                                        )
+                                      )
+                                    }
+                                    className="twi-audio-slider"
+                                    aria-label={`Seek ${item.title}`}
+                                  />
+                                </div>
+                              </div>
                             ) : (
-
                               <p className="twi-coming-soon">
                                 Audio is temporarily unavailable.
                               </p>
-
                             )}
-
                           </div>
-
                         </article>
                       );
                     }
-
 
                     /* Image */
 

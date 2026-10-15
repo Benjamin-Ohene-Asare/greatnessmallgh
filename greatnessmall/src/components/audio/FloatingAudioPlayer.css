@@ -1,0 +1,246 @@
+.floating-audio-mini {
+  position: fixed;
+
+  left: 22px;
+  bottom: 22px;
+
+  z-index: 950;
+
+  width: 58px;
+  height: 58px;
+}
+
+
+/* Main button */
+
+.floating-audio-main {
+  position: relative;
+
+  width: 58px;
+  height: 58px;
+
+  padding: 0;
+
+  display: grid;
+  place-items: center;
+
+  overflow: hidden;
+
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      135deg,
+      #351447,
+      #71388f
+    );
+
+  color: #ffffff;
+
+  box-shadow:
+    0 10px 28px
+    rgba(53, 20, 71, 0.28);
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.floating-audio-main:hover {
+  transform: scale(1.05);
+
+  box-shadow:
+    0 14px 32px
+    rgba(53, 20, 71, 0.35);
+}
+
+
+.floating-audio-main:focus-visible,
+.floating-audio-close:focus-visible {
+  outline: 3px solid
+    rgba(242, 138, 42, 0.35);
+
+  outline-offset: 3px;
+}
+
+
+.floating-audio-main img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+}
+
+
+/* Play / pause badge */
+
+.floating-audio-status {
+  position: absolute;
+
+  right: -1px;
+  bottom: -1px;
+
+  width: 23px;
+  height: 23px;
+
+  display: grid;
+  place-items: center;
+
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+
+  background: #f28a2a;
+
+  color: #ffffff;
+
+  box-shadow:
+    0 3px 8px
+    rgba(0, 0, 0, 0.16);
+}
+
+
+.floating-audio-status svg {
+  display: block;
+}
+
+
+/* Close button */
+
+.floating-audio-close {
+  position: absolute;
+
+  top: -6px;
+  right: -6px;
+
+  z-index: 2;
+
+  width: 20px;
+  height: 20px;
+
+  display: grid;
+  place-items: center;
+
+  padding: 0;
+
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+
+  background: #351447;
+
+  color: #ffffff;
+
+  box-shadow:
+    0 4px 10px
+    rgba(0, 0, 0, 0.18);
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+
+.floating-audio-close:hover {
+  transform: scale(1.08);
+
+  background: #4d1f64;
+}
+
+
+.floating-audio-close svg {
+  display: block;
+}
+
+
+/* Subtle outer ring */
+
+.floating-audio-main::after {
+  content: "";
+
+  position: absolute;
+  inset: 3px;
+
+  border: 1px solid
+    rgba(255, 255, 255, 0.22);
+
+  border-radius: 50%;
+
+  pointer-events: none;
+}
+
+
+/* Entrance */
+
+.floating-audio-mini {
+  animation:
+    floatingAudioEnter
+    0.22s ease;
+}
+
+
+@keyframes floatingAudioEnter {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(8px)
+      scale(0.92);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+
+/* Mobile */
+
+@media (max-width: 600px) {
+
+  .floating-audio-mini {
+    left: 16px;
+    bottom: 18px;
+
+    width: 50px;
+    height: 50px;
+  }
+
+
+  .floating-audio-main {
+    width: 50px;
+    height: 50px;
+
+    border-width: 2px;
+  }
+
+
+  .floating-audio-status {
+    width: 21px;
+    height: 21px;
+
+    right: -1px;
+    bottom: -1px;
+  }
+
+
+  .floating-audio-close {
+    width: 18px;
+    height: 18px;
+
+    top: -5px;
+    right: -5px;
+
+    border-width: 2px;
+  }
+}

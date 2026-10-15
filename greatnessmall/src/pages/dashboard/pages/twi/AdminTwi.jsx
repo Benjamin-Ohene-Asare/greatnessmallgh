@@ -11,6 +11,7 @@ import {
 import "./AdminTwi.css";
 const emptyForm = {
   title: "",
+  english_title: "",
   short_description: "",
   content_type: "video",
   video_url: "",
@@ -70,10 +71,12 @@ const AdminTwi = () => {
 
   const openEdit = (item) => {
     setEditingId(item.id);
-
-    setForm({
-      title: item.title || "",
-      short_description: item.short_description || "",
+setForm({
+  title: item.title || "",
+  english_title:
+    item.english_title || "",
+  short_description:
+    item.short_description || "",
       content_type: item.content_type || "video",
       video_url: item.video_url || "",
       audio_file: null,
@@ -112,8 +115,20 @@ const AdminTwi = () => {
 
     const data = new FormData();
 
-    data.append("title", form.title.trim());
-    data.append("short_description", form.short_description.trim());
+    data.append(
+  "title",
+  form.title.trim()
+);
+
+data.append(
+  "english_title",
+  form.english_title.trim()
+);
+
+data.append(
+  "short_description",
+  form.short_description.trim()
+);
     data.append("content_type", form.content_type);
     data.append("video_url", form.content_type === "video" ? form.video_url.trim() : "");
     data.append("is_featured", String(form.is_featured));
@@ -182,16 +197,28 @@ const AdminTwi = () => {
             </button>
           </div>
 
-          <label>
-            Title
-            <input
-              name="title"
-              value={form.title}
-              onChange={handleChange}
-              maxLength={180}
-              required
-            />
-          </label>
+         <label>
+  Twi / Akan Title
+  <input
+    name="title"
+    value={form.title}
+    onChange={handleChange}
+    maxLength={180}
+    placeholder="Example: Ahoɔden ne Apɔmuden"
+    required
+  />
+</label>
+
+<label>
+  English Title
+  <input
+    name="english_title"
+    value={form.english_title}
+    onChange={handleChange}
+    maxLength={180}
+    placeholder="Example: Strength and Good Health"
+  />
+</label>
 
           <label>
             Short Description
@@ -240,6 +267,22 @@ const AdminTwi = () => {
               />
             </label>
           )}
+
+          {form.content_type === "audio" && (
+  <label>
+    Cover Image
+    <input
+      type="file"
+      name="image"
+      accept="image/jpeg,image/png,image/webp"
+      onChange={handleChange}
+    />
+
+    <small>
+      Optional. Add an image to display above the audio player.
+    </small>
+  </label>
+)}
 
           {form.content_type === "image" && (
             <label>
