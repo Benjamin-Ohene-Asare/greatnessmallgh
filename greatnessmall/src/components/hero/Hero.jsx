@@ -46,14 +46,15 @@ style={{
               to="/products"
               className="hero-primary-button"
             >
-              Explore Products
+            Explore of Products in English
+
             </NavLink>
 
             <NavLink
               to="/twi"
               className="hero-secondary-button"
             >
-              Learn in Twi
+             Explore our Products in Twi
             </NavLink>
           </div>
 

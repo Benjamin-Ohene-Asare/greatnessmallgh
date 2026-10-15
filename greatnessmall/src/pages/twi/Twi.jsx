@@ -101,6 +101,7 @@ const getYouTubeVideoId = (
 
 
 const Twi = () => {
+  const [audioDurations, setAudioDurations] = useState({});
   const {
     currentTrack,
     isPlaying,
@@ -115,9 +116,9 @@ const Twi = () => {
   ] = useState([]);
 
   const [
-    activeType,
-    setActiveType,
-  ] = useState("video");
+  activeType,
+  setActiveType,
+] = useState("audio");
 
   const [
     loading,
@@ -130,26 +131,25 @@ const Twi = () => {
   ] = useState("");
 
 
-  const filters = [
-    {
-      value: "video",
-      label: "Videos",
-      icon: Play,
-    },
+const filters = [
+  {
+    value: "audio",
+    label: "Audio",
+    icon: Volume2,
+  },
 
-    {
-      value: "audio",
-      label: "Audio",
-      icon: Volume2,
-    },
+  {
+    value: "video",
+    label: "Videos",
+    icon: Play,
+  },
 
-    {
-      value: "image",
-      label: "Images",
-      icon: ImageIcon,
-    },
-  ];
-
+  {
+    value: "image",
+    label: "Images",
+    icon: ImageIcon,
+  },
+];
 
   const formatAudioTime = (
     seconds
@@ -234,6 +234,19 @@ const Twi = () => {
       ]
     );
 
+  const handleAudioMetadata = (itemId, event) => {
+    const loadedDuration = event.currentTarget.duration;
+
+    if (
+      Number.isFinite(loadedDuration) &&
+      loadedDuration > 0
+    ) {
+      setAudioDurations((current) => ({
+        ...current,
+        [itemId]: loadedDuration,
+      }));
+    }
+  };
 
   return (
     <main className="twi-page">
@@ -522,6 +535,25 @@ const Twi = () => {
                         isCurrent &&
                         isPlaying;
 
+                     const storedDuration =
+  audioDurations[item.id] || 0;
+
+const progressDuration =
+  isCurrent && duration > 0
+    ? duration
+    : storedDuration;
+
+const remainingTime =
+  progressDuration > 0
+    ? progressDuration - currentTime
+    : Infinity;
+
+const showOrderButton =
+  isCurrent &&
+  currentTime > 0 &&
+  remainingTime <= 10 &&
+  remainingTime >= 0;
+
                       return (
                         <article
                           key={item.id}
@@ -599,9 +631,9 @@ const Twi = () => {
                                 aria-hidden="true"
                               />
 
-                              <span>
+                              {/* <span>
                                 TWI AUDIO
-                              </span>
+                              </span> */}
                             </div>
                           </div>
 
@@ -635,100 +667,124 @@ const Twi = () => {
 
 
                             {/* Player */}
+{item.audio_file ? (
+  <>
+    <div
+      className={
+        `twi-audio-player-shell ${itemPlaying
+          ? "is-playing"
+          : ""
+        }`
+      }
+    >
+      <audio
+        src={item.audio_file}
+        preload="metadata"
+        onLoadedMetadata={(event) =>
+          handleAudioMetadata(item.id, event)
+        }
+        className="twi-audio-metadata-loader"
+        aria-hidden="true"
+      />
 
-                            {item.audio_file ? (
-                              <div
-                                className={
-                                  `twi-audio-player-shell ${itemPlaying
-                                    ? "is-playing"
-                                    : ""
-                                  }`
-                                }
-                              >
-                                <button
-                                  type="button"
-                                  className="twi-audio-play-btn"
-                                  onClick={() =>
-                                    toggleTrack(item)
-                                  }
-                                  aria-label={
-                                    itemPlaying
-                                      ? `Pause ${item.title}`
-                                      : `Play ${item.title}`
-                                  }
-                                >
-                                  {itemPlaying ? (
-                                    <Pause
-                                      size={22}
-                                      strokeWidth={2}
-                                    />
-                                  ) : (
-                                    <Play
-                                      size={22}
-                                      strokeWidth={2}
-                                      fill="currentColor"
-                                    />
-                                  )}
-                                </button>
+      <div
+        className={
+          filteredContent[0]?.id === item.id
+            ? "twi-play-attention"
+            : ""
+        }
+      >
+        {filteredContent[0]?.id === item.id && (
+          <>
+            <span className="twi-play-bubble bubble-one" />
+            <span className="twi-play-bubble bubble-two" />
+            <span className="twi-play-bubble bubble-three" />
+          </>
+        )}
 
+        <button
+          type="button"
+          className="twi-audio-play-btn"
+          onClick={() =>
+            toggleTrack(item)
+          }
+          aria-label={
+            itemPlaying
+              ? `Pause ${item.title}`
+              : `Play ${item.title}`
+          }
+        >
+          {itemPlaying ? (
+            <Pause
+              size={22}
+              strokeWidth={2}
+            />
+          ) : (
+            <Play
+              size={22}
+              strokeWidth={2}
+              fill="currentColor"
+            />
+          )}
+        </button>
+      </div>
 
-                                <div className="twi-audio-player-meta">
-                                  <div className="twi-audio-time-row">
-                                    <span>
-                                      {isCurrent
-                                        ? formatAudioTime(
-                                          currentTime
-                                        )
-                                        : "0:00"}
-                                    </span>
+      <div className="twi-audio-player-meta">
+        <div className="twi-audio-time-row">
+          <span>
+            {isCurrent
+              ? formatAudioTime(currentTime)
+              : "0:00"}
+          </span>
 
-                                    <span>
-                                      {isCurrent &&
-                                        duration > 0
-                                        ? formatAudioTime(
-                                          duration
-                                        )
-                                        : "Audio"}
-                                    </span>
-                                  </div>
+          <span>
+            {progressDuration > 0
+              ? formatAudioTime(progressDuration)
+              : "--:--"}
+          </span>
+        </div>
 
-                                  <input
-                                    type="range"
-                                    min="0"
-                                    max={
-                                      isCurrent &&
-                                        duration > 0
-                                        ? duration
-                                        : 0
-                                    }
-                                    step="0.1"
-                                    value={
-                                      isCurrent
-                                        ? currentTime
-                                        : 0
-                                    }
-                                    disabled={
-                                      !isCurrent ||
-                                      !duration
-                                    }
-                                    onChange={(event) =>
-                                      seekTo(
-                                        Number(
-                                          event.target
-                                            .value
-                                        )
-                                      )
-                                    }
-                                    className="twi-audio-slider"
-                                    aria-label={`Seek ${item.title}`}
-                                  />
-                                </div>
-                              </div>
-                            ) : (
-                              <p className="twi-coming-soon">
-                                Audio is temporarily unavailable.
-                              </p>
-                            )}
+        <input
+          type="range"
+          min="0"
+          max={progressDuration || 0}
+          step="0.1"
+          value={
+            isCurrent
+              ? currentTime
+              : 0
+          }
+          disabled={
+            !isCurrent ||
+            !progressDuration
+          }
+          onChange={(event) =>
+            seekTo(
+              Number(event.target.value)
+            )
+          }
+          className="twi-audio-slider"
+          aria-label={`Seek ${item.title}`}
+        />
+      </div>
+    </div>
+
+    {showOrderButton && (
+      <a
+        href="https://wa.me/233537577738"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="twi-audio-order-btn"
+      >
+        Order Now
+      </a>
+    )}
+  </>
+) : (
+  <p className="twi-coming-soon">
+    Audio is temporarily unavailable.
+  </p>
+)}
                           </div>
                         </article>
                       );

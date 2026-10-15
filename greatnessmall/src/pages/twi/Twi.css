@@ -994,7 +994,109 @@ span:nth-child(10) {
   cursor: default;
 }
 
+.twi-audio-order-btn {
+  position: relative;
 
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  min-height: 46px;
+
+  margin-top: 14px;
+  padding: 0 20px;
+
+  border: 0;
+  border-radius: 14px;
+
+  background: linear-gradient(
+    135deg,
+    #f28a2a,
+    #ff9f43
+  );
+
+  color: #ffffff;
+
+  text-decoration: none;
+
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+
+  box-shadow:
+    0 8px 20px rgba(242, 138, 42, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+
+  overflow: hidden;
+
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    opacity 0.22s ease;
+}
+
+.twi-audio-order-btn::before {
+  content: "";
+
+  position: absolute;
+  top: 0;
+  left: -120%;
+
+  width: 60%;
+  height: 100%;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+
+  transform: skewX(-20deg);
+
+  animation: twiOrderShine 2.8s infinite;
+}
+
+.twi-audio-order-btn:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 12px 24px rgba(242, 138, 42, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.twi-audio-order-btn:active {
+  transform: translateY(0);
+}
+
+@keyframes twiOrderShine {
+  0% {
+    left: -120%;
+  }
+
+  55% {
+    left: 140%;
+  }
+
+  100% {
+    left: 140%;
+  }
+}
+
+@media (max-width: 600px) {
+  .twi-audio-order-btn {
+    min-height: 44px;
+    font-size: 12px;
+    border-radius: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .twi-audio-order-btn::before {
+    animation: none;
+  }
+}
 /* =========================
    AUDIO RESPONSIVE
 ========================= */
