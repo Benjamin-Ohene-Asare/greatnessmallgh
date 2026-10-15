@@ -392,14 +392,15 @@
 .twi-audio-grid {
   grid-template-columns:
     repeat(
-      auto-fit,
-      minmax(290px, 390px)
+      3,
+      minmax(0, 1fr)
     );
 
-  justify-content: center;
+  gap: 22px;
+
+  justify-content: stretch;
   align-items: start;
 }
-
 
 /* =========================
    AUDIO CARD
@@ -997,7 +998,15 @@ span:nth-child(10) {
 /* =========================
    AUDIO RESPONSIVE
 ========================= */
-
+@media (max-width: 1050px) {
+  .twi-audio-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+}
 @media (max-width: 600px) {
   .twi-audio-grid {
     grid-template-columns: 1fr;
