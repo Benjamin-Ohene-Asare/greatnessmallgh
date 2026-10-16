@@ -250,3 +250,26 @@
     max-width: 100%;
   }
 }
+
+.footer-bottom-legal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+}
+
+.footer-bottom-legal a {
+  color: inherit;
+  font-size: 12px;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.footer-bottom-legal a:hover {
+  opacity: 0.7;
+}
+
+.footer-bottom-legal span {
+  font-size: 10px;
+  opacity: 0.45;
+}

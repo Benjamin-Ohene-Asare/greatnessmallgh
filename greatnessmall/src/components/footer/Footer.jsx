@@ -21,12 +21,10 @@ const Footer = () => {
 
   return (
     <footer className="site-footer">
-
       <div className="footer-container">
 
         {/* BRAND */}
         <div className="footer-brand-column">
-
           <NavLink
             to="/home"
             className="footer-brand"
@@ -40,7 +38,9 @@ const Footer = () => {
 
             <div>
               <h2>Greatness Mall</h2>
-              <span>Quality. Value. Convenience.</span>
+              <span>
+                Quality. Value. Convenience.
+              </span>
             </div>
           </NavLink>
 
@@ -48,13 +48,11 @@ const Footer = () => {
             Explore quality wellness products and useful information
             designed to support everyday living.
           </p>
-
         </div>
 
 
         {/* QUICK LINKS */}
         <div className="footer-column">
-
           <h3>Quick Links</h3>
 
           <nav
@@ -77,17 +75,33 @@ const Footer = () => {
               Twi
             </NavLink>
           </nav>
+        </div>
 
+
+        {/* LEGAL */}
+        <div className="footer-column">
+          <h3>Legal</h3>
+
+          <nav
+            className="footer-links"
+            aria-label="Legal information"
+          >
+            <NavLink to="/privacy-policy">
+              Privacy Policy
+            </NavLink>
+
+            <NavLink to="/terms-and-conditions">
+              Terms & Conditions
+            </NavLink>
+          </nav>
         </div>
 
 
         {/* CONTACT */}
         <div className="footer-column">
-
           <h3>Contact</h3>
 
           <div className="footer-contact-list">
-
             <a
               href="tel:+233578622158"
               className="footer-contact-item"
@@ -134,23 +148,31 @@ const Footer = () => {
                 info@greatnessmall.com
               </span>
             </a>
-
           </div>
-
         </div>
-
       </div>
 
 
       {/* BOTTOM BAR */}
-
       <div className="footer-bottom">
-
         <div className="footer-bottom-container">
-
           <p>
             © {currentYear} Greatness Mall. All rights reserved.
           </p>
+
+          <div className="footer-bottom-legal">
+            <NavLink to="/privacy-policy">
+              Privacy
+            </NavLink>
+
+            <span aria-hidden="true">
+              •
+            </span>
+
+            <NavLink to="/terms-and-conditions">
+              Terms
+            </NavLink>
+          </div>
 
           <p className="footer-credit">
             Designed by{" "}
@@ -158,11 +180,8 @@ const Footer = () => {
               BenKreations
             </span>
           </p>
-
         </div>
-
       </div>
-
     </footer>
   );
 };

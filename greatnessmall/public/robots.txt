@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://greatnessmallgh.vercel.app/sitemap.xml

@@ -49,6 +49,7 @@ import AdminTestimonials from "./pages/dashboard/pages/testimonials/AdminTestimo
 import AdminTwi from "./pages/dashboard/pages/twi/AdminTwi";
 import AdminSettings from "./pages/settings/AdminSettings";
 
+import Privacy from "./pages/privacy/Privacy";
 
 import RequireCustomer
   from "./customerDashboard/components/RequireCustomer";
@@ -75,6 +76,8 @@ import FloatingAudioPlayer
 
 import Checkout from "./pages/checkout/Checkout";
 /* Public website layout */
+
+import Terms from "./pages/privacy/Terms";
 
 const MainLayout = () => {
   return (
@@ -143,6 +146,15 @@ const App = () => {
               path="/twi"
               element={<Twi />}
             />
+            <Route
+              path="/privacy-policy"
+              element={<Privacy />}
+            />
+
+            <Route
+              path="/terms-and-conditions"
+              element={<Terms />}
+            />
 
 
             {/* Customer authentication */}
@@ -162,9 +174,9 @@ const App = () => {
               />
 
               <Route
-  path="checkout"
-  element={<Checkout />}
-/>
+                path="checkout"
+                element={<Checkout />}
+              />
             </Route>
 
           </Route>
