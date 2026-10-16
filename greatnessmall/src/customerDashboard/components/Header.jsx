@@ -4,6 +4,10 @@ import {
 } from "lucide-react";
 
 import {
+  Link,
+} from "react-router-dom";
+
+import {
   useCustomerAuth,
 } from "../../context/CustomerAuthContext";
 
@@ -40,15 +44,19 @@ const Header = ({
         <Menu size={21} />
       </button>
 
-      <div className="customer-dashboard-header-title">
-        <span>
-          Greatness Mall
-        </span>
+      <Link
+  to="/home"
+  className="customer-dashboard-header-title"
+  aria-label="Go to Greatness Mall home"
+>
+  <span>
+    Greatness Mall
+  </span>
 
-        <strong>
-          Customer Account
-        </strong>
-      </div>
+  <strong>
+    Home
+  </strong>
+</Link>
 
       <div className="customer-dashboard-user">
         <div className="customer-dashboard-user-text">
