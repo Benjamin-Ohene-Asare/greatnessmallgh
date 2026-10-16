@@ -80,6 +80,8 @@ INSTALLED_APPS = [
     "faqs",
     "testimonials",
     "sms",
+    "customers",
+    "commerce",
 ]
 
 
@@ -341,6 +343,11 @@ FRONTEND_URL = os.environ.get(
 ).rstrip("/")
 
 
+GOOGLE_CLIENT_ID = os.getenv(
+    "GOOGLE_CLIENT_ID",
+    "",
+).strip()
+
 # ============================================================
 # CORS
 #
@@ -384,6 +391,10 @@ CSRF_TRUSTED_ORIGINS = [
     if origin.strip()
 ]
 
+AUTHENTICATION_BACKENDS = [
+    "customers.backends.CustomerLoginBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
 
 # ============================================================
 # COOKIE SETTINGS

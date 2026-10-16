@@ -1,47 +1,92 @@
 from rest_framework import serializers
 
+from products.models import Product
 from .models import TwiContent
 
 
 class TwiContentSerializer(
     serializers.ModelSerializer
 ):
- class Meta:
-    model = TwiContent
+    product = serializers.SerializerMethodField()
 
-    fields = (
-        "id",
-        "title",
-        "english_title",
-        "short_description",
-        "content_type",
-        "video_url",
-        "audio_file",
-        "image",
-        "is_featured",
-        "display_order",
-    )
+    class Meta:
+        model = TwiContent
+
+        fields = (
+            "id",
+            "title",
+            "english_title",
+            "short_description",
+            "content_type",
+            "video_url",
+            "audio_file",
+            "image",
+            "product",
+            "is_featured",
+            "display_order",
+        )
+
+    def get_product(self, obj):
+        product = obj.product
+
+        if (
+            product is None
+            or not product.is_published
+        ):
+            return None
+
+        return {
+            "id": product.id,
+            "name": product.name,
+            "slug": product.slug,
+        }
 
 
 class TwiContentWriteSerializer(
     serializers.ModelSerializer
 ):
- class Meta:
-    model = TwiContent
-
-    fields = (
-        "id",
-        "title",
-        "english_title",
-        "short_description",
-        "content_type",
-        "video_url",
-        "audio_file",
-        "image",
-        "is_featured",
-        "is_published",
-        "display_order",
+    product_id = serializers.PrimaryKeyRelatedField(
+        source="product",
+        queryset=Product.objects.all(),
+        required=False,
+        allow_null=True,
     )
+
+    product = serializers.SerializerMethodField(
+        read_only=True,
+    )
+
+    class Meta:
+        model = TwiContent
+
+        fields = (
+            "id",
+            "title",
+            "english_title",
+            "short_description",
+            "content_type",
+            "video_url",
+            "audio_file",
+            "image",
+            "product_id",
+            "product",
+            "is_featured",
+            "is_published",
+            "display_order",
+        )
+
+    def get_product(self, obj):
+        product = obj.product
+
+        if product is None:
+            return None
+
+        return {
+            "id": product.id,
+            "name": product.name,
+            "slug": product.slug,
+            "is_published": product.is_published,
+        }
 
     def validate(self, attrs):
         instance = self.instance
@@ -91,8 +136,8 @@ class TwiContentWriteSerializer(
                 {
                     "video_url":
                         "A video URL is required."
-                    }
-                )
+                }
+            )
 
         if (
             content_type ==
@@ -103,8 +148,8 @@ class TwiContentWriteSerializer(
                 {
                     "audio_file":
                         "An audio file is required."
-                    }
-                )
+                }
+            )
 
         if (
             content_type ==
@@ -115,7 +160,7 @@ class TwiContentWriteSerializer(
                 {
                     "image":
                         "An image is required."
-                    }
-                )
+                }
+            )
 
         return attrs

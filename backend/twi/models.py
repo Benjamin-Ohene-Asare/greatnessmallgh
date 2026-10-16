@@ -7,6 +7,14 @@ class TwiContent(models.Model):
         AUDIO = "audio", "Audio"
         IMAGE = "image", "Image"
 
+    product = models.ForeignKey(
+        "products.Product",
+        on_delete=models.SET_NULL,
+        related_name="twi_content",
+        blank=True,
+        null=True,
+    )
+
     title = models.CharField(max_length=180)
     english_title = models.CharField(max_length=180, blank=True)
     short_description = models.TextField(blank=True)

@@ -15,11 +15,16 @@ urlpatterns = [
     path("twi/", include("twi.urls")),
     path("testimonials/", include("testimonials.urls")),
     path("core/", include("core.urls")),
+    path(
+    "customers/",
+    include("customers.urls"),
+),
 
     # FAQ routes
     path("faqs/", include("faqs.public_urls")),
     path("admin-api/faqs/", include("faqs.admin_urls")),
     path("sms/", include("sms.urls")),
+    path("commerce/", include("commerce.urls")),
 ]
 
 

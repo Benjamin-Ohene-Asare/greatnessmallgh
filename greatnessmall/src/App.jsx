@@ -14,6 +14,9 @@ import Product from "./pages/product/Product";
 import ProductDetails from "./pages/productDetails/ProductDetails";
 import Twi from "./pages/twi/Twi";
 import FAQ from "./pages/faq/FAQ";
+import Cart from "./pages/cart/Cart";
+
+import CustomerAuth from "./pages/CustomerAuth/CustomerAuth";
 
 import NavBar from "./components/navbar/NavBar";
 import Footer from "./components/footer/Footer";
@@ -46,6 +49,23 @@ import AdminTestimonials from "./pages/dashboard/pages/testimonials/AdminTestimo
 import AdminTwi from "./pages/dashboard/pages/twi/AdminTwi";
 import AdminSettings from "./pages/settings/AdminSettings";
 
+
+import RequireCustomer
+  from "./customerDashboard/components/RequireCustomer";
+
+import CustomerDashboardLayout
+  from "./customerDashboard/layout/CustomerDashboardLayout";
+
+import DashboardHome
+  from "./customerDashboard/pages/DashboardHome";
+
+import Profile
+  from "./customerDashboard/pages/Profile";
+
+import MyOrders
+  from "./customerDashboard/pages/MyOrders";
+
+
 import {
   AudioPlayerProvider,
 } from "./components/audio/AudioPlayerContext";
@@ -53,208 +73,257 @@ import {
 import FloatingAudioPlayer
   from "./components/audio/FloatingAudioPlayer";
 
-
-
+import Checkout from "./pages/checkout/Checkout";
 /* Public website layout */
 
 const MainLayout = () => {
   return (
-   <>
-  <NavBar />
+    <>
+      <NavBar />
 
-  <main>
-    <Outlet />
-  </main>
+      <main>
+        <Outlet />
+      </main>
 
-  <Footer />
+      <Footer />
 
-  <FloatingAudioPlayer />
+      <FloatingAudioPlayer />
 
-  <Whatsapp />
-</>
+      <Whatsapp />
+    </>
   );
 };
+
 
 const App = () => {
   return (
     <AudioPlayerProvider>
       <Router>
-      <ScrollToTop />
+        <ScrollToTop />
 
-      <Routes>
+        <Routes>
 
-        {/* Public funnel */}
+          {/* Public funnel */}
 
-        <Route
-          path="/"
-          element={<OptInPage />}
-        />
-
-        <Route
-          path="/thank-you"
-          element={<ThankYou />}
-        />
-
-
-        {/* Public website */}
-
-        <Route element={<MainLayout />}>
           <Route
-            path="/home"
-            element={<Home />}
+            path="/"
+            element={<OptInPage />}
           />
 
           <Route
-            path="/products"
-            element={<Product />}
+            path="/thank-you"
+            element={<ThankYou />}
           />
 
-          <Route
-            path="/products/:slug"
-            element={<ProductDetails />}
-          />
 
-          <Route
-            path="/faq"
-            element={<FAQ />}
-          />
+          {/* Public website */}
 
-          <Route
-            path="/twi"
-            element={<Twi />}
-          />
-        </Route>
-
-
-        {/* Public admin authentication */}
-
-        <Route
-          path="/admin/login"
-          element={<AdminLogin />}
-        />
-
-        <Route
-          path="/admin/forgot-password"
-          element={<AdminForgotPassword />}
-        />
-
-
-        {/* Protected admin dashboard */}
-
-        <Route element={<RequireAdmin />}>
-          <Route
-            path="/admin"
-            element={<AdminLayout />}
-          >
+          <Route element={<MainLayout />}>
             <Route
-              index
-              element={<AdminDashboard />}
-            />
-
-
-            {/* Products */}
-
-            <Route
-              path="products"
-              element={<AdminProducts />}
+              path="/home"
+              element={<Home />}
             />
 
             <Route
-              path="products/add"
-              element={<AddProduct />}
+              path="/products"
+              element={<Product />}
             />
 
             <Route
-              path="products/:id/edit"
-              element={<EditProduct />}
-            />
-
-
-            {/* Categories */}
-
-            <Route
-              path="categories"
-              element={<AdminCategories />}
-            />
-
-
-            {/* Events */}
-
-            <Route
-              path="events"
-              element={<AdminEvents />}
+              path="/products/:slug"
+              element={<ProductDetails />}
             />
 
             <Route
-              path="events/add"
-              element={<AddEvent />}
+              path="/faq"
+              element={<FAQ />}
             />
 
             <Route
-              path="events/:id/edit"
-              element={<EditEvent />}
+              path="/twi"
+              element={<Twi />}
             />
 
 
-            {/* Opt-In */}
+            {/* Customer authentication */}
 
             <Route
-              path="opt-in"
-              element={<AdminOptIn />}
+              path="/account/auth"
+              element={<CustomerAuth />}
             />
 
 
-            {/* Contacts */}
+            {/* Protected customer cart */}
 
-            <Route
-              path="contacts"
-              element={<AdminContacts />}
-            />
+            <Route element={<RequireCustomer />}>
+              <Route
+                path="cart"
+                element={<Cart />}
+              />
 
+              <Route
+  path="checkout"
+  element={<Checkout />}
+/>
+            </Route>
 
-            {/* SMS */}
-
-            <Route
-              path="sms"
-              element={<AdminSms />}
-            />
-
-
-            {/* FAQ */}
-
-            <Route
-              path="faq"
-              element={<AdminFAQ />}
-            />
-
-
-            {/* Testimonials */}
-
-            <Route
-              path="testimonials"
-              element={<AdminTestimonials />}
-            />
-
-
-            {/* Twi */}
-
-            <Route
-              path="twi"
-              element={<AdminTwi />}
-            />
-
-
-            {/* Settings */}
-
-            <Route
-              path="settings"
-              element={<AdminSettings />}
-            />
           </Route>
-        </Route>
 
-      </Routes>
-         </Router>
+
+          {/* Public admin authentication */}
+
+          <Route
+            path="/admin/login"
+            element={<AdminLogin />}
+          />
+
+          <Route
+            path="/admin/forgot-password"
+            element={<AdminForgotPassword />}
+          />
+
+
+          {/* Protected customer dashboard */}
+
+          <Route element={<RequireCustomer />}>
+            <Route
+              path="/account"
+              element={<CustomerDashboardLayout />}
+            >
+              <Route
+                index
+                element={<DashboardHome />}
+              />
+
+              <Route
+                path="profile"
+                element={<Profile />}
+              />
+
+              <Route
+                path="orders"
+                element={<MyOrders />}
+              />
+            </Route>
+          </Route>
+
+
+          {/* Protected admin dashboard */}
+
+          <Route element={<RequireAdmin />}>
+            <Route
+              path="/admin"
+              element={<AdminLayout />}
+            >
+              <Route
+                index
+                element={<AdminDashboard />}
+              />
+
+
+              {/* Products */}
+
+              <Route
+                path="products"
+                element={<AdminProducts />}
+              />
+
+              <Route
+                path="products/add"
+                element={<AddProduct />}
+              />
+
+              <Route
+                path="products/:id/edit"
+                element={<EditProduct />}
+              />
+
+
+              {/* Categories */}
+
+              <Route
+                path="categories"
+                element={<AdminCategories />}
+              />
+
+
+              {/* Events */}
+
+              <Route
+                path="events"
+                element={<AdminEvents />}
+              />
+
+              <Route
+                path="events/add"
+                element={<AddEvent />}
+              />
+
+              <Route
+                path="events/:id/edit"
+                element={<EditEvent />}
+              />
+
+
+              {/* Opt-In */}
+
+              <Route
+                path="opt-in"
+                element={<AdminOptIn />}
+              />
+
+
+              {/* Contacts */}
+
+              <Route
+                path="contacts"
+                element={<AdminContacts />}
+              />
+
+
+              {/* SMS */}
+
+              <Route
+                path="sms"
+                element={<AdminSms />}
+              />
+
+
+              {/* FAQ */}
+
+              <Route
+                path="faq"
+                element={<AdminFAQ />}
+              />
+
+
+              {/* Testimonials */}
+
+              <Route
+                path="testimonials"
+                element={<AdminTestimonials />}
+              />
+
+
+              {/* Twi */}
+
+              <Route
+                path="twi"
+                element={<AdminTwi />}
+              />
+
+
+              {/* Settings */}
+
+              <Route
+                path="settings"
+                element={<AdminSettings />}
+              />
+            </Route>
+          </Route>
+
+        </Routes>
+      </Router>
     </AudioPlayerProvider>
   );
 };

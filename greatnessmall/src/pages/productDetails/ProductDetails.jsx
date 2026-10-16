@@ -6,32 +6,37 @@ import React, {
 
 import {
   NavLink,
+  useNavigate,
   useParams,
 } from "react-router-dom";
 
 import {
   ArrowLeft,
+  LoaderCircle,
   MessageCircle,
+  Minus,
+  Plus,
+  ShoppingCart,
+  X,
 } from "lucide-react";
 
 import {
   getProductBySlug,
 } from "../../services/backend";
 
+import {
+  useCart,
+} from "../../context/CartContext";
+
+import {
+  useCustomerAuth,
+} from "../../context/CustomerAuthContext";
+
 import "./ProductDetails.css";
 
 
 /* =========================================================
    SAFE YOUTUBE EMBED HELPER
-
-   Supports:
-   - youtube.com/watch?v=
-   - youtu.be/
-   - youtube.com/embed/
-   - youtube.com/shorts/
-
-   Autoplay starts muted because most browsers block
-   automatic playback with sound.
 ========================================================= */
 
 const getYouTubeEmbedUrl = (
@@ -103,9 +108,6 @@ const getYouTubeEmbedUrl = (
       return "";
     }
 
-    /*
-      Only allow normal YouTube video ID characters.
-    */
     if (
       !/^[a-zA-Z0-9_-]{6,20}$/.test(
         videoId
@@ -130,6 +132,18 @@ const getYouTubeEmbedUrl = (
 const ProductDetails = () => {
   const { slug } = useParams();
 
+  const navigate = useNavigate();
+
+  const {
+    customer,
+    loading: authLoading,
+  } = useCustomerAuth();
+
+  const {
+    addItem,
+  } = useCart();
+
+
   const [product, setProduct] =
     useState(null);
 
@@ -141,42 +155,73 @@ const ProductDetails = () => {
 
 
   /* =========================================================
+     CART STATE
+  ========================================================= */
+
+  const [
+    addingToCart,
+    setAddingToCart,
+  ] = useState(false);
+
+  const [
+    cartNotice,
+    setCartNotice,
+  ] = useState(null);
+
+
+  /* =========================================================
+     WHATSAPP ORDER STATE
+  ========================================================= */
+
+  const [
+    orderModalOpen,
+    setOrderModalOpen,
+  ] = useState(false);
+
+  const [
+    orderQuantity,
+    setOrderQuantity,
+  ] = useState("1");
+
+
+  /* =========================================================
      LOAD PRODUCT FROM DJANGO
   ========================================================= */
 
   useEffect(() => {
     let cancelled = false;
 
-    const loadProduct = async () => {
-      try {
-        setLoading(true);
-        setError("");
+    const loadProduct =
+      async () => {
+        try {
+          setLoading(true);
+          setError("");
 
-       const data =
-  await getProductBySlug(
-    slug
-  );
+          const data =
+            await getProductBySlug(
+              slug
+            );
 
-if (!cancelled) {
-  setProduct(data);
-}
-      } catch (err) {
-        console.error(
-          "Failed to load product:",
-          err
-        );
-
-        if (!cancelled) {
-          setError(
-            "Product could not be found."
+          if (!cancelled) {
+            setProduct(data);
+          }
+        } catch (err) {
+          console.error(
+            "Failed to load product:",
+            err
           );
+
+          if (!cancelled) {
+            setError(
+              "Product could not be found."
+            );
+          }
+        } finally {
+          if (!cancelled) {
+            setLoading(false);
+          }
         }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    };
+      };
 
     loadProduct();
 
@@ -184,6 +229,71 @@ if (!cancelled) {
       cancelled = true;
     };
   }, [slug]);
+
+
+  /* =========================================================
+     CART NOTICE TIMER
+  ========================================================= */
+
+  useEffect(() => {
+    if (!cartNotice) {
+      return undefined;
+    }
+
+    const timer =
+      window.setTimeout(() => {
+        setCartNotice(null);
+      }, 3000);
+
+    return () => {
+      window.clearTimeout(
+        timer
+      );
+    };
+  }, [cartNotice]);
+
+
+  /* =========================================================
+     ORDER MODAL
+  ========================================================= */
+
+  useEffect(() => {
+    if (!orderModalOpen) {
+      return undefined;
+    }
+
+    const previousOverflow =
+      document.body.style.overflow;
+
+    document.body.style.overflow =
+      "hidden";
+
+    const handleEscape = (
+      event
+    ) => {
+      if (
+        event.key === "Escape"
+      ) {
+        setOrderModalOpen(false);
+        setOrderQuantity("1");
+      }
+    };
+
+    document.addEventListener(
+      "keydown",
+      handleEscape
+    );
+
+    return () => {
+      document.body.style.overflow =
+        previousOverflow;
+
+      document.removeEventListener(
+        "keydown",
+        handleEscape
+      );
+    };
+  }, [orderModalOpen]);
 
 
   /* =========================================================
@@ -207,7 +317,6 @@ if (!cancelled) {
   if (loading) {
     return (
       <section className="product-not-found">
-
         <h1>
           Loading Product
         </h1>
@@ -215,7 +324,6 @@ if (!cancelled) {
         <p>
           Please wait while the product information loads.
         </p>
-
       </section>
     );
   }
@@ -231,7 +339,6 @@ if (!cancelled) {
   ) {
     return (
       <section className="product-not-found">
-
         <h1>
           Product Not Found
         </h1>
@@ -246,345 +353,658 @@ if (!cancelled) {
         >
           Back to Products
         </NavLink>
-
       </section>
     );
   }
 
 
   /* =========================================================
-     WHATSAPP ORDER
+     PRODUCT SHARE URL
   ========================================================= */
 
   const backendUrl =
-  import.meta.env.VITE_BACKEND_URL
-    ?.replace(/\/$/, "") || "";
+    import.meta.env.VITE_BACKEND_URL
+      ?.replace(/\/$/, "") ||
+    "";
 
-const whatsappNumber =
-  "233578622158";
+  const whatsappNumber =
+    "233578622158";
 
-const productShareUrl =
-  `${backendUrl}/products/share/${product.slug}/`;
-
-const whatsappMessage =
-  `Hello Greatness Mall, I am interested in ${product.name}. ` +
-  `I saw this product on your website and would like more information about it.\n\n` +
-  `Product:\n${productShareUrl}`;
-
-const whatsappUrl =
-  `https://wa.me/${whatsappNumber}` +
-  `?text=${encodeURIComponent(
-    whatsappMessage
-  )}`;
+  const productShareUrl =
+    `${backendUrl}/products/share/${product.slug}/`;
 
 
-const handleShare = async () => {
-  const shareData = {
-    title: product.name,
-    text:
-      product.short_description ||
-      product.description ||
-      `Discover ${product.name} at Greatness Mall.`,
-    url: productShareUrl,
+  /* =========================================================
+     SHARE PRODUCT
+  ========================================================= */
+
+  const handleShare = async () => {
+    const shareData = {
+      title: product.name,
+
+      text:
+        product.short_description ||
+        product.description ||
+        `Discover ${product.name} at Greatness Mall.`,
+
+      url: productShareUrl,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(
+          shareData
+        );
+
+        return;
+      }
+
+      await navigator.clipboard.writeText(
+        productShareUrl
+      );
+
+      window.alert(
+        "Product link copied."
+      );
+    } catch (err) {
+      if (
+        err?.name !== "AbortError"
+      ) {
+        console.error(
+          "Product sharing failed:",
+          err
+        );
+      }
+    }
   };
 
-  try {
-    if (navigator.share) {
-      await navigator.share(
-        shareData
+
+  /* =========================================================
+     ADD TO CART
+  ========================================================= */
+
+  const handleAddToCart =
+    async () => {
+      if (authLoading) {
+        return;
+      }
+
+      if (!customer) {
+        navigate(
+          "/account/auth"
+        );
+
+        return;
+      }
+
+      setAddingToCart(true);
+      setCartNotice(null);
+
+      try {
+        await addItem(
+          product.id,
+          1
+        );
+
+        setCartNotice({
+          type: "success",
+          message:
+            `${product.name} was added to your cart.`,
+        });
+      } catch (err) {
+        console.error(
+          "Could not add product to cart:",
+          err
+        );
+
+        setCartNotice({
+          type: "error",
+          message:
+            err?.message ||
+            "Could not add this product to your cart.",
+        });
+      } finally {
+        setAddingToCart(false);
+      }
+    };
+
+
+  /* =========================================================
+     WHATSAPP QUANTITY
+  ========================================================= */
+
+  const parsedQuantity =
+    Math.max(
+      1,
+      Number.parseInt(
+        orderQuantity,
+        10
+      ) || 1
+    );
+
+
+  const openOrderModal = () => {
+    setOrderQuantity("1");
+    setOrderModalOpen(true);
+  };
+
+
+  const closeOrderModal = () => {
+    setOrderModalOpen(false);
+    setOrderQuantity("1");
+  };
+
+
+  const decreaseQuantity = () => {
+    setOrderQuantity(
+      String(
+        Math.max(
+          1,
+          parsedQuantity - 1
+        )
+      )
+    );
+  };
+
+
+  const increaseQuantity = () => {
+    setOrderQuantity(
+      String(
+        parsedQuantity + 1
+      )
+    );
+  };
+
+
+  const handleQuantityChange = (
+    event
+  ) => {
+    const value =
+      event.target.value.replace(
+        /\D/g,
+        ""
       );
+
+    setOrderQuantity(value);
+  };
+
+
+  const handleQuantityBlur = () => {
+    if (!orderQuantity) {
+      setOrderQuantity("1");
       return;
     }
 
-    await navigator.clipboard.writeText(
-      productShareUrl
+    setOrderQuantity(
+      String(parsedQuantity)
     );
+  };
 
-    window.alert(
-      "Product link copied."
-    );
-  } catch (err) {
-    if (
-      err?.name !== "AbortError"
-    ) {
-      console.error(
-        "Product sharing failed:",
-        err
+
+  const continueToWhatsApp =
+    () => {
+      const message =
+        `Hello Greatness Mall,\n\n` +
+        `I would like to order this product.\n\n` +
+        `Product: ${product.name}\n` +
+        `Quantity: ${parsedQuantity}\n\n` +
+        `Product link:\n${productShareUrl}`;
+
+      const whatsappUrl =
+        `https://wa.me/${whatsappNumber}` +
+        `?text=${encodeURIComponent(
+          message
+        )}`;
+
+      window.open(
+        whatsappUrl,
+        "_blank",
+        "noopener,noreferrer"
       );
-    }
-  }
-};
 
-  
+      closeOrderModal();
+    };
+
 
   return (
-    <main className="product-details-page">
+    <>
+      <main className="product-details-page">
 
-      <div className="product-details-container">
+        <div className="product-details-container">
 
-        {/* =====================================================
-            BACK TO PRODUCTS
-        ====================================================== */}
+          {/* BACK TO PRODUCTS */}
 
-        <NavLink
-          to="/products"
-          className="product-details-back"
-        >
-          <ArrowLeft
-            size={16}
-            strokeWidth={1.8}
-            aria-hidden="true"
-          />
+          <NavLink
+            to="/products"
+            className="product-details-back"
+          >
+            <ArrowLeft
+              size={16}
+              strokeWidth={1.8}
+              aria-hidden="true"
+            />
 
-          Back to Products
-        </NavLink>
+            Back to Products
+          </NavLink>
 
 
-        {/* =====================================================
-            TOP MEDIA
+          {/* CART NOTICE */}
 
-            DESKTOP:
-            YOUTUBE | PRODUCT IMAGE
+          {cartNotice && (
+            <div
+              className={`product-detail-cart-notice ${
+                cartNotice.type ===
+                "error"
+                  ? "product-detail-cart-notice-error"
+                  : ""
+              }`}
+              role={
+                cartNotice.type ===
+                "error"
+                  ? "alert"
+                  : "status"
+              }
+            >
+              {cartNotice.message}
+            </div>
+          )}
 
-            MOBILE:
-            YOUTUBE
-            PRODUCT IMAGE
-        ====================================================== */}
 
-        {(youtubeEmbedUrl ||
-          product.main_image) && (
+          {/* TOP MEDIA */}
 
-          <section className="product-top-media">
+          {(youtubeEmbedUrl ||
+            product.main_image) && (
 
-            {/* YOUTUBE */}
+            <section className="product-top-media">
 
-            {youtubeEmbedUrl && (
+              {/* YOUTUBE */}
 
-              <div className="product-video-box">
+              {youtubeEmbedUrl && (
+                <div className="product-video-box">
 
-                <iframe
-                  src={youtubeEmbedUrl}
-                  title={`${product.name} video`}
-                  allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-                  allowFullScreen
-                  loading="eager"
-                  referrerPolicy="strict-origin-when-cross-origin"
-                />
+                  <iframe
+                    src={youtubeEmbedUrl}
+                    title={`${product.name} video`}
+                    allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                    allowFullScreen
+                    loading="eager"
+                    referrerPolicy="strict-origin-when-cross-origin"
+                  />
 
-              </div>
+                </div>
+              )}
 
+
+              {/* MAIN PRODUCT IMAGE */}
+
+              {product.main_image && (
+                <div className="product-top-image-box">
+
+                  <img
+                    src={
+                      product.main_image
+                    }
+                    alt={
+                      product.name
+                    }
+                    loading="eager"
+                  />
+
+
+                  <button
+                    type="button"
+                    className="product-detail-cart-button"
+                    aria-label={
+                      customer
+                        ? `Add ${product.name} to cart`
+                        : `Sign in to add ${product.name} to cart`
+                    }
+                    title={
+                      customer
+                        ? "Add to Cart"
+                        : "Sign in to Add to Cart"
+                    }
+                    disabled={
+                      authLoading ||
+                      addingToCart
+                    }
+                    onClick={
+                      handleAddToCart
+                    }
+                  >
+                    {addingToCart ? (
+                      <LoaderCircle
+                        size={20}
+                        strokeWidth={2}
+                        className="product-detail-cart-loader"
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      <ShoppingCart
+                        size={20}
+                        strokeWidth={2}
+                        aria-hidden="true"
+                      />
+                    )}
+                  </button>
+
+                </div>
+              )}
+
+            </section>
+          )}
+
+
+          {/* PRODUCT INTRO */}
+
+          <section className="product-intro">
+
+            {product.category?.name && (
+              <span className="product-intro-category">
+                {product.category.name}
+              </span>
             )}
 
 
-            {/* MAIN PRODUCT IMAGE */}
+            <h1>
+              {product.name}
+            </h1>
 
-            {product.main_image && (
 
-              <div className="product-top-image-box">
+            {product.tagline && (
+              <h2>
+                {product.tagline}
+              </h2>
+            )}
 
-                <img
-                  src={product.main_image}
-                  alt={product.name}
-                  loading="eager"
-                />
 
-              </div>
-
+            {product.description && (
+              <p>
+                {product.description}
+              </p>
             )}
 
           </section>
 
-        )}
 
+          {/* PRODUCT BENEFITS */}
 
-        {/* =====================================================
-            PRODUCT INTRO
-        ====================================================== */}
+          {product.benefits.length >
+            0 && (
 
-        <section className="product-intro">
+            <section className="product-benefits-layout">
 
-          {product.category?.name && (
+              <div className="product-benefits-content">
 
-            <span className="product-intro-category">
-              {product.category.name}
-            </span>
+                <span className="product-section-label">
+                  PRODUCT BENEFITS
+                </span>
 
+                <h2>
+                  {product.name} Major Benefits
+                </h2>
+
+                <ul className="product-benefits-list">
+
+                  {product.benefits.map(
+                    (benefit) => (
+                      <li
+                        key={
+                          benefit.id ??
+                          benefit.text
+                        }
+                      >
+                        {benefit.text}
+                      </li>
+                    )
+                  )}
+
+                </ul>
+
+              </div>
+
+            </section>
           )}
 
 
-          <h1>
-            {product.name}
-          </h1>
+          {/* PRODUCT ACTIONS */}
 
+          <div className="product-detail-actions">
 
-          {product.tagline && (
-
-            <h2>
-              {product.tagline}
-            </h2>
-
-          )}
-
-
-          {product.description && (
-
-            <p>
-              {product.description}
-            </p>
-
-          )}
-
-        </section>
-
-
-        {/* =====================================================
-    PRODUCT BENEFITS
-===================================================== */}
-
-{product.benefits.length > 0 && (
-  <section className="product-benefits-layout">
-
-    <div className="product-benefits-content">
-
-      <span className="product-section-label">
-        PRODUCT BENEFITS
-      </span>
-
-      <h2>
-        {product.name} Major Benefits
-      </h2>
-
-      <ul className="product-benefits-list">
-
-        {product.benefits.map(
-          (benefit) => (
-            <li
-              key={
-                benefit.id ??
-                benefit.text
+            <button
+              type="button"
+              className="product-share-strip"
+              onClick={
+                handleShare
               }
             >
-              {benefit.text}
-            </li>
-          )
-        )}
-
-      </ul>
-
-    </div>
-
-  </section>
-)}
+              Share Product
+            </button>
 
 
-        {/* =====================================================
-            ORDER NOW
-        ====================================================== */}
+            <button
+              type="button"
+              className="product-order-strip"
+              aria-label={`Order ${product.name} on WhatsApp`}
+              onClick={
+                openOrderModal
+              }
+            >
+              <MessageCircle
+                size={19}
+                strokeWidth={1.8}
+                aria-hidden="true"
+              />
 
-        {/* =====================================================
-    PRODUCT ACTIONS
-===================================================== */}
+              <span>
+                Order Now
+              </span>
+            </button>
 
-<div className="product-detail-actions">
+          </div>
 
-  <button
-    type="button"
-    className="product-share-strip"
-    onClick={handleShare}
-  >
-    Share Product
-  </button>
 
-  <a
-    href={whatsappUrl}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="product-order-strip"
-    aria-label={`Order ${product.name} on WhatsApp`}
-  >
-    <MessageCircle
-      size={19}
-      strokeWidth={1.8}
-      aria-hidden="true"
-    />
+          {/* INGREDIENTS */}
 
-    <span>
-      Order Now
-    </span>
-  </a>
+          {product.ingredients.length >
+            0 && (
 
-</div>
+            <section className="product-ingredients">
+
+              <span className="product-section-label">
+                WHAT&apos;S INSIDE
+              </span>
+
+              <h2>
+                Main Ingredients
+              </h2>
+
+              <div className="product-ingredients-grid">
+
+                {product.ingredients.map(
+                  (ingredient) => (
+                    <div
+                      key={
+                        ingredient.id ??
+                        ingredient.name
+                      }
+                      className="product-ingredient-item"
+                    >
+                      <span
+                        aria-hidden="true"
+                      ></span>
+
+                      <p>
+                        {
+                          ingredient.name
+                        }
+                      </p>
+                    </div>
+                  )
+                )}
+
+              </div>
+
+            </section>
+          )}
+
+
+          {/* ADDITIONAL INFORMATION */}
+
+          {product.extra_information && (
+
+            <section className="product-extra-info">
+
+              <h3>
+                Additional Information
+              </h3>
+
+              <p>
+                {
+                  product.extra_information
+                }
+              </p>
+
+            </section>
+          )}
+
+        </div>
+
+      </main>
 
 
       {/* =====================================================
-    INGREDIENTS
-===================================================== */}
+          WHATSAPP QUANTITY POPUP
+      ====================================================== */}
 
-{product.ingredients.length > 0 && (
-  <section className="product-ingredients">
-
-    <span className="product-section-label">
-      WHAT'S INSIDE
-    </span>
-
-    <h2>
-      Main Ingredients
-    </h2>
-
-    <div className="product-ingredients-grid">
-
-      {product.ingredients.map(
-        (ingredient) => (
+      {orderModalOpen && (
+        <div
+          className="product-detail-order-overlay"
+          role="presentation"
+          onMouseDown={
+            closeOrderModal
+          }
+        >
           <div
-            key={
-              ingredient.id ??
-              ingredient.name
+            className="product-detail-order-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="product-detail-order-title"
+            onMouseDown={(
+              event
+            ) =>
+              event.stopPropagation()
             }
-            className="product-ingredient-item"
           >
-            <span
-              aria-hidden="true"
-            ></span>
 
-            <p>
-              {ingredient.name}
-            </p>
-          </div>
-        )
-      )}
+            <button
+              type="button"
+              className="product-detail-order-close"
+              aria-label="Close quantity selection"
+              onClick={
+                closeOrderModal
+              }
+            >
+              <X
+                size={19}
+                strokeWidth={2}
+              />
+            </button>
 
-    </div>
 
-  </section>
-)}
+            <span className="product-detail-order-label">
+              ORDER ON WHATSAPP
+            </span>
 
 
-        {/* =====================================================
-            ADDITIONAL INFORMATION
-        ====================================================== */}
-
-        {product.extra_information && (
-
-          <section className="product-extra-info">
-
-            <h3>
-              Additional Information
+            <h3
+              id="product-detail-order-title"
+            >
+              {product.name}
             </h3>
 
+
             <p>
-              {
-                product.extra_information
-              }
+              Select the quantity you
+              would like before
+              continuing to WhatsApp.
             </p>
 
-          </section>
 
-        )}
+            <div className="product-detail-order-quantity">
 
-      </div>
+              <button
+                type="button"
+                aria-label="Decrease quantity"
+                disabled={
+                  parsedQuantity <= 1
+                }
+                onClick={
+                  decreaseQuantity
+                }
+              >
+                <Minus
+                  size={18}
+                  strokeWidth={2}
+                />
+              </button>
 
-    </main>
+
+              <input
+                type="text"
+                inputMode="numeric"
+                aria-label="Order quantity"
+                value={
+                  orderQuantity
+                }
+                onChange={
+                  handleQuantityChange
+                }
+                onBlur={
+                  handleQuantityBlur
+                }
+              />
+
+
+              <button
+                type="button"
+                aria-label="Increase quantity"
+                onClick={
+                  increaseQuantity
+                }
+              >
+                <Plus
+                  size={18}
+                  strokeWidth={2}
+                />
+              </button>
+
+            </div>
+
+
+            <button
+              type="button"
+              className="product-detail-order-whatsapp"
+              onClick={
+                continueToWhatsApp
+              }
+            >
+              <MessageCircle
+                size={18}
+                strokeWidth={1.9}
+                aria-hidden="true"
+              />
+
+              Continue on WhatsApp
+            </button>
+
+          </div>
+        </div>
+      )}
+
+    </>
   );
 };
+
 
 export default ProductDetails;

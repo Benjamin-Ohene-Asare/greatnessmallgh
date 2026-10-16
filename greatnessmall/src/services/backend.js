@@ -274,6 +274,283 @@ export const getTwiContent = (
 };
 
 
+
+/* Customer authentication */
+
+let customerCsrfToken = "";
+
+
+export const getCustomerCsrfToken = async () => {
+  const response = await fetch(
+    `${BACKEND_URL}/customers/csrf/`,
+    {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        Accept: "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "Could not initialize customer security."
+    );
+  }
+
+  const data = await response.json();
+
+  customerCsrfToken =
+    data.csrfToken || "";
+
+  if (!customerCsrfToken) {
+    throw new Error(
+      "Could not initialize customer security."
+    );
+  }
+
+  return customerCsrfToken;
+};
+
+
+const customerRequest = async (
+  url,
+  options = {}
+) => {
+  const method = (
+    options.method || "GET"
+  ).toUpperCase();
+
+  const needsCsrf = ![
+    "GET",
+    "HEAD",
+    "OPTIONS",
+  ].includes(method);
+
+  /*
+   * Always request a fresh token before
+   * customer POST/PATCH/DELETE requests.
+   *
+   * Django rotates the CSRF token after login,
+   * so this prevents us from accidentally
+   * reusing an old token.
+   */
+  if (needsCsrf) {
+    await getCustomerCsrfToken();
+  }
+
+  const response = await fetch(
+    url,
+    {
+      ...options,
+      credentials: "include",
+
+      headers: {
+        Accept: "application/json",
+
+        ...(needsCsrf
+          ? {
+              "X-CSRFToken":
+                customerCsrfToken,
+            }
+          : {}),
+
+        ...options.headers,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    let message =
+      "The request could not be completed.";
+
+    try {
+      const data =
+        await response.json();
+
+      if (data.detail) {
+        message = data.detail;
+
+      } else if (data.message) {
+        message = data.message;
+
+      } else if (
+        data &&
+        typeof data === "object"
+      ) {
+        const firstError =
+          Object.values(data)
+            .flat(Infinity)
+            .find(Boolean);
+
+        if (firstError) {
+          message =
+            String(firstError);
+        }
+      }
+
+    } catch {
+      // Keep the general message.
+    }
+
+    throw new Error(message);
+  }
+
+  if (response.status === 204) {
+    return null;
+  }
+
+  return response.json();
+};
+
+
+export const registerCustomer = (
+  customer
+) => {
+  return customerRequest(
+    `${BACKEND_URL}/customers/register/`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body: JSON.stringify({
+        full_name:
+          customer.fullName,
+        email:
+          customer.email,
+        phone_number:
+          customer.phoneNumber,
+        password:
+          customer.password,
+        confirm_password:
+          customer.confirmPassword,
+      }),
+    }
+  );
+};
+
+
+export const loginCustomer = (
+  identifier,
+  password
+) => {
+  return customerRequest(
+    `${BACKEND_URL}/customers/login/`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body: JSON.stringify({
+        identifier,
+        password,
+      }),
+    }
+  );
+};
+
+
+export const loginCustomerWithGoogle = (
+  credential
+) => {
+  return customerRequest(
+    `${BACKEND_URL}/customers/google/`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body: JSON.stringify({
+        credential,
+      }),
+    }
+  );
+};
+
+
+export const getCurrentCustomer =
+  async () => {
+    const response = await fetch(
+      `${BACKEND_URL}/customers/me/`,
+      {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          Accept:
+            "application/json",
+        },
+      }
+    );
+
+    if (
+      response.status === 401 ||
+      response.status === 403
+    ) {
+      return null;
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        "Could not verify customer session."
+      );
+    }
+
+    return response.json();
+  };
+
+
+export const logoutCustomer =
+  async () => {
+    const data =
+      await customerRequest(
+        `${BACKEND_URL}/customers/logout/`,
+        {
+          method: "POST",
+        }
+      );
+
+    customerCsrfToken = "";
+
+    return data;
+  };
+
+
+
+ export const updateCustomerProfile = (
+  profile
+) => {
+  return customerRequest(
+    `${BACKEND_URL}/customers/profile/`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body: JSON.stringify({
+        full_name:
+          profile.fullName,
+        phone_number:
+          profile.phoneNumber,
+      }),
+    }
+  );
+}; 
+
+
+
+
+
+
+
+
+
+
+
 /* Admin authentication */
 
 let csrfToken = "";
@@ -927,3 +1204,104 @@ export const confirmPasswordResetSMS = (phone, code, newPassword) =>
       }),
     }
   );
+
+
+
+
+/* Customer cart */
+
+export const getCustomerCart = () => {
+  return customerRequest(
+    `${BACKEND_URL}/commerce/cart/`
+  );
+};
+
+
+export const addCustomerCartItem = (
+  productId,
+  quantity = 1
+) => {
+  return customerRequest(
+    `${BACKEND_URL}/commerce/cart/items/`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        product_id: productId,
+        quantity,
+      }),
+    }
+  );
+};
+
+
+export const updateCustomerCartItem = (
+  itemId,
+  quantity
+) => {
+  return customerRequest(
+    `${BACKEND_URL}/commerce/cart/items/${encodeURIComponent(
+      itemId
+    )}/`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        quantity,
+      }),
+    }
+  );
+};
+
+
+export const removeCustomerCartItem = (
+  itemId
+) => {
+  return customerRequest(
+    `${BACKEND_URL}/commerce/cart/items/${encodeURIComponent(
+      itemId
+    )}/`,
+    {
+      method: "DELETE",
+    }
+  );
+};
+
+
+export const checkoutCustomerOrder = (data) => {
+  return customerRequest(
+    `${BACKEND_URL}/commerce/checkout/`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    }
+  );
+};
+
+
+export const getCustomerOrders = () => {
+  return customerRequest(
+    `${BACKEND_URL}/commerce/orders/`
+  );
+};
+
+
+export const markOrderWhatsAppStarted = (
+  reference
+) => {
+  return customerRequest(
+    `${BACKEND_URL}/commerce/orders/${encodeURIComponent(
+      reference
+    )}/whatsapp-started/`,
+    {
+      method: "POST",
+    }
+  );
+};

@@ -768,14 +768,14 @@ const Twi = () => {
                                     />
                                   </div>
                                 </div>
-{showOrderButton && (
+{showOrderButton && item.product?.slug && (
   <a
-    href="https://wa.me/233578622158"
-    target="_blank"
-    rel="noopener noreferrer"
+    href={`/products/${encodeURIComponent(
+      item.product.slug
+    )}`}
     className="twi-audio-order-btn"
   >
-    Order Now
+    Order {item.product.name || "Product"}
   </a>
 )}
                               </>

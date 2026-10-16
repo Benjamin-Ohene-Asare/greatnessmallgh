@@ -1,36 +1,61 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
+import {
+  ShoppingCart,
+  UserRound,
+} from "lucide-react";
+
+import {
+  useCustomerAuth,
+} from "../../context/CustomerAuthContext";
+
+import {
+  useCart,
+} from "../../context/CartContext";
+
 import "./NavBar.css";
 
+
 const NavBar = () => {
-  /* =========================================================
-     MOBILE NAVIGATION STATE
-     Controls only the visual opening/closing of the menu.
+  const [menuOpen, setMenuOpen] =
+    useState(false);
 
-     SECURITY:
-     This state does not control authorization.
-     Protected pages must still be secured by Django later.
-  ========================================================= */
-  const [menuOpen, setMenuOpen] = useState(false);
+  const {
+    customer,
+    loading,
+  } = useCustomerAuth();
 
-  /* =========================================================
-     CLOSE MOBILE MENU
-     Used after a visitor selects a navigation item.
-  ========================================================= */
+  const {
+    totalQuantity,
+  } = useCart();
+
+
   const closeMenu = () => {
     setMenuOpen(false);
   };
 
-  /* =========================================================
-     ACTIVE NAV LINK CLASS
-     Keeps NavLink styling consistent across navigation items.
-  ========================================================= */
-  const getNavLinkClass = ({ isActive }) =>
-    isActive ? "nav-link active" : "nav-link";
+
+  const getNavLinkClass = ({
+    isActive,
+  }) =>
+    isActive
+      ? "nav-link active"
+      : "nav-link";
+
+
+  const cartCount =
+    Number(totalQuantity) || 0;
+
+  const cartBadgeText =
+    cartCount > 99
+      ? "99+"
+      : cartCount;
+
 
   return (
     <header className="navbar">
       <div className="navbar-container">
+
         <NavLink
           to="/home"
           className="navbar-brand"
@@ -44,14 +69,19 @@ const NavBar = () => {
           </div>
 
           <div className="navbar-brand-text">
-            <h2>Greatness Mall</h2>
-            <span>Quality. Value. Convenience.</span>
+            <h2>
+              Greatness Mall
+            </h2>
+
+            <span>
+              Quality. Value. Convenience.
+            </span>
           </div>
         </NavLink>
 
 
-       
         <nav
+          id="main-navigation"
           className={
             menuOpen
               ? "navbar-links navbar-links-open"
@@ -102,6 +132,78 @@ const NavBar = () => {
           >
             Explore Products
           </NavLink>
+
+
+          {!loading && (
+            <NavLink
+              to={
+                customer
+                  ? "/cart"
+                  : "/account/auth"
+              }
+              className="navbar-cart-button"
+              onClick={closeMenu}
+              aria-label={
+                customer
+                  ? `Open cart with ${cartCount} item${
+                      cartCount === 1
+                        ? ""
+                        : "s"
+                    }`
+                  : "Sign in to view your cart"
+              }
+              title={
+                customer
+                  ? "My Cart"
+                  : "Sign in to use your cart"
+              }
+            >
+              <ShoppingCart
+                size={20}
+                strokeWidth={2}
+              />
+
+              {customer &&
+                cartCount > 0 && (
+                  <span
+                    className="navbar-cart-badge"
+                    aria-hidden="true"
+                  >
+                    {cartBadgeText}
+                  </span>
+                )}
+            </NavLink>
+          )}
+
+
+          {!loading && (
+            <>
+              {customer ? (
+                <NavLink
+                  to="/account"
+                  className="navbar-account-button"
+                  onClick={closeMenu}
+                  aria-label="Open my account"
+                  title="My Account"
+                >
+                  <UserRound
+                    size={20}
+                    strokeWidth={2}
+                  />
+                </NavLink>
+              ) : (
+                <NavLink
+                  to="/account/auth"
+                  className="navbar-signin-button"
+                  onClick={closeMenu}
+                >
+                  Sign In
+                </NavLink>
+              )}
+            </>
+          )}
+
+
           <button
             type="button"
             className={
@@ -116,7 +218,12 @@ const NavBar = () => {
             }
             aria-expanded={menuOpen}
             aria-controls="main-navigation"
-            onClick={() => setMenuOpen((prev) => !prev)}
+            onClick={() =>
+              setMenuOpen(
+                (previous) =>
+                  !previous
+              )
+            }
           >
             <span></span>
             <span></span>
@@ -129,5 +236,6 @@ const NavBar = () => {
     </header>
   );
 };
+
 
 export default NavBar;
