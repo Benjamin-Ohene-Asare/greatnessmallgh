@@ -308,14 +308,14 @@ const Cart = () => {
                 with Greatness Mall when you
                 continue your order on WhatsApp.
               </p>
-<Link
-  to="/checkout"
-  className="cart-checkout-button"
->
-  Continue to Checkout
-</Link>
+              <Link
+                to="/checkout"
+                className="cart-checkout-button"
+              >
+                Continue to Checkout
+              </Link>
 
-            
+
             </aside>
 
           </div>
