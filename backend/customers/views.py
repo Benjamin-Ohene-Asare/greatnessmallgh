@@ -1,3 +1,4 @@
+import logging
 import uuid
 
 from django.conf import settings
@@ -19,14 +20,19 @@ from rest_framework.views import APIView
 from .models import CustomerProfile
 from .serializers import (
     CustomerLoginSerializer,
+    CustomerProfileUpdateSerializer,
     CustomerRegistrationSerializer,
     GoogleLoginSerializer,
-    CustomerProfileUpdateSerializer,
 )
 
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
+
+# =========================================================
+# HELPERS
+# =========================================================
 
 def customer_data(user, profile):
     return {
@@ -38,14 +44,31 @@ def customer_data(user, profile):
     }
 
 
-def google_auth_error():
+def google_auth_error(reason=None):
+    """
+    Return a generic error to the customer while logging
+    a safe diagnostic reason on the server.
+
+    Never log the Google credential/token itself.
+    """
+
+    if reason:
+        logger.warning(
+            "Google authentication rejected: %s",
+            reason,
+        )
+
     return Response(
         {
-            "detail": "Unable to authenticate with Google."
+            "detail": "Unable to authenticate with Google.",
         },
         status=status.HTTP_400_BAD_REQUEST,
     )
 
+
+# =========================================================
+# CUSTOMER CSRF
+# =========================================================
 
 @method_decorator(ensure_csrf_cookie, name="dispatch")
 class CustomerCsrfView(APIView):
@@ -59,6 +82,10 @@ class CustomerCsrfView(APIView):
             status=status.HTTP_200_OK,
         )
 
+
+# =========================================================
+# CUSTOMER REGISTRATION
+# =========================================================
 
 @method_decorator(csrf_protect, name="dispatch")
 class CustomerRegisterView(APIView):
@@ -94,6 +121,10 @@ class CustomerRegisterView(APIView):
         )
 
 
+# =========================================================
+# CUSTOMER PASSWORD LOGIN
+# =========================================================
+
 @method_decorator(csrf_protect, name="dispatch")
 class CustomerLoginView(APIView):
     permission_classes = [AllowAny]
@@ -122,7 +153,7 @@ class CustomerLoginView(APIView):
                 {
                     "non_field_errors": [
                         "Invalid email/phone number or password."
-                    ]
+                    ],
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
@@ -130,6 +161,7 @@ class CustomerLoginView(APIView):
         login(
             request,
             user,
+            backend="customers.backends.CustomerLoginBackend",
         )
 
         return Response(
@@ -144,6 +176,9 @@ class CustomerLoginView(APIView):
         )
 
 
+# =========================================================
+# GOOGLE LOGIN
+# =========================================================
 
 @method_decorator(csrf_protect, name="dispatch")
 class GoogleLoginView(APIView):
@@ -151,16 +186,42 @@ class GoogleLoginView(APIView):
 
     @transaction.atomic
     def post(self, request):
+        # ---------------------------------
+        # GOOGLE CONFIGURATION
+        # ---------------------------------
+
         if not settings.GOOGLE_CLIENT_ID:
+            logger.error(
+                "Google authentication unavailable: "
+                "GOOGLE_CLIENT_ID is not configured."
+            )
+
             return Response(
-                {"detail": "Google authentication is unavailable."},
+                {
+                    "detail": "Google authentication is unavailable.",
+                },
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
 
-        serializer = GoogleLoginSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        # ---------------------------------
+        # VALIDATE REQUEST
+        # ---------------------------------
 
-        credential = serializer.validated_data["credential"]
+        serializer = GoogleLoginSerializer(
+            data=request.data,
+        )
+
+        serializer.is_valid(
+            raise_exception=True,
+        )
+
+        credential = serializer.validated_data[
+            "credential"
+        ]
+
+        # ---------------------------------
+        # VERIFY GOOGLE TOKEN
+        # ---------------------------------
 
         try:
             google_user = id_token.verify_oauth2_token(
@@ -168,8 +229,25 @@ class GoogleLoginView(APIView):
                 google_requests.Request(),
                 settings.GOOGLE_CLIENT_ID,
             )
-        except (ValueError, GoogleAuthError):
-            return google_auth_error()
+
+        except (
+            ValueError,
+            GoogleAuthError,
+        ) as error:
+            logger.warning(
+                "Google token verification failed. "
+                "error_type=%s error=%s",
+                type(error).__name__,
+                str(error),
+            )
+
+            return google_auth_error(
+                "token_verification_failed"
+            )
+
+        # ---------------------------------
+        # GOOGLE ACCOUNT INFORMATION
+        # ---------------------------------
 
         google_sub = str(
             google_user.get("sub", "")
@@ -187,22 +265,39 @@ class GoogleLoginView(APIView):
             "email_verified"
         )
 
+        # ---------------------------------
+        # VALIDATE GOOGLE CLAIMS
+        # ---------------------------------
+
         if (
             not google_sub
             or not email
             or email_verified is not True
         ):
-            return google_auth_error()
+            logger.warning(
+                "Google claims validation failed. "
+                "has_sub=%s has_email=%s "
+                "email_verified=%r",
+                bool(google_sub),
+                bool(email),
+                email_verified,
+            )
+
+            return google_auth_error(
+                "invalid_google_claims"
+            )
 
         # ---------------------------------
-        # 1. Returning linked Google user
+        # 1. RETURNING LINKED GOOGLE USER
         # ---------------------------------
 
         linked_profile = (
             CustomerProfile.objects
             .select_for_update()
             .select_related("user")
-            .filter(google_sub=google_sub)
+            .filter(
+                google_sub=google_sub
+            )
             .first()
         )
 
@@ -210,16 +305,25 @@ class GoogleLoginView(APIView):
             user = linked_profile.user
 
             if not user.is_active:
-                return google_auth_error()
+                return google_auth_error(
+                    "linked_user_inactive"
+                )
 
             if (
                 request.user.is_authenticated
                 and request.user.pk != user.pk
             ):
+                logger.warning(
+                    "Google login rejected because "
+                    "the active session belongs to "
+                    "another customer."
+                )
+
                 return Response(
                     {
                         "detail":
-                            "This Google account belongs to another customer."
+                            "This Google account belongs "
+                            "to another customer."
                     },
                     status=status.HTTP_409_CONFLICT,
                 )
@@ -230,15 +334,18 @@ class GoogleLoginView(APIView):
                 backend="customers.backends.CustomerLoginBackend",
             )
 
+            logger.info(
+                "Google login successful for returning linked customer."
+            )
+
             return Response(
                 {
                     "message":
                         "Signed in with Google successfully.",
-                    "customer":
-                        customer_data(
-                            user,
-                            linked_profile,
-                        ),
+                    "customer": customer_data(
+                        user,
+                        linked_profile,
+                    ),
                     "profile_completion_required":
                         not linked_profile.is_profile_complete,
                 },
@@ -246,7 +353,7 @@ class GoogleLoginView(APIView):
             )
 
         # ---------------------------------
-        # 2. Check matching email account
+        # 2. CHECK MATCHING EMAIL ACCOUNT
         # ---------------------------------
 
         matching_users = User.objects.filter(
@@ -254,7 +361,9 @@ class GoogleLoginView(APIView):
         )
 
         if matching_users.count() > 1:
-            return google_auth_error()
+            return google_auth_error(
+                "multiple_users_with_matching_email"
+            )
 
         existing_user = matching_users.first()
 
@@ -263,24 +372,42 @@ class GoogleLoginView(APIView):
                 profile = (
                     CustomerProfile.objects
                     .select_for_update()
-                    .get(user=existing_user)
+                    .get(
+                        user=existing_user
+                    )
                 )
+
             except CustomerProfile.DoesNotExist:
-                return google_auth_error()
+                return google_auth_error(
+                    "matching_user_missing_profile"
+                )
+
+            # ---------------------------------
+            # GOOGLE ACCOUNT CONFLICT
+            # ---------------------------------
 
             if (
                 profile.google_sub
                 and profile.google_sub != google_sub
             ):
-                return google_auth_error()
+                return google_auth_error(
+                    "google_sub_mismatch"
+                )
 
-            # Existing password account:
-            # customer must already be authenticated
-            # before Google can be linked.
+            # ---------------------------------
+            # EXISTING PASSWORD ACCOUNT
+            # ---------------------------------
+
             if (
                 not request.user.is_authenticated
                 or request.user.pk != existing_user.pk
             ):
+                logger.warning(
+                    "Google account linking requires "
+                    "existing password customer to "
+                    "authenticate first."
+                )
+
                 return Response(
                     {
                         "detail":
@@ -290,6 +417,10 @@ class GoogleLoginView(APIView):
                     },
                     status=status.HTTP_409_CONFLICT,
                 )
+
+            # ---------------------------------
+            # LINK GOOGLE ACCOUNT
+            # ---------------------------------
 
             profile.google_sub = google_sub
 
@@ -306,12 +437,21 @@ class GoogleLoginView(APIView):
 
             user = existing_user
 
+            logger.info(
+                "Google account linked to existing customer."
+            )
+
         # ---------------------------------
-        # 3. Brand-new Google customer
+        # 3. BRAND-NEW GOOGLE CUSTOMER
         # ---------------------------------
 
         else:
             if request.user.is_authenticated:
+                logger.warning(
+                    "Google signup rejected because "
+                    "another customer session is active."
+                )
+
                 return Response(
                     {
                         "detail":
@@ -334,12 +474,22 @@ class GoogleLoginView(APIView):
                 google_sub=google_sub,
             )
 
+            logger.info(
+                "New Google customer created."
+            )
+
         # ---------------------------------
-        # 4. Final login
+        # 4. FINAL ACCOUNT CHECK
         # ---------------------------------
 
         if not user.is_active:
-            return google_auth_error()
+            return google_auth_error(
+                "final_user_inactive"
+            )
+
+        # ---------------------------------
+        # 5. LOGIN CUSTOMER
+        # ---------------------------------
 
         login(
             request,
@@ -347,15 +497,18 @@ class GoogleLoginView(APIView):
             backend="customers.backends.CustomerLoginBackend",
         )
 
+        logger.info(
+            "Google login successful."
+        )
+
         return Response(
             {
                 "message":
                     "Signed in with Google successfully.",
-                "customer":
-                    customer_data(
-                        user,
-                        profile,
-                    ),
+                "customer": customer_data(
+                    user,
+                    profile,
+                ),
                 "profile_completion_required":
                     not profile.is_profile_complete,
             },
@@ -363,11 +516,9 @@ class GoogleLoginView(APIView):
         )
 
 
-
-
-
-
-
+# =========================================================
+# CURRENT CUSTOMER
+# =========================================================
 
 class CurrentCustomerView(APIView):
     permission_classes = [IsAuthenticated]
@@ -381,7 +532,8 @@ class CurrentCustomerView(APIView):
         except CustomerProfile.DoesNotExist:
             return Response(
                 {
-                    "detail": "Customer account not available."
+                    "detail":
+                        "Customer account not available."
                 },
                 status=status.HTTP_403_FORBIDDEN,
             )
@@ -397,6 +549,9 @@ class CurrentCustomerView(APIView):
         )
 
 
+# =========================================================
+# CUSTOMER PROFILE
+# =========================================================
 
 @method_decorator(csrf_protect, name="dispatch")
 class CustomerProfileView(APIView):
@@ -407,10 +562,12 @@ class CustomerProfileView(APIView):
             profile = CustomerProfile.objects.get(
                 user=request.user,
             )
+
         except CustomerProfile.DoesNotExist:
             return Response(
                 {
-                    "detail": "Customer account not available."
+                    "detail":
+                        "Customer account not available."
                 },
                 status=status.HTTP_403_FORBIDDEN,
             )
@@ -432,7 +589,8 @@ class CustomerProfileView(APIView):
 
         return Response(
             {
-                "message": "Profile updated successfully.",
+                "message":
+                    "Profile updated successfully.",
                 "customer": customer_data(
                     request.user,
                     profile,
@@ -442,19 +600,21 @@ class CustomerProfileView(APIView):
         )
 
 
+# =========================================================
+# CUSTOMER LOGOUT
+# =========================================================
 
 @method_decorator(csrf_protect, name="dispatch")
 class CustomerLogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        logout(
-            request,
-        )
+        logout(request)
 
         return Response(
             {
-                "message": "Signed out successfully.",
+                "message":
+                    "Signed out successfully.",
             },
             status=status.HTTP_200_OK,
         )
