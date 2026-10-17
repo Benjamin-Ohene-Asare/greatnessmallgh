@@ -36,6 +36,7 @@ const Footer = () => {
 
             <div>
               <h2>Greatness Mall</h2>
+
               <span>
                 Quality. Value. Convenience.
               </span>
@@ -185,9 +186,15 @@ const Footer = () => {
 
           <p className="footer-credit">
             Designed by{" "}
-            <span>
+
+            <a
+              href="https://benkreationz.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Visit BenKreations website"
+            >
               BenKreations
-            </span>
+            </a>
           </p>
 
         </div>

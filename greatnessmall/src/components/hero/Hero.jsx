@@ -5,61 +5,69 @@ import heroImage from "../../assets/hero.png";
 
 const Hero = () => {
   return (
-    <section
-      className="hero-section"
-style={{
-  backgroundImage: `linear-gradient(
-    90deg,
-    rgba(0, 0, 0, 0.82) 0%,
-    rgba(0, 0, 0, 0.72) 32%,
-    rgba(0, 0, 0, 0.48) 58%,
-    rgba(0, 0, 0, 0.22) 100%
-  ), url(${heroImage})`,
-}}
-    >
-      <div className="hero-container">
+    <section className="hero-section">
 
-        {/* ==============================================
-            HERO CONTENT
-            Static trusted content only.
-            No user-generated HTML is rendered here.
-        =============================================== */}
+      {/* BACKGROUND IMAGE */}
+      <div
+        className="hero-background"
+        style={{
+          backgroundImage: `url(${heroImage})`,
+        }}
+        aria-hidden="true"
+      />
+
+      {/* DARK GRADIENT */}
+      <div
+        className="hero-overlay"
+        aria-hidden="true"
+      />
+
+      {/* DECORATIVE GLOWS */}
+      <div
+        className="hero-glow hero-glow-orange"
+        aria-hidden="true"
+      />
+
+      <div
+        className="hero-glow hero-glow-purple"
+        aria-hidden="true"
+      />
+
+      <div className="hero-container">
         <div className="hero-content">
 
-          {/* <span className="hero-label">
+          <span className="hero-eyebrow">
             GREATNESS MALL
-          </span> */}
+          </span>
 
           <h1 className="hero-title">
-  Wellness Products
-  <br />
-  For Better Living
-</h1>
+            Wellness Products
+            <br />
+            For Better Living
+          </h1>
 
-<p className="hero-description">
-  Discover quality wellness products designed to support
-  everyday health and wellbeing.
-</p>
+          <p className="hero-description">
+            Discover quality wellness products designed to support
+            everyday health and wellbeing.
+          </p>
 
           <div className="hero-actions">
             <NavLink
               to="/products"
               className="hero-primary-button"
             >
-            Explore our Products in English
-
+              Explore our Products in English
             </NavLink>
 
             <NavLink
               to="/twi"
               className="hero-secondary-button"
             >
-             Explore our Products in Twi
+              Explore our Products in Twi
             </NavLink>
           </div>
 
         </div>
-
       </div>
     </section>
   );
