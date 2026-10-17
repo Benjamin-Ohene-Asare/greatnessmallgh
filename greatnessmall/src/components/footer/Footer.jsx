@@ -1,21 +1,19 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import {
-  Phone,
   MessageCircle,
   Mail,
 } from "lucide-react";
 import "./Footer.css";
 
 const Footer = () => {
-  const whatsappNumber = "233578622158";
-
   const whatsappMessage =
     "Hello Greatness Mall, I visited your website and I would like to know more about your products.";
 
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-    whatsappMessage
-  )}`;
+  const getWhatsappUrl = (number) =>
+    `https://wa.me/${number}?text=${encodeURIComponent(
+      whatsappMessage
+    )}`;
 
   const currentYear = new Date().getFullYear();
 
@@ -50,7 +48,6 @@ const Footer = () => {
           </p>
         </div>
 
-
         {/* QUICK LINKS */}
         <div className="footer-column">
           <h3>Quick Links</h3>
@@ -77,7 +74,6 @@ const Footer = () => {
           </nav>
         </div>
 
-
         {/* LEGAL */}
         <div className="footer-column">
           <h3>Legal</h3>
@@ -96,17 +92,44 @@ const Footer = () => {
           </nav>
         </div>
 
-
         {/* CONTACT */}
         <div className="footer-column">
           <h3>Contact</h3>
 
           <div className="footer-contact-list">
+
+            {/* WHATSAPP 1 */}
             <a
-              href="tel:+233578622158"
+              href={getWhatsappUrl(
+                "233537577738"
+              )}
+              target="_blank"
+              rel="noopener noreferrer"
               className="footer-contact-item"
+              aria-label="Chat with Greatness Mall on WhatsApp at +233 53 757 7738"
             >
-              <Phone
+              <MessageCircle
+                size={17}
+                strokeWidth={1.8}
+                aria-hidden="true"
+              />
+
+              <span>
+                +233 53 757 7738
+              </span>
+            </a>
+
+            {/* WHATSAPP 2 */}
+            <a
+              href={getWhatsappUrl(
+                "233578622158"
+              )}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="footer-contact-item"
+              aria-label="Chat with Greatness Mall on WhatsApp at +233 57 862 2158"
+            >
+              <MessageCircle
                 size={17}
                 strokeWidth={1.8}
                 aria-hidden="true"
@@ -117,23 +140,7 @@ const Footer = () => {
               </span>
             </a>
 
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="footer-contact-item"
-            >
-              <MessageCircle
-                size={17}
-                strokeWidth={1.8}
-                aria-hidden="true"
-              />
-
-              <span>
-                WhatsApp
-              </span>
-            </a>
-
+            {/* EMAIL */}
             <a
               href="mailto:info@greatnessmall.com"
               className="footer-contact-item"
@@ -148,14 +155,16 @@ const Footer = () => {
                 info@greatnessmall.com
               </span>
             </a>
+
           </div>
         </div>
-      </div>
 
+      </div>
 
       {/* BOTTOM BAR */}
       <div className="footer-bottom">
         <div className="footer-bottom-container">
+
           <p>
             © {currentYear} Greatness Mall. All rights reserved.
           </p>
@@ -180,8 +189,10 @@ const Footer = () => {
               BenKreations
             </span>
           </p>
+
         </div>
       </div>
+
     </footer>
   );
 };

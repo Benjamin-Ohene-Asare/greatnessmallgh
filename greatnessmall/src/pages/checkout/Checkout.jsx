@@ -20,7 +20,7 @@ import {
 
 import "./Checkout.css";
 
-const WHATSAPP_NUMBER = "233578622158";
+const WHATSAPP_NUMBER = "233537577738";
 
 
 const Checkout = () => {

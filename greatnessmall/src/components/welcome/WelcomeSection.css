@@ -80,6 +80,8 @@
 .welcome-content h2 {
   max-width: 480px;
 
+  margin: 0;
+
   font-size: 42px;
   line-height: 1.08;
   letter-spacing: -1px;
@@ -143,21 +145,31 @@
 }
 
 /* =========================
+   CONTACT BUTTONS
+========================= */
+
+.welcome-contact-buttons {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+
+  margin-top: 24px;
+}
+
+/* =========================
    WHATSAPP BUTTON
 ========================= */
 
 .welcome-whatsapp-button {
-  min-height: 52px;
+  min-height: 68px;
+  min-width: 180px;
 
-  margin-top: 24px;
-
-  padding: 0 22px;
+  padding: 11px 20px;
 
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-
-  align-self: flex-start;
 
   border-radius: 10px;
 
@@ -165,9 +177,6 @@
   color: #ffffff;
 
   text-decoration: none;
-
-  font-size: 13px;
-  font-weight: 700;
 
   transition:
     background 0.2s ease,
@@ -183,13 +192,30 @@
   box-shadow: 0 10px 22px rgba(79, 37, 108, 0.14);
 }
 
-.welcome-phone {
-  margin-top: 12px;
+/* =========================
+   BUTTON TEXT
+========================= */
+
+.welcome-button-title {
+  display: block;
+
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+
+  color: #ffffff;
+}
+
+.welcome-button-number {
+  display: block;
+
+  margin-top: 5px;
 
   font-size: 12px;
   font-weight: 600;
+  line-height: 1.2;
 
-  color: #766e79;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 /* =========================
@@ -215,6 +241,10 @@
     min-height: auto;
 
     padding: 42px;
+  }
+
+  .welcome-contact-buttons {
+    flex-wrap: wrap;
   }
 }
 
@@ -257,11 +287,16 @@
     padding: 17px;
   }
 
-  .welcome-whatsapp-button {
+  .welcome-contact-buttons {
     width: 100%;
+    flex-direction: column;
+    gap: 10px;
+
+    margin-top: 22px;
   }
 
-  .welcome-phone {
-    text-align: center;
+  .welcome-whatsapp-button {
+    width: 100%;
+    min-width: 0;
   }
 }

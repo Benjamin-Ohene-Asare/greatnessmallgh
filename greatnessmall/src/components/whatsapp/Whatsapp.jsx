@@ -9,38 +9,30 @@ import "./Whatsapp.css";
 const Whatsapp = () => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const phoneNumber = "233578622158";
-
   const consultants = [
     {
       id: 1,
       name: "Consultant 1",
-      number: "+233 57 862 2158",
+      number: "+233 53 757 7738",
+      whatsappNumber: "233537577738",
     },
     {
       id: 2,
       name: "Consultant 2",
       number: "+233 57 862 2158",
-    },
-    {
-      id: 3,
-      name: "Consultant 3",
-      number: "+233 57 862 2158",
+      whatsappNumber: "233578622158",
     },
   ];
 
   /* =========================================================
      WHATSAPP LINK
-
-     The message is fixed and safely encoded.
-     Later Django can provide consultant details dynamically.
   ========================================================= */
 
-  const getWhatsappLink = (consultantName) => {
+  const getWhatsappLink = (consultant) => {
     const message =
-      `Hello Greatness Mall, I would like to speak with ${consultantName} about your products.`;
+      `Hello Greatness Mall, I would like to speak with ${consultant.name} about your products.`;
 
-    return `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
+    return `https://wa.me/${consultant.whatsappNumber}?text=${encodeURIComponent(
       message
     )}`;
   };
@@ -85,7 +77,6 @@ const Whatsapp = () => {
 
         </div>
 
-
         {/* BODY */}
 
         <div className="whatsapp-panel-body">
@@ -94,14 +85,13 @@ const Whatsapp = () => {
             We typically reply within a few minutes.
           </p>
 
-
           <div className="whatsapp-consultants">
 
             {consultants.map((consultant) => (
 
               <a
                 key={consultant.id}
-                href={getWhatsappLink(consultant.name)}
+                href={getWhatsappLink(consultant)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="whatsapp-consultant"
@@ -113,7 +103,6 @@ const Whatsapp = () => {
                 <div className="consultant-avatar">
                   G
                 </div>
-
 
                 {/* CONSULTANT INFO */}
 
@@ -128,7 +117,6 @@ const Whatsapp = () => {
                   </span>
 
                 </div>
-
 
                 {/* WHATSAPP ICON */}
 
@@ -151,7 +139,6 @@ const Whatsapp = () => {
         </div>
 
       </div>
-
 
       {/* =====================================================
           FLOATING TRIGGER

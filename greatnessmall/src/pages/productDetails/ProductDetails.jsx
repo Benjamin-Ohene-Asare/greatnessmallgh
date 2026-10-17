@@ -368,7 +368,7 @@ const ProductDetails = () => {
     "";
 
   const whatsappNumber =
-    "233578622158";
+  "233537577738";
 
   const productShareUrl =
     `${backendUrl}/products/share/${product.slug}/`;

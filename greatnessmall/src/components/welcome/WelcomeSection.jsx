@@ -3,14 +3,26 @@ import welcomeImage from "../../assets/WELCOME.png";
 import "./WelcomeSection.css";
 
 const WelcomeSection = () => {
-  const phoneNumber = "233578622158";
+  const contacts = [
+    {
+      id: 1,
+      number: "+233 53 757 7738",
+      whatsappNumber: "233537577738",
+    },
+    {
+      id: 2,
+      number: "+233 57 862 2158",
+      whatsappNumber: "233578622158",
+    },
+  ];
 
   const whatsappMessage =
     "Hello Greatness Mall, I visited your website and I would like to know more about your products.";
 
-  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
-    whatsappMessage
-  )}`;
+  const getWhatsappUrl = (phoneNumber) =>
+    `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
+      whatsappMessage
+    )}`;
 
   return (
     <section className="welcome-section">
@@ -41,19 +53,31 @@ const WelcomeSection = () => {
             Explore our products and reach out anytime for assistance.
           </p>
 
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="welcome-whatsapp-button"
-            aria-label="Contact Greatness Mall on WhatsApp"
-          >
-            Contact Us Now
-          </a>
+          {/* CONTACT BUTTONS */}
+          <div className="welcome-contact-buttons">
 
-          {/* <p className="welcome-phone">
-            +233 57 862 2158
-          </p> */}
+            {contacts.map((contact) => (
+              <a
+                key={contact.id}
+                href={getWhatsappUrl(
+                  contact.whatsappNumber
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="welcome-whatsapp-button"
+                aria-label={`Contact Greatness Mall on WhatsApp at ${contact.number}`}
+              >
+                <span className="welcome-button-title">
+                  Contact Us Now
+                </span>
+
+                <span className="welcome-button-number">
+                  {contact.number}
+                </span>
+              </a>
+            ))}
+
+          </div>
 
         </div>
 

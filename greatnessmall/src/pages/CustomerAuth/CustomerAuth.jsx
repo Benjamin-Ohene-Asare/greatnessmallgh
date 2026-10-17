@@ -238,42 +238,38 @@ navigate(
   };
 
 
-  const handleGoogleSuccess =
-    async (credentialResponse) => {
-      if (
-        googleSubmitting ||
-        !credentialResponse?.credential
-      ) {
-        return;
-      }
+ const handleGoogleSuccess =
+  async (credentialResponse) => {
+    if (
+      googleSubmitting ||
+      !credentialResponse?.credential
+    ) {
+      return;
+    }
 
-      clearMessages();
-      setGoogleSubmitting(true);
+    clearMessages();
+    setGoogleSubmitting(true);
 
-      try {
-        const data =
-          await signInWithGoogle(
-            credentialResponse.credential
-          );
+    try {
+      await signInWithGoogle(
+        credentialResponse.credential
+      );
 
-   await signInWithGoogle(
-  credentialResponse.credential
-);
-
-navigate(
-  redirectTo,
-  {
-    replace: true,
-  }
-);      } catch (requestError) {
-        setError(
-          requestError.message ||
-            "Unable to sign in with Google."
-        );
-      } finally {
-        setGoogleSubmitting(false);
-      }
-    };
+      navigate(
+        redirectTo,
+        {
+          replace: true,
+        }
+      );
+    } catch (requestError) {
+      setError(
+        requestError.message ||
+          "Unable to sign in with Google."
+      );
+    } finally {
+      setGoogleSubmitting(false);
+    }
+  };
 
 
   const handleGoogleError = () => {

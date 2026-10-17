@@ -265,7 +265,7 @@ const ProductCatalog = ({
       ?.replace(/\/$/, "") || "";
 
   const whatsappNumber =
-    "233578622158";
+    "233537577738";
 
 
   const getProductShareUrl = (
