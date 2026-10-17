@@ -309,25 +309,7 @@ class GoogleLoginView(APIView):
                     "linked_user_inactive"
                 )
 
-            if (
-                request.user.is_authenticated
-                and request.user.pk != user.pk
-            ):
-                logger.warning(
-                    "Google login rejected because "
-                    "the active session belongs to "
-                    "another customer."
-                )
-
-                return Response(
-                    {
-                        "detail":
-                            "This Google account belongs "
-                            "to another customer."
-                    },
-                    status=status.HTTP_409_CONFLICT,
-                )
-
+            
             login(
                 request,
                 user,
