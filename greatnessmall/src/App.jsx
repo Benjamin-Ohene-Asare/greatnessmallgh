@@ -49,7 +49,7 @@ import AdminTestimonials from "./pages/dashboard/pages/testimonials/AdminTestimo
 import AdminTwi from "./pages/dashboard/pages/twi/AdminTwi";
 import AdminSettings from "./pages/settings/AdminSettings";
 import Privacy from "./pages/privacy/Privacy";
-
+ import TestimonyPrompt from "./components/testimonyprompt/TestimonyPrompt";
 
 
 import RequireCustomer
@@ -95,6 +95,7 @@ const MainLayout = () => {
       <FloatingAudioPlayer />
 
       <Whatsapp />
+      <TestimonyPrompt/>
     </>
   );
 };
