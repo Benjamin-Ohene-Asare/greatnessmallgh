@@ -73,9 +73,9 @@ const NavBar = () => {
               Greatness Mall
             </h2>
 
-            <span>
+            {/* <span>
               Quality. Value. Convenience.
-            </span>
+            </span> */}
           </div>
         </NavLink>
 
@@ -119,6 +119,13 @@ const NavBar = () => {
             onClick={closeMenu}
           >
             Twi
+          </NavLink>
+          <NavLink
+            to="/testimony"
+            className={getNavLinkClass}
+            onClick={closeMenu}
+          >
+            Testimonials
           </NavLink>
         </nav>
 

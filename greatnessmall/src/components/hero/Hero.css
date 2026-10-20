@@ -355,6 +355,116 @@
     rgba(0, 0, 0, 0.14);
 }
 
+
+/* =========================
+   TESTIMONIAL LINK
+========================= */
+
+.hero-testimony-link {
+  position: absolute;
+
+  left: 50%;
+  bottom: 22px;
+
+  z-index: 3;
+
+  transform: translateX(-50%);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+
+  color: rgba(255, 255, 255, 0.9);
+
+  text-decoration: none;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  letter-spacing: 0.3px;
+
+  opacity: 0;
+
+  animation:
+    heroTestimonyReveal
+    0.8s ease forwards;
+
+  animation-delay: 0.9s;
+
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.hero-testimony-link:hover {
+  color: #f28a2a;
+}
+
+.hero-testimony-arrow {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  border: 1px solid rgba(255, 255, 255, 0.45);
+
+  background: rgba(255, 255, 255, 0.08);
+
+  backdrop-filter: blur(8px);
+
+  animation:
+    heroArrowBounce
+    1.6s ease-in-out infinite;
+}
+
+/* ENTRY */
+
+@keyframes heroTestimonyReveal {
+  from {
+    opacity: 0;
+
+    transform:
+      translate(-50%, 15px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translate(-50%, 0);
+  }
+}
+
+/* ARROW MOVEMENT */
+
+@keyframes heroArrowBounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(6px);
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
 /* =========================
    ENTRANCE ANIMATION
 ========================= */
@@ -445,6 +555,18 @@
         rgba(15, 7, 20, 0.74) 48%,
         rgba(15, 7, 20, 0.88) 100%
       );
+
+  
+  .hero-testimony-link {
+    bottom: 14px;
+
+    font-size: 11px;
+  }
+
+  .hero-testimony-arrow {
+    width: 31px;
+    height: 31px;
+  }
   }
 
   .hero-container {
@@ -565,5 +687,17 @@
   .hero-actions {
     opacity: 1;
     transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-testimony-link,
+  .hero-testimony-arrow {
+    animation: none;
+  }
+
+  .hero-testimony-link {
+    opacity: 1;
+
+    transform: translateX(-50%);
   }
 }

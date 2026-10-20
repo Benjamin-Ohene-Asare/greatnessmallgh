@@ -1,5 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
+import { ChevronDown } from "lucide-react";
+
 import "./Hero.css";
 import heroImage from "../../assets/hero.png";
 
@@ -69,6 +71,24 @@ const Hero = () => {
 
         </div>
       </div>
+
+      {/* TESTIMONIAL LINK */}
+      <NavLink
+        to="/testimony"
+        className="hero-testimony-link"
+        aria-label="See customer testimonials"
+      >
+        <span>See Testimony</span>
+
+        <span className="hero-testimony-arrow">
+          <ChevronDown
+            size={21}
+            strokeWidth={2}
+            aria-hidden="true"
+          />
+        </span>
+      </NavLink>
+
     </section>
   );
 };

@@ -48,8 +48,9 @@ import AdminFAQ from "./pages/dashboard/pages/faq/AdminFAQ";
 import AdminTestimonials from "./pages/dashboard/pages/testimonials/AdminTestimonials";
 import AdminTwi from "./pages/dashboard/pages/twi/AdminTwi";
 import AdminSettings from "./pages/settings/AdminSettings";
-
 import Privacy from "./pages/privacy/Privacy";
+
+
 
 import RequireCustomer
   from "./customerDashboard/components/RequireCustomer";
@@ -78,6 +79,7 @@ import Checkout from "./pages/checkout/Checkout";
 /* Public website layout */
 
 import Terms from "./pages/privacy/Terms";
+import Testimony from "./pages/Testimony/Testimony";
 
 const MainLayout = () => {
   return (
@@ -140,6 +142,10 @@ const App = () => {
             <Route
               path="/faq"
               element={<FAQ />}
+            />
+            <Route
+              path="/testimony"
+              element={<Testimony />}
             />
 
             <Route
